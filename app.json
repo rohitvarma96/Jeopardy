@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Brain Brawl",
+    "slug": "brain-brawl",
+    "scheme": "brainbrawl",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "experiments": {
+      "typedRoutes": true
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      "expo-font"
+    ]
+  }
+}

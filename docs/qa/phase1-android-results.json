@@ -1,0 +1,110 @@
+{
+  "device": "Android 16 API 36.1 emulator, Expo Go 58.0.5",
+  "logicalViewports": [
+    "360x800",
+    "390x844"
+  ],
+  "results": [
+    {
+      "check": "360x800: bottom tabs and Profile -> Settings -> Back",
+      "status": "passed"
+    },
+    {
+      "check": "Android reduced-motion setting disables the loading spinner",
+      "status": "passed"
+    },
+    {
+      "check": "360x800: mode through results, with readable health bars and reachable controls",
+      "status": "passed"
+    },
+    {
+      "check": "Replay then Back returns to Arena without stale results",
+      "status": "passed"
+    },
+    {
+      "check": "Android hardware Back and matchmaking cancellation",
+      "status": "passed"
+    },
+    {
+      "check": "390x844: every journey route, including reward reveal, is reachable",
+      "status": "passed"
+    },
+    {
+      "check": "Reward reveal returns to Vault; Arena remains reachable",
+      "status": "passed"
+    },
+    {
+      "check": "Home -> Android Recents -> resume preserves the current matchmaking route",
+      "status": "passed"
+    },
+    {
+      "check": "Live Android reduced-motion changes start and stop the loading indicator",
+      "status": "passed"
+    },
+    {
+      "check": "Cold Expo Go launch without device internet works via the local Metro/ADB development connection",
+      "status": "passed"
+    },
+    {
+      "check": "Screenshot dimensions confirm both required logical viewports at 480 DPI",
+      "status": "passed"
+    }
+  ],
+  "screenshotDimensions": {
+    "phase1-arena-360x800.png": {
+      "physicalPixels": [
+        1080,
+        2400
+      ],
+      "densityDpi": 480,
+      "logicalPixels": [
+        360,
+        800
+      ]
+    },
+    "phase1-arena-390x844.png": {
+      "physicalPixels": [
+        1170,
+        2532
+      ],
+      "densityDpi": 480,
+      "logicalPixels": [
+        390,
+        844
+      ]
+    },
+    "phase1-battle-360x800.png": {
+      "physicalPixels": [
+        1080,
+        2400
+      ],
+      "densityDpi": 480,
+      "logicalPixels": [
+        360,
+        800
+      ]
+    },
+    "phase1-battle-390x844.png": {
+      "physicalPixels": [
+        1170,
+        2532
+      ],
+      "densityDpi": 480,
+      "logicalPixels": [
+        390,
+        844
+      ]
+    },
+    "phase1-vault-390x844.png": {
+      "physicalPixels": [
+        1170,
+        2532
+      ],
+      "densityDpi": 480,
+      "logicalPixels": [
+        390,
+        844
+      ]
+    }
+  }
+}
