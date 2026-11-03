@@ -7,9 +7,9 @@ export const DEFAULT_FIGHTER_ID: FighterId = 'arcane';
 export const FIGHTERS = [
   {
     id: 'arcane',
-    name: 'Arcane',
-    role: 'Knowledge mage',
-    identity: 'Scholarly, intelligent and arcane.',
+    name: 'Astral Sage',
+    role: 'Celestial spellweaver',
+    identity: 'A crescent-crowned scholar wielding a living star.',
     icon: 'book-outline',
     passive: {
       name: 'Arcane Insight',
@@ -20,9 +20,9 @@ export const FIGHTERS = [
   },
   {
     id: 'shadow',
-    name: 'Shadow',
-    role: 'Speed specialist',
-    identity: 'Agile, precise and elusive.',
+    name: 'Nightblade',
+    role: 'Eclipse assassin',
+    identity: 'A masked duelist with twin crescent blades and a crimson scarf.',
     icon: 'flash-outline',
     passive: {
       name: 'Swift Strike',
@@ -34,9 +34,9 @@ export const FIGHTERS = [
   },
   {
     id: 'sylva',
-    name: 'Sylva',
-    role: 'Tactical ranger',
-    identity: 'Observant, strategic and nature-aligned.',
+    name: 'Thorn Ranger',
+    role: 'Wildwood archer',
+    identity: 'An antler-hooded guardian carrying a living thornbow.',
     icon: 'leaf-outline',
     passive: {
       name: 'Keen Eye',
@@ -47,12 +47,38 @@ export const FIGHTERS = [
   },
   {
     id: 'titan',
-    name: 'Titan',
-    role: 'Defensive knight',
-    identity: 'Resilient, protective and powerful.',
+    name: 'Iron Bastion',
+    role: 'Dawnforged juggernaut',
+    identity: 'An imposing ivory sentinel with a tower shield and warhammer.',
     icon: 'shield-half-outline',
     passive: {
       name: 'Bulwark',
+      description: 'Once per match: the first attack that hits you deals 3 less damage.',
+      trigger: 'first-incoming-hit',
+      amount: 3,
+    },
+  },
+  {
+    id: 'ember',
+    name: 'Ember Sentinel',
+    role: 'Solar greatsword knight',
+    identity: 'Bronze plate, a flame-shaped crest and a sweeping crimson cape.',
+    icon: 'flame-outline',
+    passive: {
+      name: 'Solar Resolve',
+      description: 'Once per match: your first correct answer deals +3 damage.',
+      trigger: 'first-correct-answer',
+      amount: 3,
+    },
+  },
+  {
+    id: 'frost',
+    name: 'Frost Warden',
+    role: 'Glacial axe guardian',
+    identity: 'Swept ivory horns, silver armour and a glacial-blue mantle.',
+    icon: 'snow-outline',
+    passive: {
+      name: 'Glacial Guard',
       description: 'Once per match: the first attack that hits you deals 3 less damage.',
       trigger: 'first-incoming-hit',
       amount: 3,

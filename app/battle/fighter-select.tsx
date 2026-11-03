@@ -2,7 +2,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { fighterArt } from '../../src/assets/registry';
 import { FighterArt } from '../../src/components/fighters/FighterArt';
 import { MatchSetupScreen } from '../../src/components/navigation/MatchSetupScreen';
 import { PlayerDataNotice } from '../../src/components/player/PlayerDataNotice';
@@ -56,7 +55,6 @@ export default function FighterSelect() {
                   <AppText variant="label" tone="accent">{fighter.role}</AppText>
                   <AppText variant="caption" tone="secondary">{fighter.identity}</AppText>
                   <Badge label={`Rarity: ${getCollectible(`fighter:${fighter.id}`).rarity}`} />
-                  {fighterArt[fighter.id] ? null : <Badge label="Placeholder art" />}
                 </View>
               </View>
               <AppText variant="label">Passive: {fighter.passive.name}</AppText>

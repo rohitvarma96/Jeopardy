@@ -35,7 +35,7 @@ numbers live in `src/game/battle/rules.ts`; reward numbers in `src/game/rewards.
 
 ## Selections and persistence
 
-- Defaults: Arcane; boosters 50:50, Extra Time, Mind Shield.
+- Defaults: Astral Sage (stable ID `arcane`); boosters 50:50, Extra Time, Mind Shield.
 - Phase 6 uses `brain-brawl/player-data`, version 2, for equipment, profile,
   inventory, completed reward records and the match-ID counter in one
   serialized write. State is published only after storage succeeds.
@@ -65,10 +65,16 @@ combat for both sides (user decision, Phase 4; `BATTLE_RULES.passivesEnabled`).
 
 | Fighter | Passive | Effect |
 |---|---|---|
-| Arcane | Arcane Insight | First correct answer deals +3 damage |
-| Shadow | Swift Strike | First correct answer in the first half of the timer deals +3 damage |
-| Sylva | Keen Eye | First correct answer deals +3 damage |
-| Titan | Bulwark | First hit taken deals 3 less damage |
+| Astral Sage (`arcane`) | Arcane Insight | First correct answer deals +3 damage |
+| Nightblade (`shadow`) | Swift Strike | First correct answer in the first half of the timer deals +3 damage |
+| Thorn Ranger (`sylva`) | Keen Eye | First correct answer deals +3 damage |
+| Iron Bastion (`titan`) | Bulwark | First hit taken deals 3 less damage |
+| Ember Sentinel (`ember`) | Solar Resolve | First correct answer deals +3 damage |
+| Frost Warden (`frost`) | Glacial Guard | First hit taken deals 3 less damage |
+
+The combat visual replacement retains the original four IDs, ownership and
+passive behavior; Ember/Frost reuse existing passive triggers and amounts.
+Action timing, weapons, specials and Skia effects are presentation only.
 
 Phase 6 uses fixed collection rarity only; it does not alter fighter combat power.
 
@@ -195,9 +201,9 @@ Deterministic prototype catalogue:
 
 | Rarity | Collectibles |
 |---|---|
-| Common | Arcane, 50:50, Extra Time |
-| Rare | Shadow, Sylva, Second Chance, Mind Shield |
-| Epic | Titan, Double Damage, Streak Saver |
+| Common | Astral Sage, 50:50, Extra Time |
+| Rare | Nightblade, Thorn Ranger, Ember Sentinel, Second Chance, Mind Shield |
+| Epic | Iron Bastion, Frost Warden, Double Damage, Streak Saver |
 
 The capsule uses the existing PRNG/hash with `(capsule-v1, seed, matchId)`.
 Demo rarity weights are 70% common, 25% rare, 5% epic, then a uniform item

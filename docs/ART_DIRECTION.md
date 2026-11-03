@@ -1,76 +1,89 @@
-# MVP match art direction
-
-Phase 2 is restricted by the current MVP brief to **three custom images**:
-Arcane, Shadow and Mystic Arena. This overrides the full future-product
-inventory in AST-03 through AST-09. No gameplay or backend is included.
+# Combat art direction
 
 ## Visual language
 
-- Painterly 2D fantasy arcade; midnight/navy/violet with controlled gold.
-- Arcane: silver-haired scholarly mage, layered robes, staff, floating book.
-- Shadow: agile dark-haired duelist, fitted dark-violet armor and twin blades.
-- Shared full-body 2:3 proportions, front three-quarter perspective, warm key
-  and violet rim lighting. Both feet and equipment remain visible.
-- Arena: empty violet stone platform, central arch, distant columns and mist;
-  no baked-in characters, text or UI.
-- Fighter layers use `contain`; the arena uses centered `cover`. Shadow is
-  mirrored in the battle composition to face Arcane. This also mirrors her
-  directional highlights; review that artistic compromise before approval.
-- Health and question content use opaque theme-colored panels, not text over
-  busy artwork. The stage scales with available portrait width; the screen
-  scrolls and respects safe areas.
+An illustrated fantasy duel: inked contours, bevelled plate, layered fabric,
+elemental rim light and restrained gold against the retained midnight-violet
+Mystic Arena. Readable full-body silhouettes take priority over particle density.
+Equipment and faces remain character-specific, including in compact layouts.
 
-## Scope and lightweight assets
+| Warrior | Silhouette / palette | Weapon | Special |
+|---|---|---|---|
+| Astral Sage | Tall crescent hood, flowing violet robes, antique gold | Living-star staff | Astral Convergence |
+| Nightblade | Narrow masked profile, short crimson scarf, charcoal armour | Twin crescent blades | Eclipse Requiem |
+| Thorn Ranger | Branching antlers, leaf mantle, green/brown leathers | Thornbow | Verdant Tempest |
+| Iron Bastion | Broad ivory plate, tall crest, blue tabard | Warhammer and tower shield | Dawnfall Judgment |
+| Ember Sentinel | Bronze plate, flame crest, sweeping crimson cape | Solar greatsword | Solar Cataclysm |
+| Frost Warden | Swept ivory horns, silver plate, teal mantle | Glacial axe | Winterbreak Ascension |
 
-Keep the existing Ionicons outline family for booster controls (50:50,
-Extra Time and Mind Shield in this preview). Labels and 48-point minimum
-targets accompany icons. Categories are text badges. Panels use design tokens.
-No emoji or stock imagery substitutes are used.
+These are the same designs in the lobby, hero picker, mode card, matchmaking,
+fighter selection, live battle, results and reward details. No missing-art
+placeholders or old raster fighters are used.
 
-Phase 5 uses Reanimated transforms on these static illustrations for entrance,
-breathing, attack, hit and outcome poses. Attack trails, impact rings/slashes,
-damage labels and the gold victory burst are code-driven views, not image
-assets. Effects are confined to the arena, never over question/answer controls.
-Reduced motion keeps static damage/answer/booster/combo labels and outcome
-poses; blur, backgrounding and unmount cancel animation work. Gameplay remains
-independent of all cosmetic timing.
+## Reference adaptation
 
-Phase 6 represents the capsule with a labeled generic cube glyph, and
-collectible rarity with text plus common/rare/epic token borders. Vault and
-reward details reuse the existing full-body art and booster glyphs.
-Sylva/Titan remain clearly labeled artwork placeholders. No reward, currency,
-rarity, portrait or additional fighter artwork was produced.
+BB / 2D-Animation-Lab was inspected before implementation: its original Ember
+and Frost contours, 19-bone hierarchy, three weighted cape bones, state-machine
+transitions, contact frames and special variants inform this renderer.
 
-## Formats and production
+`scripts/import_combat_reference.py` reproducibly imports the original vector
+geometry and skeletal keys from that local repository into
+`src/components/fighters/combat/reference.json`. Source hashes are recorded
+there. The importer does not use captures or rasterize animation frames.
 
-The two generated sources are 1024 x 1536 with real alpha. Runtime copies are
-512 x 768 RGBA PNG. No portraits or derived portrait files were necessary.
-The arena source is 1672 x 941 (below the future 1920 x 1080 master target);
-the MVP runtime is a centered 1280 x 720 RGB JPEG. No fake upscaling was used.
-JPEG is deliberate for an opaque background; PNG preserves fighter alpha.
-Both formats use React Native's standard iOS/Android image pipeline, avoiding
-unverified WebP/vector-image format differences.
+Skia replaces the reference's Rive-specific rendering layer, avoiding an
+additional native runtime. The shared animation channels remain reusable.
+New silhouettes, weapons and palettes extend the two original designs;
+independent per-side command timelines allow all character/action pairings.
 
-Original generated PNGs remain outside the app bundle in the session image
-directory, listed in the manifest. Runtime files are committed-ready local
-assets; the app never loads remote URLs or external source paths.
+## Motion and VFX
 
-Rebuild with Python and Pillow:
+- Idle: quiet chest breathing, weighted cape sway and restrained ambient motes.
+- Attack: anticipation, weapon strike at the authored contact frame, recovery.
+- Block: a closing guard, timed shield glyph and small contact recoil.
+- Knockback: lifted backward arc, articulated limbs, cushioned landing.
+- Fall Down: stagger, complete collapse, settling dust, held downed pose.
+- Special Attack: charge, beam or aerial-roll variant, elemental impact,
+  controlled glow and recovery. No added damage or gameplay mechanic.
 
-```powershell
-python scripts\prepare_assets.py --arcane "<source.png>" --shadow "<source.png>" --arena "<source.png>"
-```
+Reanimated runs a shared exchange clock on the UI thread. Skia transforms the
+bones and deforms each weighted cape vertex from its bind pose. Non-idle
+transitions blend for 70 ms. Weapon trails, particles, impact rings, energy
+bursts and limited arena shake align with the same authored contact timestamp.
+Glacial crystals, leaf bursts and eclipse/astral/solar accents use each
+warrior's palette. No animation depends on an opponent-specific asset.
 
-The optimizer validates fighter aspect ratio/alpha and uses Lanczos resizing,
-lossless optimized PNG and quality-88 optimized JPEG. Its output dimensions
-match the typed static registry. Do not generate any other artwork.
+Presentation consumes only published battle resolutions. Void attacks have no
+effects; blocked and zero-damage hits do not invent knockback. Cosmetics fit
+inside the existing 2.2-second reveal window, never gate answers or progression,
+ignore touch input and remain clipped to the arena.
+
+The Skia stage is retained across preview replays and ignores timer-only React
+renders; shared clocks, not repeated scene reconstruction, drive motion.
+Outcome feedback uses small top-corner pills so a downed character stays visible
+even in the compact arena.
+
+Reduced motion shows static informative poses and numeric feedback, without
+particles, travelling trails, loops or shake. Blur, background and unmount
+cancel animation work. The app cannot override the system motion preference.
 
 ## Review
 
-Inspect the [composition proof](qa/phase2-asset-preview.jpg) and open
-`/battle/arena` via Play preview. `View source assets` shows each source
-independently against a contrasting panel.
+In development, open `/battle/animation-preview` (Combat atelier), or use
+Animation preview on Results. Both sides independently select six warriors
+and six actions while the stage remains visible above the scrolling controls.
+Replay exchanges, test shield contact and held falls, switch to live battle
+fixtures, and inspect reduced motion. The header explicitly identifies motion
+versus still presentation. This route cannot mutate the match store.
 
-Approval is pending. Static alpha/size inspection and composition review do
-not replace native rendering checks. iOS and Android device checks were
-intentionally not run in this phase at the user's request to minimize testing.
+The original phase screenshots document the old renderer. Native iOS,
+physical-device appearance and comparative frame-rate measurements require
+separate acceptance; Jest and JavaScript exports are not native evidence.
+
+Current evidence: 164 focused Android/iOS preset tests, application/focused-test
+TypeScript, repository lint and both production Hermes exports pass. Android
+Expo Go emulator checks covered six designs, articulated strikes/guards, live
+Skia effects, held falls, the unchanged setup journey, automatic battle
+progression and knockout/result rendering at 390x844 and 360x640. This was not
+a physical-device, native iOS or frame-rate acceptance test. The full-repository
+typecheck remains blocked by unrelated, pre-existing round/clash test APIs.

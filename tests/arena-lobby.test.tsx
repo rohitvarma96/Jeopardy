@@ -32,7 +32,7 @@ test('Arena shows saved identity, balances, fighter and loadout without Missions
   expect(screen.getByText('Demo rank: Bronze II')).toBeTruthy();
   expect(screen.getByRole('progressbar', { name: 'XP to level 4' }).props.accessibilityValue)
     .toMatchObject({ now: 240, max: 400 });
-  expect(screen.getByLabelText('Arcane artwork')).toBeTruthy();
+  expect(screen.getByLabelText('Astral Sage artwork')).toBeTruthy();
   expect(screen.getByText('Arcane Insight')).toBeTruthy();
   for (const name of ['50:50', 'Extra Time', 'Mind Shield']) {
     expect(screen.getByText(name)).toBeTruthy();
@@ -56,21 +56,21 @@ test('Arena equips an owned hero and restores that choice after a restart', asyn
   usePlayerStore.setState((state) => ({ collectionIds: [...state.collectionIds, 'fighter:shadow'] }));
   const app = await render(<Arena />);
   await fireEvent.press(screen.getByRole('button', { name: 'Change hero' }));
-  expect(screen.getByRole('radio', { name: 'Arcane', checked: true })).toBeTruthy();
-  expect(screen.getByRole('radio', { name: 'Titan', disabled: true })).toBeTruthy();
-  await fireEvent.press(screen.getByRole('radio', { name: 'Titan' }));
-  expect(screen.getByRole('radio', { name: 'Arcane', checked: true })).toBeTruthy();
-  await fireEvent.press(screen.getByRole('radio', { name: 'Shadow', disabled: false }));
-  await fireEvent.press(screen.getByRole('button', { name: 'Equip Shadow' }));
+  expect(screen.getByRole('radio', { name: 'Astral Sage', checked: true })).toBeTruthy();
+  expect(screen.getByRole('radio', { name: 'Iron Bastion', disabled: true })).toBeTruthy();
+  await fireEvent.press(screen.getByRole('radio', { name: 'Iron Bastion' }));
+  expect(screen.getByRole('radio', { name: 'Astral Sage', checked: true })).toBeTruthy();
+  await fireEvent.press(screen.getByRole('radio', { name: 'Nightblade', disabled: false }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Equip Nightblade' }));
   expect(screen.queryByTestId('hero-picker')).toBeNull();
-  expect(screen.getByLabelText('Shadow artwork')).toBeTruthy();
+  expect(screen.getByLabelText('Nightblade artwork')).toBeTruthy();
   expect(screen.getByText('Swift Strike')).toBeTruthy();
   await app.unmount();
   usePlayerStore.setState(usePlayerStore.getInitialState(), true);
   await usePlayerStore.getState().hydrate();
   expect(usePlayerStore.getState().fighterId).toBe('shadow');
   await render(<Arena />);
-  expect(screen.getByLabelText('Shadow artwork')).toBeTruthy();
+  expect(screen.getByLabelText('Nightblade artwork')).toBeTruthy();
 });
 
 test('closing the hero picker discards an unconfirmed selection', async () => {
@@ -78,12 +78,12 @@ test('closing the hero picker discards an unconfirmed selection', async () => {
   usePlayerStore.setState((state) => ({ collectionIds: [...state.collectionIds, 'fighter:shadow'] }));
   await render(<Arena />);
   await fireEvent.press(screen.getByRole('button', { name: 'Change hero' }));
-  await fireEvent.press(screen.getByRole('radio', { name: 'Shadow' }));
+  await fireEvent.press(screen.getByRole('radio', { name: 'Nightblade' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Close hero picker' }));
   expect(usePlayerStore.getState().fighterId).toBe('arcane');
   expect(screen.queryByTestId('hero-picker')).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Change hero' }));
-  expect(screen.getByRole('radio', { name: 'Arcane', checked: true })).toBeTruthy();
+  expect(screen.getByRole('radio', { name: 'Astral Sage', checked: true })).toBeTruthy();
 });
 
 test('failed hero saves stay visible in the picker and can be retried', async () => {
@@ -91,13 +91,13 @@ test('failed hero saves stay visible in the picker and can be retried', async ()
   usePlayerStore.setState((state) => ({ collectionIds: [...state.collectionIds, 'fighter:shadow'] }));
   await render(<Arena />);
   await fireEvent.press(screen.getByRole('button', { name: 'Change hero' }));
-  await fireEvent.press(screen.getByRole('radio', { name: 'Shadow' }));
+  await fireEvent.press(screen.getByRole('radio', { name: 'Nightblade' }));
   jest.spyOn(console, 'warn').mockImplementation(() => {});
   jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('Disk full'));
-  await fireEvent.press(screen.getByRole('button', { name: 'Equip Shadow' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Equip Nightblade' }));
   expect(within(screen.getByTestId('hero-picker')).getByRole('alert').props.children).toContain('not saved');
   expect(usePlayerStore.getState().fighterId).toBe('arcane');
-  await fireEvent.press(screen.getByRole('button', { name: 'Equip Shadow' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Equip Nightblade' }));
   expect(screen.queryByTestId('hero-picker')).toBeNull();
   expect(usePlayerStore.getState().fighterId).toBe('shadow');
 });
@@ -107,15 +107,15 @@ test('a pending hero save cannot close a newly reopened picker', async () => {
   usePlayerStore.setState((state) => ({ collectionIds: [...state.collectionIds, 'fighter:shadow'] }));
   await render(<Arena />);
   await fireEvent.press(screen.getByRole('button', { name: 'Change hero' }));
-  await fireEvent.press(screen.getByRole('radio', { name: 'Shadow' }));
+  await fireEvent.press(screen.getByRole('radio', { name: 'Nightblade' }));
   let complete!: () => void;
   jest.spyOn(AsyncStorage, 'setItem').mockImplementationOnce(() => new Promise<void>((resolve) => { complete = resolve; }));
-  const { handler: onPress } = findEventHandler(screen.getByRole('button', { name: 'Equip Shadow' }), 'press', { bubbles: true });
+  const { handler: onPress } = findEventHandler(screen.getByRole('button', { name: 'Equip Nightblade' }), 'press', { bubbles: true });
   if (!onPress) throw new Error('Expected the equip handler.');
   let saving!: Promise<void>;
   await act(() => { saving = Promise.resolve(onPress()).then(() => undefined); });
   try {
-    expect(screen.getByRole('radio', { name: 'Arcane', disabled: true })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: 'Astral Sage', disabled: true })).toBeTruthy();
     await fireEvent.press(screen.getByRole('button', { name: 'Close hero picker' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Change hero' }));
   } finally {
@@ -125,15 +125,16 @@ test('a pending hero save cannot close a newly reopened picker', async () => {
   expect(usePlayerStore.getState().fighterId).toBe('shadow');
 });
 
-test('the showcase uses the equipped fighter, including labeled missing artwork', async () => {
+test('the showcase renders the equipped fighter without missing-art placeholders', async () => {
   await usePlayerStore.getState().hydrate();
   usePlayerStore.setState((state) => ({ collectionIds: [...state.collectionIds, 'fighter:titan'] }));
   await usePlayerStore.getState().saveFighter('titan');
   await render(<Arena />);
-  expect(screen.getByText('Titan')).toBeTruthy();
+  expect(screen.getByText('Iron Bastion')).toBeTruthy();
   expect(screen.getByText('Bulwark')).toBeTruthy();
-  expect(screen.getByRole('image', { name: 'Titan artwork placeholder. Final artwork pending.' })).toBeTruthy();
-  expect(screen.queryByLabelText('Arcane artwork')).toBeNull();
+  expect(screen.getByRole('image', { name: 'Iron Bastion artwork' })).toBeTruthy();
+  expect(screen.queryByText(/art pending/)).toBeNull();
+  expect(screen.queryByLabelText('Astral Sage artwork')).toBeNull();
 });
 
 test.each(['idle', 'loading', 'error'] as const)('%s player data hides stale details and disables Play', async (status) => {
@@ -144,7 +145,7 @@ test.each(['idle', 'loading', 'error'] as const)('%s player data hides stale det
   expect(mockPush).not.toHaveBeenCalled();
   expect(screen.queryByText('Rookie Brawler')).toBeNull();
   expect(screen.queryByText('Your loadout')).toBeNull();
-  expect(screen.queryByLabelText('Arcane artwork')).toBeNull();
+  expect(screen.queryByLabelText('Astral Sage artwork')).toBeNull();
 });
 
 test('loading errors stay visible and can be retried before playing', async () => {

@@ -15,7 +15,7 @@ import { useBattleStore } from '../src/features/battle/store';
 import { leaveBattle } from '../src/features/battle/session';
 import type { MatchSetup } from '../src/game/types/match';
 import { resolveMockMatch } from '../src/services/mock-matchmaking';
-import { manualBattle, ok, play, withHp } from './battle/helpers';
+import { manualBattle, ok, play, withHp } from './battle/continuous-fixtures';
 
 jest.mock('expo-router', () => {
   const { useEffect } = jest.requireActual<typeof import('react')>('react');
@@ -114,8 +114,8 @@ test('new heroes can be equipped on Arena, persist, and a later duplicate adds s
   expect(usePlayerStore.getState().profile.shards).toBe(40);
   const arena = await render(<Arena />);
   await fireEvent.press(screen.getByRole('button', { name: 'Change hero' }));
-  await fireEvent.press(screen.getByRole('radio', { name: 'Shadow', disabled: false }));
-  await fireEvent.press(screen.getByRole('button', { name: 'Equip Shadow' }));
+  await fireEvent.press(screen.getByRole('radio', { name: 'Nightblade', disabled: false }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Equip Nightblade' }));
   expect(usePlayerStore.getState().fighterId).toBe('shadow');
   await arena.unmount();
   usePlayerStore.setState(usePlayerStore.getInitialState(), true);
@@ -173,8 +173,7 @@ test('an unsaved finished match remains retryable after leaving and gates the ne
   await usePlayerStore.getState().claimMatch(battle);
   const nextSetup: MatchSetup = {
     ...resolveMockMatch({ modeId: 'offline-duel', seed: 2 }),
-    rounds: battle.setup.rounds.map((categoryId) => ({ categoryId, source: 'system' as const })),
-    suddenDeathCategoryId: battle.setup.suddenDeathCategoryId,
+    categories: battle.setup.categoryIds.map((categoryId) => ({ categoryId, source: 'system' as const })),
     fighterId: 'arcane', boosterIds: DEFAULT_LOADOUT,
   };
   expect(() => useBattleStore.getState().start(nextSetup)).toThrow('Save the finished match');

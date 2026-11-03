@@ -1,10 +1,11 @@
 # Brain Brawl
 
-Phase 7 completes local Profile identity/settings and focused application polish
-on Expo SDK 58. Only existing MVP artwork and generic interface icons are used.
-The Phase 4 engine remains authoritative, with Phase 5 combat motion and Phase 6
-progression; no backend is included. Native iOS and physical-device release
-acceptance remain open; see the [current platform audit](docs/PLATFORM_VERIFICATION.md).
+An offline trivia duel on Expo SDK 58, now with six articulated fantasy warriors
+and React Native Skia combat effects. The existing battle engine, progression,
+timers and navigation remain authoritative; animations never calculate damage.
+No backend is included. Native iOS and physical-device release acceptance remain
+open; historical results in the [platform audit](docs/PLATFORM_VERIFICATION.md)
+do not establish verification of the new renderer.
 
 ## Requirements
 
@@ -107,25 +108,24 @@ equipment, progression, inventory and completed matches persist locally;
 live battle state is transient.
 
 The four Brain Brawl documents in this directory govern future phases.
-Additional artwork, purchases, cloud sync and backend work remain deferred.
+Purchases, cloud sync and backend work remain deferred.
 
 See [the Phase 1 handoff](docs/PHASE_1_HANDOFF.md) for the exact validation
 results, file inventory, Android screenshots and remaining limitations.
 
-## Phase 2 assets
+## Assets
 
-The live Battle arena (`/battle/arena`) reuses the three-image MVP composition
-with labeled booster controls. The former cosmetic hit demo and gallery
-were replaced by the playable battle in Phase 4.
+The Mystic Arena background is retained. The old raster fighters and missing-art
+placeholders are replaced throughout Arena, mode selection, matchmaking, fighter
+selection, battles, results and rewards by the same layered vector character rigs.
 
 See the [Phase 2 handoff](docs/PHASE_2_HANDOFF.md),
 [art direction](docs/ART_DIRECTION.md), [asset manifest](docs/ASSET_MANIFEST.md)
 and [composition proof](docs/qa/phase2-asset-preview.jpg).
-The original Phase 2 validation was static. The current platform audit adds
-standalone Android rendering smoke checks; native iOS rendering remains
-unverified. No portrait files or additional artwork were generated.
+The Phase 2 composition proof and historical native captures show the previous
+artwork, not the current combat renderer.
 
-## Combat animation (Phase 5)
+## Skia combat
 
 The battle UX now uses a fixed, safe-area-aware duel HUD, separate arena,
 integrated question/timer/answers and persistent three-power ability dock.
@@ -139,8 +139,21 @@ Continue button; the existing 2.2-second progression remains unchanged.
 See the [battle UX handoff](docs/BATTLE_UX_HANDOFF.md) for screenshots,
 responsive behavior, focused test results and native iOS validation gaps.
 
-- Reanimated drives fighter entrance/breathing, lunges, hit shakes, HP
-  transitions, damage numbers, traveling attack trails and impact rings.
+- Six visual identities: Astral Sage (star staff), Nightblade (twin crescents),
+  Thorn Ranger (thornbow), Iron Bastion (warhammer/tower shield), Ember Sentinel
+  (greatsword) and Frost Warden (glacial axe). The first four retain the original
+  internal IDs, ownership and passive behavior for saved-game compatibility.
+  Ember and Frost use the existing first-correct and first-incoming-hit passives;
+  they unlock through the same collection system. Rarity weights are unchanged.
+- Each warrior independently supports Idle, Attack, Block, Knockback, Fall Down
+  and Special Attack. The shared 19-bone rig, layered armour and weighted cape
+  are adapted from the local BB / 2D-Animation-Lab reference. No pairing-specific
+  animation files, sprite sheets, native Rive runtime or remote asset loads.
+- Skia draws the characters, weighted capes, attack trails, elemental impacts,
+  particles, charge orbs, energy beams, glow and arena lighting. Reanimated
+  supplies UI-thread skeletal and effect clocks, bounded screen shake, damage
+  numbers and HP transitions. Authored contact frames synchronize reactions.
+  Non-idle clips recover to guard; Fall Down holds until explicitly replaced.
 - Answer selection/correctness, combos, boosters, shared-question transitions,
   finishing moves and victory/defeat have visual feedback.
 - Effects stay inside the arena and ignore touch input. Answers, Continue,
@@ -148,20 +161,47 @@ responsive behavior, focused test results and native iOS validation gaps.
 - Motion cancels on blur/background/unmount. Reduced motion keeps static
   labels, numeric HP, answer icons and outcome poses without looping effects.
 - In development, open `/battle/animation-preview` directly or use
-  `Animation preview` on Results. Select fixtures or replay them; the preview
-  cannot dispatch match actions. Its reduced-motion toggle cannot override
-  the operating system's reduced-motion preference.
+  `Animation preview` on Results. The Combat atelier allows either side to
+  select any of the six characters and six actions independently, replay the
+  pairing, or inspect battle fixtures. It cannot dispatch match actions.
+  Its reduced-motion toggle cannot override system reduction.
 
 Focused checks (not a full regression or end-to-end suite):
 
 ```sh
 npm run typecheck
 npm run lint
-npx jest --runInBand tests/battle/animation-smoke.test.tsx tests/components.test.tsx
+npx jest --runInBand tests/battle/combat-actions.test.ts tests/battle/combat-preview.test.tsx tests/battle/animation-smoke.test.tsx tests/arena-lobby.test.tsx tests/rewards.test.tsx tests/reduced-motion.test.tsx
 ```
 
-See [the Phase 5 handoff](docs/PHASE_5_HANDOFF.md) for the exact results,
-changed files and native-device/Phase 8 validation gaps.
+The [Phase 5 handoff](docs/PHASE_5_HANDOFF.md) records the superseded renderer.
+The current dependency set uses the available SDK 58 compatibility map (Expo
+58.0.19 / RN 0.88.0 / Router 58.0.26); unavailable patches in the former lockfile
+were replaced with published compatible packages. Skia 2.14.0 is the only new
+direct runtime dependency.
+
+Verification for the replacement:
+
+- Application source and focused combat/integration tests typecheck; repository
+  lint passes. The full `npm run typecheck` still reports pre-existing legacy
+  round/clash test APIs (`stage`, `rounds`, retries and bonus/cap fields). Those
+  unrelated tests and the gameplay engine were not rewritten or suppressed.
+- The six focused suites pass under both Android and iOS Jest presets:
+  **12 suites / 164 tests**, including all 36 character pairings and all
+  independent action combinations, held falls, contact timing, reduced motion,
+  timer/progression isolation, saved ownership and rewards.
+- Production Android and iOS Hermes exports pass; the retired fighter PNGs
+  are absent from the bundled asset inventory.
+- Android 16 / Expo Go 58.0.5 emulator smoke checks exercised all six designs,
+  articulated attacks/guards, Skia trails/impacts, held knockouts, the complete
+  Arena-to-live-battle setup, automatic question progression, AI damage and
+  knockout-to-result navigation. Preview/live battle used 390x844; compact
+  knockout and result rendering used 360x640 logical pixels.
+- The installed SDK's local dependency map passes compatibility validation.
+  Online Expo recommendations still request the newer, unavailable patches;
+  this is not a claim that the online compatibility check passes.
+- Native iOS, physical devices, comparative frame-rate measurements and a
+  newly compiled standalone native binary remain unverified.
 
 ## Progression and collection (Phase 6)
 

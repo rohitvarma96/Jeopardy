@@ -1,9 +1,15 @@
 import { beforeEach, jest } from '@jest/globals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import '@shopify/react-native-skia/jestSetup';
 
 import { useBattleStore } from '../src/features/battle/store';
 import { useMatchSetupStore } from '../src/features/match-setup/store';
 import { usePlayerStore } from '../src/store/player-store';
+
+// Keep the upstream Skia mock on the CommonJS build used by this Jest preset.
+jest.mock('@shopify/react-native-skia/lib/module/mock', () =>
+  jest.requireActual('@shopify/react-native-skia/lib/commonjs/mock'),
+);
 
 jest.mock('react-native-worklets', () =>
   jest.requireActual('react-native-worklets/src/mock'),

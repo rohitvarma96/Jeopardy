@@ -48,10 +48,10 @@ describe('Phase 8A integration', () => {
     await findOpponent();
     await draftCategories();
     await press('button', 'Continue to fighter selection');
-    if (step === 'loadout') await press('button', 'Confirm Arcane');
+    if (step === 'loadout') await press('button', 'Confirm Astral Sage');
     let complete!: () => void;
     jest.spyOn(AsyncStorage, 'setItem').mockImplementationOnce(() => new Promise<void>((resolve) => { complete = resolve; }));
-    const label = step === 'fighter' ? 'Confirm Arcane' : 'Save loadout and enter battle';
+    const label = step === 'fighter' ? 'Confirm Astral Sage' : 'Save loadout and enter battle';
     const { handler: onPress } = findEventHandler(screen.getByRole('button', { name: label }), 'press', { bubbles: true });
     if (!onPress) throw new Error('Expected the button press handler.');
     let saving!: Promise<void>;
@@ -72,7 +72,7 @@ describe('Phase 8A integration', () => {
     await findOpponent();
     await draftCategories();
     await press('button', 'Continue to fighter selection');
-    await press('button', 'Confirm Arcane');
+    await press('button', 'Confirm Astral Sage');
     await press('button', 'Save loadout and enter battle');
     const stages = new Set<string>();
     for (let guard = 0; ; guard++) {
@@ -143,7 +143,7 @@ describe('Phase 3 pre-battle journey', () => {
     expect(screen.getByText('Local progression - offline prototype')).toBeTruthy();
     await act(() => usePlayerStore.setState((state) => ({ collectionIds: [...state.collectionIds, 'fighter:titan', 'booster:second-chance'] })));
     expect(screen.getByText('Rookie Brawler')).toBeTruthy();
-    expect(screen.getByText('Arcane')).toBeTruthy();
+    expect(screen.getByText('Astral Sage')).toBeTruthy();
 
     await findOpponent();
     expect(app.getPathname()).toBe('/battle/matchmaking');
@@ -166,10 +166,10 @@ describe('Phase 3 pre-battle journey', () => {
     expect(screen.getAllByText('System')).toHaveLength(3);
 
     await press('button', 'Continue to fighter selection');
-    expect(screen.getByRole('radio', { name: 'Arcane', checked: true })).toBeTruthy();
-    expect(screen.getAllByText('Placeholder art')).toHaveLength(2);
-    await press('radio', 'Titan');
-    await press('button', 'Confirm Titan');
+    expect(screen.getByRole('radio', { name: 'Astral Sage', checked: true })).toBeTruthy();
+    expect(screen.queryByText('Placeholder art')).toBeNull();
+    await press('radio', 'Iron Bastion');
+    await press('button', 'Confirm Iron Bastion');
     expect(app.getPathname()).toBe('/battle/loadout');
 
     expect(screen.getByText('3 / 3 boosters selected')).toBeTruthy();
@@ -199,12 +199,12 @@ describe('Phase 3 pre-battle journey', () => {
     usePlayerStore.setState(usePlayerStore.getInitialState(), true);
     useMatchSetupStore.setState(useMatchSetupStore.getInitialState(), true);
     await openHome();
-    expect(screen.getByText('Titan')).toBeTruthy();
+    expect(screen.getByText('Iron Bastion')).toBeTruthy();
     await findOpponent();
     await draftCategories();
     await press('button', 'Continue to fighter selection');
-    expect(screen.getByRole('radio', { name: 'Titan', checked: true })).toBeTruthy();
-    await press('button', 'Confirm Titan');
+    expect(screen.getByRole('radio', { name: 'Iron Bastion', checked: true })).toBeTruthy();
+    await press('button', 'Confirm Iron Bastion');
     expect(screen.getByRole('checkbox', { name: 'Second Chance', checked: true })).toBeTruthy();
     expect(screen.getByRole('checkbox', { name: 'Extra Time', checked: false })).toBeTruthy();
   });

@@ -5,6 +5,7 @@ import { Image, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { battleAssets } from '../../src/assets/registry';
+import { FighterArt } from '../../src/components/fighters/FighterArt';
 import { AppText, Badge, Button, ProgressBar, SelectableCard } from '../../src/components/ui';
 import { GAME_MODES } from '../../src/data/modes';
 import { useMatchSetupStore } from '../../src/features/match-setup/store';
@@ -19,7 +20,6 @@ export default function Mode() {
   const [modeId, setModeId] = useState<GameModeId>('offline-duel');
   const wide = width >= 800 && fontScale < 1.6;
   const artHeight = width <= layout.compactWidth || height < 720 ? 136 : 164;
-  const fighterFrame = { height: artHeight, width: (artHeight * 2) / 3 };
 
   return (
     <SafeAreaView testID="screen-safe-area" style={styles.screen}>
@@ -66,11 +66,11 @@ export default function Mode() {
                 >
                   <Image source={battleAssets.arena.source} resizeMode="cover" accessible={false} style={[StyleSheet.absoluteFill, styles.backdrop]} />
                   <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.scrim]} />
-                  <Image source={battleAssets.arcane.source} resizeMode="contain" accessible={false} style={fighterFrame} />
+                  <FighterArt fighterId="ember" height={artHeight} />
                   <View style={styles.versus}>
                     <AppText variant="label" tone="accent">VS</AppText>
                   </View>
-                  <Image source={battleAssets.shadow.source} resizeMode="contain" accessible={false} style={fighterFrame} />
+                  <View style={styles.mirror}><FighterArt fighterId="frost" height={artHeight} /></View>
                 </View>
                 <View style={styles.modeCopy}>
                   <AppText variant="heading" style={styles.featuredTitle}>{mode.name}</AppText>
@@ -155,6 +155,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden', borderRadius: 14, borderWidth: 1, borderColor: '#51415E', backgroundColor: colors.track,
   },
   backdrop: { opacity: 0.6 },
+  mirror: { transform: [{ scaleX: -1 }] },
   scrim: { backgroundColor: 'rgba(18, 12, 32, 0.3)' },
   versus: {
     width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center',

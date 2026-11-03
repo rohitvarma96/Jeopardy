@@ -1,4 +1,4 @@
-export type FighterId = 'arcane' | 'shadow' | 'sylva' | 'titan';
+export type FighterId = 'arcane' | 'shadow' | 'sylva' | 'titan' | 'ember' | 'frost';
 
 export type PassiveTrigger =
   | 'first-correct-answer'

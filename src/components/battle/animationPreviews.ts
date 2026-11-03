@@ -1,7 +1,7 @@
 import type { BattleView, Hit, Side } from '../../game/battle';
 
 const fighter = (side: Side): BattleView['player'] => ({
-  side, fighterId: side === 'player' ? 'arcane' : 'shadow', name: side === 'player' ? 'You' : 'Shadow',
+  side, fighterId: side === 'player' ? 'arcane' : 'shadow', name: side === 'player' ? 'You' : 'Nightblade',
   level: 3, hp: 100, maxHp: 100, combo: 0, bestCombo: 0,
   stats: { correct: 0, wrong: 0, timeouts: 0, damageDealt: 0, attacksBlocked: 0 },
   boosterIds: ['50-50', 'extra-time', 'mind-shield'], usedBoosterIds: [],
@@ -53,6 +53,9 @@ const defeat: BattleView = {
 export const ANIMATION_PREVIEWS: { label: string; view: BattleView }[] = [
   { label: 'Entrance / idle', view: base },
   { label: 'Attack / hit / answers / combo', view: combat },
+  { label: 'Two-way exchange', view: { ...combat, reveal: {
+    ...combat.reveal!, key: 'preview-exchange', hits: [hit, { ...hit, attacker: 'opponent' }],
+  } } },
   { label: 'Shield impact', view: shield },
   { label: 'Booster activation', view: { ...base, question: { ...base.question!, boosterUsed: 'extra-time' } } },
   { label: 'Next question', view: { ...base, questionNumber: 2, question: { ...base.question!, key: 'preview-next' } } },

@@ -14,6 +14,8 @@ export const COLLECTIBLES: readonly Collectible[] = [
   { id: 'fighter:shadow', kind: 'fighter', fighterId: 'shadow', rarity: 'rare' },
   { id: 'fighter:sylva', kind: 'fighter', fighterId: 'sylva', rarity: 'rare' },
   { id: 'fighter:titan', kind: 'fighter', fighterId: 'titan', rarity: 'epic' },
+  { id: 'fighter:ember', kind: 'fighter', fighterId: 'ember', rarity: 'rare' },
+  { id: 'fighter:frost', kind: 'fighter', fighterId: 'frost', rarity: 'epic' },
   { id: 'booster:50-50', kind: 'booster', boosterId: '50-50', rarity: 'common' },
   { id: 'booster:extra-time', kind: 'booster', boosterId: 'extra-time', rarity: 'common' },
   { id: 'booster:second-chance', kind: 'booster', boosterId: 'second-chance', rarity: 'rare' },

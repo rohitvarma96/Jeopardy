@@ -1,5 +1,5 @@
 import { afterEach, expect, jest, test } from '@jest/globals';
-import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, within } from '@testing-library/react-native';
 import { AccessibilityInfo, AppState, StyleSheet } from 'react-native';
 import * as ReactNative from 'react-native';
 import * as Reanimated from 'react-native-reanimated';
@@ -9,10 +9,12 @@ import { ANIMATION_PREVIEWS } from '../../src/components/battle/animationPreview
 import { BattleScene } from '../../src/components/battle/BattleScene';
 import { BattleScreen } from '../../src/components/battle/BattleScreen';
 import { combatCues, transitionFeedback } from '../../src/components/battle/combatFeedback';
+import { battlePresentation } from '../../src/components/battle/combatPresentation';
+import * as FighterRigs from '../../src/components/fighters/combat/FighterRig';
 import { HealthBar } from '../../src/components/ui';
 import { REVEAL_MS, useBattleStore } from '../../src/features/battle/store';
 import { selectBattleView, step } from '../../src/game/battle';
-import { correctOption, manualBattle, wrongOption } from './helpers';
+import { correctOption, manualBattle, wrongOption } from './continuous-fixtures';
 
 jest.mock('expo-router', () => {
   const { useEffect } = jest.requireActual<typeof import('react')>('react');
@@ -50,14 +52,13 @@ test('major presentation fixtures schedule motion and retain readable static red
     expect(screen.getByTestId('battle-scene').props.pointerEvents).toBe('none');
     expect(screen.getByTestId('fighter-player')).toBeTruthy();
     expect(screen.getByTestId('fighter-opponent')).toBeTruthy();
+    expect(screen.getByTestId('combat-skia-canvas')).toBeTruthy();
     for (const cue of combatCues(view)) {
       expect(screen.getByTestId(`damage-${cue.key}`)).toBeTruthy();
-      expect(screen.getByTestId(`impact-${cue.key}`)).toBeTruthy();
-      expect(screen.getByTestId(`attack-${cue.key}`)).toBeTruthy();
+      expect(battlePresentation(view).commands[cue.attacker]).toContainEqual({ action: cue.action, atMs: cue.delayMs });
     }
     if (view.reveal?.results.player?.comboAfter === 3) expect(screen.getByText('Combo x3!')).toBeTruthy();
     if (view.question?.boosterUsed) expect(screen.getByText('Extra Time activated')).toBeTruthy();
-    if (view.outcome?.winner === 'player') expect(screen.getByTestId('victory-burst')).toBeTruthy();
 
     const cancellations = cancel.mock.calls.length;
     await app.rerender(<BattleScene view={view} motionEnabled={false} />);
@@ -65,12 +66,12 @@ test('major presentation fixtures schedule motion and retain readable static red
     expect(screen.getByText(transitionFeedback(view).label)).toBeTruthy();
     for (const cue of combatCues(view)) {
       const label = cue.blocked ? 'Shielded' : cue.damage === 0 ? 'No damage' : `-${cue.damage}`;
-      expect(screen.getByText(label)).toBeTruthy();
+      expect(within(screen.getByTestId(`damage-${cue.key}`)).getByText(label)).toBeTruthy();
     }
     expect(JSON.stringify(view)).toBe(before);
     await app.unmount();
   }
-  for (const duration of [420, 1800, 110, 45, 600, 380, 160, 1000]) {
+  for (const duration of [3000, 380, ...ANIMATION_PREVIEWS.map(({ view }) => battlePresentation(view).endMs).filter(Boolean)]) {
     expect(timing.mock.calls.some((call) => call[1]?.duration === duration)).toBe(true);
   }
   expect(repeat).toHaveBeenCalled();
@@ -87,12 +88,12 @@ test('answer submission and automatic progression preserve the battle clock duri
   useBattleStore.setState({ battle: initial, nowMs: 0 });
   const app = await render(
     <SafeAreaProvider initialMetrics={{ frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } }}>
-      <BattleScreen route="arena" />
+      <BattleScreen />
     </SafeAreaProvider>,
   );
   expect(repeat).toHaveBeenCalled();
 
-  await fireEvent.press(screen.getByRole('button', { name: 'Extra Time booster' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Extra Time booster, ready' }));
   expect(screen.getByText('Extra Time activated')).toBeTruthy();
   await act(() => jest.advanceTimersByTime(1000));
   expect(screen.getByRole('progressbar', { name: 'Seconds remaining' }).props.accessibilityValue.now).toBe(16);
@@ -113,7 +114,7 @@ test('answer submission and automatic progression preserve the battle clock duri
   }));
   expect(screen.getByRole('progressbar', { name: `${initial.fighters.opponent.name} health` }).props.accessibilityValue.now)
     .toBe(result.state.fighters.opponent.hp);
-  expect(screen.getByTestId(`attack-${combatCues(selectBattleView(result.state, Date.now()))[0].key}`)).toBeTruthy();
+  expect(screen.getByTestId(`damage-${combatCues(selectBattleView(result.state, Date.now()))[0].key}`)).toBeTruthy();
 
   expect(screen.queryByRole('button', { name: 'Continue' })).toBeNull();
   await act(() => jest.advanceTimersByTime(REVEAL_MS + 100));
@@ -141,10 +142,13 @@ test('answer submission and automatic progression preserve the battle clock duri
 test('tick renders do not restart motion; voided attacks never produce cosmetic damage', async () => {
   const view = ANIMATION_PREVIEWS[1].view;
   const timing = jest.spyOn(Reanimated, 'withTiming');
+  const rigs = jest.spyOn(FighterRigs, 'FighterRig');
   const app = await render(<BattleScene view={view} motionEnabled />);
   const scheduled = timing.mock.calls.length;
+  const drawn = rigs.mock.calls.length;
   await app.rerender(<BattleScene view={{ ...view, reveal: view.reveal ? { ...view.reveal } : null }} motionEnabled />);
   expect(timing.mock.calls.length).toBe(scheduled);
+  expect(rigs.mock.calls.length).toBe(drawn);
   const reveal = view.reveal;
   if (!reveal) throw new Error('Missing preview resolution.');
   expect(combatCues({ ...view, reveal: { ...reveal, hits: reveal.hits.map((hit) => ({ ...hit, void: true })) } })).toEqual([]);
@@ -157,9 +161,9 @@ test('compact phone layouts keep fighter frames inside their arena slots', async
     dimensions.mockReturnValue({ width, height, scale: 1, fontScale: 1 });
     const app = await render(<BattleScene view={ANIMATION_PREVIEWS[0].view} motionEnabled={false} />);
     const sceneHeight = StyleSheet.flatten(screen.getByTestId('battle-scene').props.style).height;
-    const art = StyleSheet.flatten(screen.getByLabelText('Arcane artwork').props.style);
+    const art = StyleSheet.flatten(screen.getByLabelText('Astral Sage artwork').props.style);
     expect(sceneHeight).toBeGreaterThanOrEqual(170);
-    expect(sceneHeight).toBeLessThanOrEqual(220);
+    expect(sceneHeight).toBeLessThanOrEqual(260);
     expect(art.height).toBeLessThan(sceneHeight);
     expect(art.width).toBeLessThan((width - 48) / 2);
     await app.unmount();
@@ -169,7 +173,7 @@ test('compact phone layouts keep fighter frames inside their arena slots', async
 test('compressed arena prioritizes fighters over the decorative round banner', async () => {
   await render(<BattleScene view={ANIMATION_PREVIEWS[0].view} motionEnabled={false} fill />);
   await fireEvent(screen.getByTestId('battle-scene'), 'layout', { nativeEvent: { layout: { width: 336, height: 80 } } });
-  expect(StyleSheet.flatten(screen.getByLabelText('Arcane artwork').props.style).height).toBe(64);
+  expect(StyleSheet.flatten(screen.getByLabelText('Astral Sage artwork').props.style).height).toBe(64);
   expect(screen.queryByText(transitionFeedback(ANIMATION_PREVIEWS[0].view).label)).toBeNull();
   expect(screen.getByTestId('fighter-opponent')).toBeTruthy();
 });

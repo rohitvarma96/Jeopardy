@@ -1,57 +1,31 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Image, StyleSheet, View } from 'react-native';
+import { Canvas, Group, Oval } from '@shopify/react-native-skia';
+import { View } from 'react-native';
+import { useDerivedValue } from 'react-native-reanimated';
 
-import { fighterArt } from '../../assets/registry';
 import { getFighter } from '../../data/fighters';
 import type { FighterId } from '../../game/types/fighter';
-import { colors, radii, spacing } from '../../theme';
-import { AppText } from '../ui';
+import { boneMatrices, sampleAction, type BoneMatrix, type RigPose } from './combat/actions';
+import { FighterRig } from './combat/FighterRig';
+import { COMBAT_ROSTER } from './combat/roster';
 
-type FighterArtProps = { fighterId: FighterId; height: number };
-
-/** Full-body art at 2:3, or an explicitly labeled placeholder preserving the same frame. */
-export function FighterArt({ fighterId, height }: FighterArtProps) {
-  const art = fighterArt[fighterId];
-  const { name, icon } = getFighter(fighterId);
-  const frame = { height, width: (height * 2) / 3 };
-
-  if (!art) {
-    return (
-      <View
-        accessible
-        accessibilityRole="image"
-        accessibilityLabel={`${name} artwork placeholder. Final artwork pending.`}
-        style={[styles.placeholder, frame]}
-      >
-        <Ionicons name={icon} size={Math.min(48, height / 3)} color={colors.muted} />
-        <AppText variant="caption" tone="secondary" style={styles.placeholderText}>
-          Placeholder{'\n'}art pending
-        </AppText>
-      </View>
-    );
-  }
-
+export function FighterArt({ fighterId, height }: { fighterId: FighterId; height: number }) {
+  const width = height * 2 / 3;
+  const scale = height / 600;
+  const design = COMBAT_ROSTER[fighterId];
+  const pose = useDerivedValue<RigPose>(() => sampleAction(fighterId, 'idle', 0));
+  const matrices = useDerivedValue<readonly BoneMatrix[]>(() => boneMatrices(pose.value));
   return (
-    <Image
-      source={art.source}
-      accessibilityLabel={`${name} artwork`}
-      resizeMode="contain"
-      style={frame}
-    />
+    <View accessible accessibilityRole="image" accessibilityLabel={`${getFighter(fighterId).name} artwork`}
+      style={{ height, width }}>
+      <Canvas style={{ height, width }} accessible={false}>
+        <Group transform={[{ scale }, { translateX: -84 }]}>
+          <Oval x={166} y={535} width={225} height={22} color="#090C1B" opacity={0.45} />
+          <Oval x={178} y={539} width={199} height={12} color={design.accent} opacity={0.17} />
+          <Group transform={[{ translateX: 260 }, { scaleX: design.width }, { translateX: -260 }]}>
+            <FighterRig fighterId={fighterId} pose={pose} matrices={matrices} />
+          </Group>
+        </Group>
+      </Canvas>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  placeholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xsmall,
-    borderRadius: radii.medium,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.muted,
-    backgroundColor: colors.background,
-    padding: spacing.xsmall,
-  },
-  placeholderText: { textAlign: 'center' },
-});
