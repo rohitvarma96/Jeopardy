@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brain Brawl / The Relay - Experience Board</title>
+  <style>
+    @font-face{font-family:Barlow;src:url("../assets/fonts/BarlowCondensed-ExtraBold.ttf")}
+    @font-face{font-family:Mono;src:url("../assets/fonts/SpaceMono-Regular.ttf")}
+    :root{--ink:#11141d;--chalk:#f1f0e8;--red:#ff354f;--acid:#e9ff3c;--muted:#a9aebc;--line:#343c4a;--cyan:#83e5d7}
+    *{box-sizing:border-box}
+    body{margin:0;background:#0b0e14;color:var(--chalk);font:15px/1.6 system-ui,sans-serif}
+    .definitions{position:absolute;width:0;height:0;overflow:hidden}
+    main{max-width:1390px;margin:auto;padding:48px 32px 64px}
+    h1,h2,h3,p{margin:0}
+    .eyebrow,.mono{font-family:Mono,monospace;font-size:11px;letter-spacing:1.2px;text-transform:uppercase}
+    .eyebrow{color:var(--acid)}
+    h1{font:clamp(62px,8vw,112px)/.93 Barlow,sans-serif;letter-spacing:-1px;margin:18px 0}
+    h1 span{color:var(--red)}
+    .intro{max-width:820px;color:#c0c6d1;font-size:18px}
+    .notice{border-left:3px solid var(--red);padding:10px 18px;margin:26px 0;color:var(--muted);max-width:850px}
+    .flow{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:30px 0 42px}
+    .flow b{font:23px Barlow,sans-serif}
+    .flow i{color:var(--red);font-style:normal}
+    .section-title{font:42px Barlow,sans-serif;margin:12px 0}
+    .section-copy{max-width:820px;color:var(--muted);margin-bottom:26px}
+    .studies{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 26px}
+    figure{margin:0;min-width:0}
+    .study-label{display:flex;gap:10px;align-items:baseline;margin-bottom:12px}
+    .study-label span{color:var(--red);font:12px Mono,monospace}
+    .study-label h3{font:27px Barlow,sans-serif}
+    figcaption{font-size:13px;color:var(--muted);margin-top:14px}
+    figcaption strong{color:var(--chalk)}
+    .phone{position:relative;isolation:isolate;width:100%;aspect-ratio:390/820;overflow:hidden;background:#101924;border:1px solid #48505d;container-type:inline-size}
+    .phone:after{content:"";position:absolute;inset:0;z-index:8;pointer-events:none;box-shadow:inset 0 0 60px #0005}
+    .phone .ico{width:7cqw;height:7cqw;flex-shrink:0}
+    .ico{width:28px;height:28px;display:inline-block;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:square;stroke-linejoin:miter;vertical-align:middle}
+    .world{position:absolute;width:100%;height:100%;inset:0;z-index:-3}
+    .vignette{position:absolute;inset:0;z-index:-1;background:linear-gradient(#05081044,transparent 30%,#05081033 58%,#070b13 95%)}
+    .status{position:absolute;top:3%;left:5%;right:5%;display:flex;align-items:center;justify-content:space-between;z-index:6;gap:3%}
+    .status-left,.wallet{display:flex;align-items:center;gap:2.5cqw}
+    .status .micro{font-size:2.4cqw}
+    .micro{font:2.7cqw/1.5 Mono,monospace;letter-spacing:.3px;text-transform:uppercase}
+    .dim{color:var(--muted)}
+    .acid{color:var(--acid)}
+    .red{color:var(--red)}
+    .crest{width:11cqw;height:12cqw;display:grid;place-items:center;background:#101924dc;clip-path:polygon(15% 0,85% 0,100% 20%,100% 76%,50% 100%,0 76%,0 20%);border-top:2px solid var(--acid)}
+    .crest b{font:6cqw Barlow,sans-serif}
+    .resource{display:flex;align-items:center;gap:1cqw;font:2.7cqw Mono,monospace}
+    .resource .ico{width:4cqw;height:4cqw;color:var(--acid)}
+    .utility{width:9cqw;height:9cqw;display:grid;place-items:center;color:var(--chalk);background:#09111a99;border:1px solid #71809266}
+    .utility .ico{width:5cqw;height:5cqw}
+    .agent{position:absolute;object-fit:contain;filter:drop-shadow(0 14px 14px #0007)}
+    .lobby-agent{height:63%;width:82%;left:12%;top:16%}
+    .halo{position:absolute;left:12%;top:23%;width:76%;aspect-ratio:1;border:1px solid #ff354f70;border-radius:50%;box-shadow:0 0 60px #ff354f28}
+    .halo:after{content:"";position:absolute;inset:10%;border:1px solid #f1f0e822;border-radius:50%}
+    .scene-index{position:absolute;left:5%;top:13%;font:2.5cqw Mono,monospace;color:#cdd5e0}
+    .scene-index:before{content:"";display:inline-block;width:2cqw;height:2cqw;margin-right:2cqw;background:var(--red)}
+    .callout{position:absolute;left:5%;bottom:27%;z-index:2;max-width:54%}
+    .callout h2{font:10.8cqw/.92 Barlow,sans-serif;text-shadow:0 2px 12px #080c13}
+    .callout .micro{display:block;margin-top:3cqw}
+    .utility-stack{position:absolute;left:5%;top:24%;display:flex;flex-direction:column;gap:3cqw}
+    .pending{position:relative}
+    .pending:after{content:"1";position:absolute;right:-1cqw;top:-1cqw;min-width:4cqw;height:4cqw;display:grid;place-items:center;background:var(--acid);color:var(--ink);font:2.5cqw Mono,monospace}
+    .prep{position:absolute;left:5%;bottom:14%;width:43%}
+    .sockets{display:flex;gap:2cqw;margin-top:2cqw}
+    .socket{width:11cqw;height:12cqw;display:grid;place-items:center;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);background:#111c29;border-bottom:2px solid var(--acid)}
+    .socket .ico{width:7cqw;height:7cqw}
+    .launch{position:absolute;right:5%;bottom:14%;width:40%;height:9%;display:flex;align-items:center;justify-content:center;gap:2.5cqw;border:0;background:var(--red);color:var(--ink);clip-path:polygon(7% 0,100% 0,100% 83%,93% 100%,0 100%,0 17%);font:8cqw Barlow,sans-serif;padding:0;z-index:4}
+    .launch:before{content:"";position:absolute;inset:4px;border:1px solid #15151f80;pointer-events:none}
+    .launch .ico{width:8cqw;height:8cqw;stroke-width:2.5}
+    .mode-chip{position:absolute;right:5%;bottom:24%;font:2.6cqw Mono,monospace;letter-spacing:.5px}
+    .game-nav{position:absolute;bottom:0;left:0;right:0;height:10%;display:flex;align-items:stretch;background:#080e17ee;border-top:1px solid #aeb8c533;z-index:7}
+    .nav-sigil{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5cqw;color:#9daab9;position:relative}
+    .nav-sigil span{font:2.5cqw Mono,monospace}
+    .nav-sigil .ico{width:7cqw;height:7cqw}
+    .nav-sigil.active{color:var(--acid);background:linear-gradient(#e9ff3c14,transparent)}
+    .nav-sigil.active:before{content:"";position:absolute;top:0;width:36%;height:3px;background:var(--acid)}
+    .nav-sigil.active:after{content:"";position:absolute;top:3px;border:4px solid transparent;border-top-color:var(--acid)}
+    .screen-name{font:6.5cqw Barlow,sans-serif;letter-spacing:.6px}
+    .gallery-agent{height:59%;width:90%;left:8%;top:14%}
+    .agent-title{position:absolute;left:5%;top:13%;z-index:2}
+    .agent-title h2{font:11cqw/.9 Barlow,sans-serif}
+    .rarity{margin-top:3cqw;color:#c1a8ff;border-left:2px solid #c1a8ff;padding-left:2cqw}
+    .passive{position:absolute;left:5%;bottom:29%;max-width:61%;border-left:2px solid var(--acid);padding-left:3cqw;background:linear-gradient(90deg,#09121bdd,transparent)}
+    .passive b{font:5cqw Barlow,sans-serif}
+    .passive p{font-size:3cqw;line-height:1.5;margin-top:1cqw}
+    .portrait-rail{position:absolute;left:5%;right:5%;bottom:17%;height:10%;display:flex;gap:1.5cqw}
+    .portrait{flex:1;min-width:0;position:relative;background:#172333;border:1px solid #aeb8c566;overflow:hidden}
+    .portrait img{position:absolute;inset:0;width:100%;height:210%;object-fit:cover;object-position:top}
+    .portrait.locked img{filter:saturate(.25) brightness(.5)}
+    .portrait.selected{border:2px solid #c1a8ff}
+    .portrait.equipped{border-bottom:3px solid var(--acid)}
+    .portrait .ico{position:absolute;bottom:0;right:0;width:4cqw;height:4cqw;background:#0d1522}
+    .inspection-note{position:absolute;left:5%;bottom:12%;right:5%;text-align:center}
+    .console-title{position:absolute;left:5%;top:14%;font:13cqw/.9 Barlow,sans-serif}
+    .rig{position:absolute;left:5%;top:28%;width:90%;height:31%}
+    .socket-large{position:absolute;top:36%;width:22cqw;height:24cqw;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2cqw;background:#142230;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);border-bottom:3px solid var(--acid)}
+    .socket-large .ico{width:11cqw;height:11cqw}
+    .socket-large.s1{left:8%}.socket-large.s2{left:39%;top:28%;background:#29352b}.socket-large.s3{right:8%}
+    .socket-large .micro{font-size:2.4cqw}
+    .power-copy{position:absolute;top:57%;left:8%;right:8%;text-align:center}
+    .power-copy h2{font:8cqw Barlow,sans-serif}
+    .power-copy p{font-size:3.2cqw;color:#cbd2dc}
+    .power-rail{position:absolute;left:6%;right:6%;bottom:20%;display:flex;justify-content:space-between}
+    .power-rail .socket{width:14cqw;height:15cqw}
+    .power-rail .selected{background:#e9ff3c;color:var(--ink)}
+    .ready-line{position:absolute;left:5%;right:5%;bottom:13%;text-align:center}
+    .draft-head{position:absolute;left:5%;right:5%;top:13%;text-align:center}
+    .draft-head h2{font:14cqw/.95 Barlow,sans-serif;margin:3cqw 0}
+    .draft-grid{position:absolute;left:6%;right:6%;top:34%;display:grid;grid-template-columns:repeat(4,1fr);gap:3cqw 2cqw}
+    .category{height:22cqw;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2cqw;background:#111f2de8;border:1px solid #657a8b;position:relative}
+    .category .ico{width:10cqw;height:10cqw}
+    .category span{font:2.5cqw Mono,monospace}
+    .category.banned{color:#ff8795;border-color:#ff354f55;background:repeating-linear-gradient(135deg,#311c29 0 4px,#151b28 4px 11px)}
+    .category.banned:after{content:"";position:absolute;left:15%;right:15%;top:42%;height:2px;background:var(--red);transform:rotate(-30deg)}
+    .category.selected{color:var(--acid);border:2px solid var(--acid);box-shadow:0 0 22px #e9ff3c22}
+    .draft-inspect{position:absolute;top:65%;left:8%;right:8%;text-align:center}
+    .draft-inspect h3{font:7cqw Barlow,sans-serif}
+    .draft-inspect p{font-size:3.1cqw;color:#c8d1dc}
+    .match-bottom{position:absolute;bottom:4%;left:5%;right:5%;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #71809266;padding-top:3cqw}
+    .draft-launch{bottom:13%;left:25%;right:25%;width:50%}
+    .battle-hud{position:absolute;top:4%;left:5%;right:5%;display:flex;justify-content:space-between;gap:7%}
+    .combatant{width:42%}
+    .combatant.enemy{text-align:right}
+    .combatant .bar{height:2cqw;background:#25323e;margin-top:2cqw}
+    .combatant .bar i{display:block;height:100%;background:var(--acid);width:84%}
+    .combatant.enemy .bar i{background:var(--red);width:71%;margin-left:auto}
+    .combatant b{font:5.5cqw Barlow,sans-serif}
+    .battle-agent{position:absolute;top:13%;height:27%;width:37%;object-fit:contain}
+    .battle-agent.you{left:7%}.battle-agent.enemy{right:7%;transform:scaleX(-1)}
+    .timer{position:absolute;top:22%;left:42%;width:16%;aspect-ratio:1;border:2px solid var(--acid);border-radius:50%;display:grid;place-items:center;font:9cqw Barlow,sans-serif;background:#0b1420}
+    .question-field{position:absolute;left:5%;right:5%;top:42%;border-top:2px solid var(--acid);padding-top:3cqw}
+    .question-field h2{font:5.6cqw/1.3 system-ui,sans-serif;font-weight:650;margin:2.5cqw 0 4cqw}
+    .answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5cqw}
+    .answer-slab{background:#182331;border:1px solid #617486;padding:4cqw 3cqw;display:flex;gap:3cqw;align-items:center;clip-path:polygon(0 0,94% 0,100% 15%,100% 100%,6% 100%,0 85%);font-size:3.7cqw}
+    .answer-slab b{color:#9eafbf;font:3cqw Mono,monospace}
+    .answer-slab.selected{background:#33412a;border-color:var(--acid);color:var(--acid)}
+    .answer-note{position:absolute;top:76%;left:5%;right:5%;text-align:center;font-size:2.5cqw}
+    .ability-dock{position:absolute;left:6%;right:6%;bottom:3%;height:14%;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #71809266}
+    .ability{display:flex;flex-direction:column;align-items:center;gap:1.5cqw}
+    .ability .socket{width:16cqw;height:17cqw}
+    .ability .socket .ico{width:10cqw;height:10cqw}
+    .ability.used{color:#a1a8b2}.ability.used .socket{border-bottom-color:#687585}
+    .ability .micro{font-size:2.3cqw}
+    .ability.armed .micro{color:var(--cyan)}
+    .chamber-title{position:absolute;left:5%;right:5%;top:16%;text-align:center}
+    .chamber-title h2{font:13cqw/.95 Barlow,sans-serif}
+    .chamber-title p{margin-top:3cqw;font-size:3.1cqw;color:#c1ccda}
+    .chest-object{position:absolute;top:35%;left:8%;width:84%;height:36%;border:0;background:none;color:var(--chalk);padding:0;cursor:pointer;z-index:3}
+    .chest-object img{width:100%;height:100%;object-fit:contain}
+    .chest-object:hover,.chest-object:focus-visible{filter:drop-shadow(0 0 15px #e9ff3c44)}
+    .chest-object:focus-visible{outline:2px solid var(--acid)}
+    .combat-frame{width:100%;height:100%;border:0;display:block}
+    .chest-gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:32px 0}
+    .chest-design{min-width:0;background:#111720;border-top:2px solid var(--line);padding:14px}
+    .chest-design h3{font:26px Barlow}
+    .chest-design img{width:100%;height:150px;object-fit:contain}
+    .chest-design p{font-size:12px;color:var(--muted)}
+    .chest-design .mono{font-size:9px}
+    .family-controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+    .family-controls button[aria-checked="true"]{border-color:var(--acid);color:var(--acid)}
+    .seal-instruction{position:absolute;bottom:22%;left:5%;right:5%;text-align:center}
+    .reveal-stage{display:none;position:absolute;inset:10% 3% 15%;text-align:center}
+    .reveal-stage img{position:absolute;top:15%;left:12%;width:76%;height:75%;object-fit:contain;filter:drop-shadow(0 0 22px #9166df66)}
+    .reveal-stage .discovery-title{position:absolute;top:3%;left:0;right:0;z-index:3}
+    .reveal-stage h2{font:12cqw/.9 Barlow,sans-serif}
+    .reveal-stage .rarity{border:0;padding:0}
+    .reveal-stage .launch{bottom:0;left:25%;width:50%;height:12%;background:var(--acid)}
+    .reveal-stage .micro{position:relative;z-index:2}
+    .phone.revealed .chest-object,.phone.revealed .chamber-title,.phone.revealed .seal-instruction{display:none}
+    .phone.revealed .reveal-stage{display:block;animation:discover .25s ease-out}
+    .receipt{position:absolute;bottom:0;left:0;right:0;display:none}
+    .receipt h3{font:13cqw Barlow,sans-serif;color:var(--acid)}
+    .phone.duplicate .reveal-stage img{opacity:.24;filter:grayscale(1)}
+    .phone.duplicate .equip-demo{display:none}
+    .phone.duplicate .receipt{display:block}
+    .board-button{background:#1b2431;color:var(--chalk);border:1px solid #516074;min-height:44px;padding:8px 14px;font:11px Mono,monospace;cursor:pointer}
+    .board-button:hover,.board-button:focus-visible{border-color:var(--acid);outline:1px solid var(--acid)}
+    .prototype-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    output{display:block;font:11px/1.7 Mono,monospace;color:var(--acid);margin-top:10px}
+    .icon-section{margin-top:64px;border-top:1px solid var(--line);padding-top:30px}
+    .icon-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:24px}
+    .icon-cell{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:108px;gap:14px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+    .icon-cell .ico{width:35px;height:35px}
+    .icon-cell span{font:10px Mono,monospace;text-transform:uppercase;color:var(--muted)}
+    .icon-cell:nth-child(5n+1){color:var(--acid)}
+    .principles{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px}
+    .principles h3{font:26px Barlow,sans-serif;border-top:2px solid var(--red);padding-top:14px}
+    .principles p{font-size:13px;color:var(--muted);margin-top:8px}
+    a{color:var(--acid)}
+    footer{margin-top:48px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+    @keyframes discover{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    @media(min-width:1200px){main{padding-left:54px;padding-right:54px}}
+    @media(max-width:1000px){.studies{grid-template-columns:repeat(2,minmax(0,1fr))}.icon-grid{grid-template-columns:repeat(6,1fr)}.principles{grid-template-columns:repeat(2,1fr)}.chest-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){main{padding:28px 18px}.studies{grid-template-columns:1fr;max-width:390px;margin:auto;gap:32px}.icon-grid{grid-template-columns:repeat(4,1fr)}.principles{grid-template-columns:1fr}.intro{font-size:16px}.flow{gap:9px}.flow b{font-size:19px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+    @media print{body{background:white;color:#111}.intro,.notice,.section-copy,figcaption,footer{color:#333}main{padding:16px}.studies{grid-template-columns:repeat(3,1fr)}figure{break-inside:avoid}.phone{print-color-adjust:exact;-webkit-print-color-adjust:exact}.prototype-controls{display:none}}
+  </style>
+</head>
+<body>
+<svg class="definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <symbol id="i-arena" viewBox="0 0 32 32"><path d="M10 3H22L29 10V22L22 29H10L3 22V10Z"/><path d="M11 8L7 12V20L11 24M21 8L25 12V20L21 24M18 7L11 18H17L14 25L22 13H16Z"/></symbol>
+    <symbol id="i-agents" viewBox="0 0 32 32"><path d="M12 5L18 8V15L12 20L6 15V8ZM4 28V24L12 21L20 24V28M22 4L27 7V14L23 18M23 21L29 24V28"/></symbol>
+    <symbol id="i-armory" viewBox="0 0 32 32"><path d="M3 10L7 7L11 10V24L7 28L3 24ZM12 5L16 1L20 5V24L16 29L12 24ZM21 10L25 7L29 10V24L25 28L21 24M5 18H9M14 13H18M23 18H27"/></symbol>
+    <symbol id="i-vault" viewBox="0 0 32 32"><path d="M3 13V9L8 4H24L29 9V13M3 13H29V27H3ZM7 13V27M25 13V27M13 11H19V18H13ZM13 7H19"/></symbol>
+    <symbol id="i-career" viewBox="0 0 32 32"><path d="M5 3H27V17L16 29L5 17ZM16 7L18 12L23 13L19 17L20 22L16 19L12 22L13 17L9 13L14 12Z"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 32 32"><path d="M11 3H21L23 8L28 10V22L23 24L21 29H11L9 24L4 22V10L9 8ZM11 12L16 9L21 12V20L16 23L11 20Z"/></symbol>
+    <symbol id="i-back" viewBox="0 0 32 32"><path d="M19 5L8 16L19 27M26 8L18 16L26 24"/></symbol>
+    <symbol id="i-close" viewBox="0 0 32 32"><path d="M7 7L25 25M25 7L7 25M3 11V3H11M21 3H29V11M29 21V29H21M11 29H3V21"/></symbol>
+    <symbol id="i-equip" viewBox="0 0 32 32"><path d="M16 2L30 16L16 30L2 16ZM9 16L14 21L23 11"/></symbol>
+    <symbol id="i-deploy" viewBox="0 0 32 32"><path d="M5 10V24L16 30L27 24V10M8 5L16 1L24 5M18 5L10 17H16L14 25L23 13H17Z"/></symbol>
+    <symbol id="i-queue" viewBox="0 0 32 32"><path d="M4 6L14 16L4 26M28 6L18 16L28 26M10 3H22M10 29H22"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 32 32"><path d="M10 3H22L29 10V22L22 29H10L3 22V10ZM6 26L26 6"/></symbol>
+    <symbol id="i-pick" viewBox="0 0 32 32"><path d="M12 3H3V12M20 3H29V12M29 20V29H20M12 29H3V20M16 8L24 16L16 24L8 16ZM16 12V20M12 16H20"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 32 32"><path d="M10 3H22L29 10V22L22 29H10L3 22V10ZM12 9H19L22 13L18 16L22 20L19 23H12ZM12 16H18"/></symbol>
+    <symbol id="i-shard" viewBox="0 0 32 32"><path d="M13 2L27 10L20 30L4 20ZM13 2L15 15L27 10M15 15L20 30M15 15L4 20"/></symbol>
+    <symbol id="i-info" viewBox="0 0 32 32"><path d="M10 3H22L29 10V22L22 29H10L3 22V10M16 14V23M15 8H17V10H15Z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 32 32"><path d="M9 14V8L13 4H19L23 8V14M6 14H26V25L22 29H10L6 25ZM16 19V24"/></symbol>
+    <symbol id="i-split" viewBox="0 0 32 32"><path d="M3 6H12V13H3ZM20 6H29V13H20ZM3 20H12V27H3ZM20 20H29V27H20M16 2V30"/></symbol>
+    <symbol id="i-time" viewBox="0 0 32 32"><path d="M6 3H26M6 29H26M9 3V10L16 16L23 10V3M9 29V22L16 16L23 22V29M13 8H19M13 24H19"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 32 32"><path d="M4 5L16 2L28 5V16L24 23L16 30L8 23L4 16ZM16 9L22 15L16 23L10 15Z"/></symbol>
+    <symbol id="i-double" viewBox="0 0 32 32"><path d="M13 2L3 18H10L7 29L19 12H12ZM25 2L15 18H22L19 29L31 12H24Z"/></symbol>
+    <symbol id="i-chain" viewBox="0 0 32 32"><path d="M13 19L9 23L3 17V11L11 3H17L23 9L19 13M19 13L23 9L29 15V21L21 29H15L9 23L13 19M11 21L21 11"/></symbol>
+    <symbol id="i-science" viewBox="0 0 32 32"><path d="M11 3H21M13 3V13L5 25L8 29H24L27 25L19 13V3M9 21H23M12 25H16"/></symbol>
+    <symbol id="i-sports" viewBox="0 0 32 32"><path d="M10 3H22L29 10V22L22 29H10L3 22V10M3 16H29M16 3V29M7 6L12 16L7 26M25 6L20 16L25 26"/></symbol>
+    <symbol id="i-history" viewBox="0 0 32 32"><path d="M3 9L16 2L29 9ZM3 29H29M6 12V25M13 12V25M20 12V25M27 12V25"/></symbol>
+    <symbol id="i-screen" viewBox="0 0 32 32"><path d="M3 9H29V27H3ZM3 9V4H29V9M8 4L12 9M18 4L22 9M13 14L21 18L13 23Z"/></symbol>
+    <symbol id="i-space" viewBox="0 0 32 32"><circle cx="16" cy="16" r="8"/><path d="M8 7C-6 10 5 31 22 24C39 17 26-4 22 8M3 25L29 7"/></symbol>
+    <symbol id="i-tech" viewBox="0 0 32 32"><path d="M7 7H25V25H7ZM12 12H20V20H12M3 10H7M3 16H7M3 22H7M25 10H29M25 16H29M25 22H29M10 3V7M16 3V7M22 3V7M10 25V29M16 25V29M22 25V29"/></symbol>
+    <symbol id="i-earth" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13"/><path d="M3 16H29M6 8H26M6 24H26M16 3C5 10 5 22 16 29C27 22 27 10 16 3Z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 32 32"><path d="M4 13V23M9 8V28M14 12V24M21 21V5L29 3V19M21 21L17 23V27L21 29L25 27V23ZM29 19L25 21"/></symbol>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#081320"/><stop offset=".45" stop-color="#3b1829"/><stop offset="1" stop-color="#08111c"/></linearGradient>
+    <radialGradient id="core"><stop stop-color="#ff5465" stop-opacity=".85"/><stop offset=".55" stop-color="#ff354f" stop-opacity=".35"/><stop offset="1" stop-color="#ff354f" stop-opacity="0"/></radialGradient>
+    <symbol id="relay-world" viewBox="0 0 390 820">
+      <path fill="url(#sky)" d="M0 0H390V820H0Z"/>
+      <circle cx="213" cy="355" r="220" fill="url(#core)"/>
+      <path fill="#102032" d="M0 160L48 109L74 136V446H0ZM306 116L349 80L390 129V470H306Z"/>
+      <path fill="#09121d" d="M0 74L28 94V526L0 550ZM0 201L38 211V421H0ZM349 187L390 147V570L349 537Z"/>
+      <path fill="#142338" d="M29 492V390H51V325H82V404H99V352H119V490ZM258 482V376H276V308H302V375H325V488Z"/>
+      <path fill="#080f18" d="M0 541L102 489L294 489L390 541V820H0Z"/>
+      <path d="M0 543L195 493L390 543M0 617L195 518L390 617M0 729L195 547L390 729M0 807L195 571L390 807" fill="none" stroke="#688298" stroke-opacity=".16"/>
+      <path d="M40 523L187 491L336 522M91 550L193 522L292 550" fill="none" stroke="#e9ff3c" stroke-opacity=".5"/>
+      <path d="M53 183L53 356M331 164V355M90 364V386M284 337V365" fill="none" stroke="#f1f0e8" stroke-opacity=".3"/>
+      <path d="M70 116L150 31M323 95L259 28M30 479L98 464M361 479L299 464" fill="none" stroke="#ff354f" stroke-opacity=".45"/>
+    </symbol>
+  </defs>
+</svg>
+<main>
+  <header>
+    <p class="eyebrow">Brain Brawl / Ground-up experience direction / 01</p>
+    <h1>ENTER A WORLD.<br><span>NOT A WEBSITE.</span></h1>
+    <p class="intro">The Relay: a knowledge-powered combat arena. Grounded human combat, physical preparation objects, a short deployment loop and earned reward chests.</p>
+    <p class="notice"><strong>PROPOSED EXPERIENCE.</strong> These are composition and interaction studies, not finished game screens. Values are illustrative. Existing character illustrations are concept assets; environments, final icon polish and authored animation still require production.</p>
+    <div class="flow" aria-label="Proposed main game loop">
+      <b>LOBBY</b><i>/</i><b>AI QUEUE</b><i>/</i><b>DRAFT</b><i>/</i><b>VS ENTRANCE</b><i>/</i><b>DUEL</b><i>/</i><b>RESULT</b><i>/</i><b>CHEST</b><i>/</i><b>LOBBY</b>
+    </div>
+  </header>
+  <h2 class="section-title">SIX MOMENTS. ONE COHERENT GAME.</h2>
+  <p class="section-copy">Each phone is a complete, fixed-screen composition. World navigation belongs to preparation spaces; draft, combat and discovery temporarily take over. Details open through inspection, not a document-style Next section sequence.</p>
+  <section class="studies" aria-label="Proposed game scene studies">
+    <figure>
+      <div class="study-label"><span>01</span><h3>THE RELAY / LOBBY</h3></div>
+      <div class="phone">
+        <svg class="world" aria-hidden="true"><use href="#relay-world"/></svg><div class="vignette"></div>
+        <div class="status">
+          <div class="status-left"><div class="crest"><b>3</b></div><div><div class="micro">ROOKIE BRAWLER</div><div class="micro acid">240 / 400 XP</div></div></div>
+          <div class="wallet"><div><div class="resource"><svg class="ico"><use href="#i-coin"/></svg>1,250</div><div class="resource"><svg class="ico"><use href="#i-shard"/></svg>40</div></div><div class="utility"><svg class="ico"><use href="#i-gear"/></svg></div></div>
+        </div>
+        <div class="scene-index">THE RELAY / AI DUEL</div>
+        <div class="halo"></div>
+        <img class="agent lobby-agent" src="../assets/images/fighters/human/arcane.png" alt="Original Astral Sage human concept illustration">
+        <div class="utility-stack"><div class="utility pending"><svg class="ico"><use href="#i-vault"/></svg></div><div class="utility"><svg class="ico"><use href="#i-career"/></svg></div></div>
+        <div class="callout"><h2>ASTRAL<br>SAGE</h2><span class="micro">ARCANE INSIGHT<br><span class="acid">EQUIPPED</span></span></div>
+        <div class="prep"><div class="micro dim">YOUR THREE POWERS</div><div class="sockets"><div class="socket"><svg class="ico"><use href="#i-split"/></svg></div><div class="socket"><svg class="ico"><use href="#i-time"/></svg></div><div class="socket"><svg class="ico"><use href="#i-shield"/></svg></div></div></div>
+        <div class="mode-chip">AI DUEL / READY</div>
+        <div class="launch"><svg class="ico"><use href="#i-deploy"/></svg>DUEL</div>
+        <div class="game-nav" aria-label="Proposed five-destination world navigation">
+          <div class="nav-sigil active"><svg class="ico"><use href="#i-arena"/></svg><span>ARENA</span></div>
+          <div class="nav-sigil"><svg class="ico"><use href="#i-agents"/></svg><span>AGENTS</span></div>
+          <div class="nav-sigil"><svg class="ico"><use href="#i-armory"/></svg><span>ARMORY</span></div>
+          <div class="nav-sigil"><svg class="ico"><use href="#i-vault"/></svg><span>VAULT</span></div>
+          <div class="nav-sigil"><svg class="ico"><use href="#i-career"/></svg><span>CAREER</span></div>
+        </div>
+      </div>
+      <figcaption><strong>A character in a place, not in a card.</strong> Identity and resources live at the edges. Preparation and deployment are anchored objects. Only real pending rewards receive a badge.</figcaption>
+    </figure>
+    <figure>
+      <div class="study-label"><span>02</span><h3>AGENT HANGAR / INSPECTION</h3></div>
+      <div class="phone">
+        <svg class="world" aria-hidden="true"><use href="#relay-world"/></svg><div class="vignette"></div>
+        <div class="status"><div class="status-left"><svg class="ico"><use href="#i-back"/></svg><span class="screen-name">AGENTS</span></div><div class="micro dim">01 / 06 OWNED</div></div>
+        <div class="agent-title"><h2>NIGHT<br>BLADE</h2><div class="micro rarity">RARE / IN COLLECTION POOL</div></div>
+        <img class="agent gallery-agent" src="../assets/images/fighters/human/shadow.png" alt="Original Nightblade human concept illustration">
+        <div class="passive"><b>SWIFT STRIKE</b><p>First fast correct answer:<br>+3 damage, once per match.</p></div>
+        <div class="portrait-rail">
+          <div class="portrait equipped"><img src="../assets/images/fighters/human/arcane.png" alt="Astral Sage equipped"></div>
+          <div class="portrait selected"><img src="../assets/images/fighters/human/shadow.png" alt="Nightblade inspected"><svg class="ico"><use href="#i-lock"/></svg></div>
+          <div class="portrait locked"><img src="../assets/images/fighters/human/sylva.png" alt="Thorn Ranger locked"></div>
+          <div class="portrait locked"><img src="../assets/images/fighters/human/titan.png" alt="Iron Bastion locked"></div>
+          <div class="portrait locked"><img src="../assets/images/fighters/human/ember.png" alt="Ember Sentinel locked"></div>
+          <div class="portrait locked"><img src="../assets/images/fighters/human/frost.png" alt="Frost Warden locked"></div>
+        </div>
+        <div class="inspection-note micro dim">INSPECTING / EARN FROM CHESTS</div>
+        <div class="game-nav"><div class="nav-sigil"><svg class="ico"><use href="#i-arena"/></svg><span>ARENA</span></div><div class="nav-sigil active"><svg class="ico"><use href="#i-agents"/></svg><span>AGENTS</span></div><div class="nav-sigil"><svg class="ico"><use href="#i-armory"/></svg><span>ARMORY</span></div><div class="nav-sigil"><svg class="ico"><use href="#i-vault"/></svg><span>VAULT</span></div><div class="nav-sigil"><svg class="ico"><use href="#i-career"/></svg><span>CAREER</span></div></div>
+      </div>
+      <figcaption><strong>Inspecting is not equipping.</strong> Direct portrait selection, large human presence and truthful ownership. A locked agent does not get a fake unlock action or invented combat-stat bars.</figcaption>
+    </figure>
+    <figure>
+      <div class="study-label"><span>03</span><h3>ARMORY / PHYSICAL PREPARATION</h3></div>
+      <div class="phone">
+        <svg class="world" aria-hidden="true"><use href="#relay-world"/></svg><div class="vignette"></div>
+        <div class="status"><div class="status-left"><svg class="ico"><use href="#i-back"/></svg><span class="screen-name">ARMORY</span></div><svg class="ico"><use href="#i-info"/></svg></div>
+        <div class="console-title">BUILD<br>YOUR EDGE.</div>
+        <svg class="rig" viewBox="0 0 350 220" aria-hidden="true"><path d="M48 160L175 37L302 160L175 206Z" fill="#111e2aaa" stroke="#a9b8cb55"/><path d="M48 160H302M175 37V206" fill="none" stroke="#e9ff3c66"/><circle cx="175" cy="130" r="82" fill="none" stroke="#ff354f66"/><circle cx="175" cy="130" r="62" fill="none" stroke="#a9b8cb33"/></svg>
+        <div class="socket-large s1"><svg class="ico"><use href="#i-split"/></svg><span class="micro">SLOT 01</span></div>
+        <div class="socket-large s2"><svg class="ico"><use href="#i-time"/></svg><span class="micro acid">SELECTED</span></div>
+        <div class="socket-large s3"><svg class="ico"><use href="#i-shield"/></svg><span class="micro">SLOT 03</span></div>
+        <div class="power-copy"><div class="micro acid">INSPECT / REPLACE SLOT 02</div><h2>EXTRA TIME</h2><p>Five extra seconds on your question.</p></div>
+        <div class="power-rail"><div class="socket"><svg class="ico"><use href="#i-split"/></svg></div><div class="socket selected"><svg class="ico"><use href="#i-time"/></svg></div><div class="socket"><svg class="ico"><use href="#i-shield"/></svg></div><div class="socket dim"><svg class="ico"><use href="#i-double"/></svg></div><div class="socket dim"><svg class="ico"><use href="#i-chain"/></svg></div></div>
+        <div class="ready-line micro acid">3 / 3 EQUIPPED / READY</div>
+        <div class="game-nav"><div class="nav-sigil"><svg class="ico"><use href="#i-arena"/></svg><span>ARENA</span></div><div class="nav-sigil"><svg class="ico"><use href="#i-agents"/></svg><span>AGENTS</span></div><div class="nav-sigil active"><svg class="ico"><use href="#i-armory"/></svg><span>ARMORY</span></div><div class="nav-sigil"><svg class="ico"><use href="#i-vault"/></svg><span>VAULT</span></div><div class="nav-sigil"><svg class="ico"><use href="#i-career"/></svg><span>CAREER</span></div></div>
+      </div>
+      <figcaption><strong>Socket, inspect, replace.</strong> A valid kit is persistent preparation, not a six-checkbox form repeated before each match. Each committed replacement must save or visibly recover.</figcaption>
+    </figure>
+    <figure>
+      <div class="study-label"><span>04</span><h3>DRAFT / AN ARENA DECISION</h3></div>
+      <div class="phone">
+        <svg class="world" aria-hidden="true"><use href="#relay-world"/></svg><div class="vignette"></div>
+        <div class="status"><svg class="ico"><use href="#i-back"/></svg><div class="micro">YOU / VS / LOCAL AI</div><svg class="ico"><use href="#i-info"/></svg></div>
+        <div class="draft-head"><div class="micro acid">CATEGORY DRAFT / PICK PHASE</div><h2>PICK ONE.</h2><div class="micro dim">YOUR CHOICE JOINS THE MIX</div></div>
+        <div class="draft-grid">
+          <div class="category banned"><svg class="ico"><use href="#i-science"/></svg><span>SCIENCE</span></div>
+          <div class="category banned"><svg class="ico"><use href="#i-sports"/></svg><span>SPORTS</span></div>
+          <div class="category"><svg class="ico"><use href="#i-history"/></svg><span>HISTORY</span></div>
+          <div class="category"><svg class="ico"><use href="#i-screen"/></svg><span>SCREEN</span></div>
+          <div class="category selected"><svg class="ico"><use href="#i-space"/></svg><span>SPACE</span></div>
+          <div class="category"><svg class="ico"><use href="#i-tech"/></svg><span>TECH</span></div>
+          <div class="category"><svg class="ico"><use href="#i-earth"/></svg><span>GEOGRAPHY</span></div>
+          <div class="category"><svg class="ico"><use href="#i-music"/></svg><span>MUSIC</span></div>
+        </div>
+        <div class="draft-inspect"><h3>SPACE</h3><p>Planets, stars and what lies beyond.</p><div class="micro dim">BANNED / SCIENCE + SPORTS</div></div>
+        <div class="launch draft-launch"><svg class="ico"><use href="#i-pick"/></svg>PICK</div>
+        <div class="match-bottom"><span class="micro dim">BAN / PICK / SYSTEM FILL</span><svg class="ico"><use href="#i-queue"/></svg></div>
+      </div>
+      <figcaption><strong>One scene changes state.</strong> Ban and pick have different materials and commitment sigils. Eight category emblems fit the board; no fake countdown and no new round mechanics.</figcaption>
+    </figure>
+    <figure>
+      <div class="study-label"><span>05</span><h3>DUEL / GROUNDED ARTICULATED COMBAT</h3></div>
+      <div class="phone">
+        <iframe class="combat-frame" id="combat-study-frame" src="COMBAT_STUDY.html?embed=1" title="Shared articulated human fight rig and physical stage study"></iframe>
+      </div>
+      <figcaption><strong>Shared floor, planted feet, real joints.</strong> Arms, wrists, hips, knees and ankles articulate using the same rig source as the game. The stage expands during resolution. This is a working motion study, not final painted animation.</figcaption>
+      <div class="prototype-controls">
+        <button class="board-button" data-combat="punch">STRIKE</button><button class="board-button" data-combat="kick">POWER KICK</button>
+        <button class="board-button" data-combat="block">BLOCK</button><button class="board-button" data-combat="ko">KO</button>
+        <button class="board-button" data-combat="reset">RESET</button>
+        <a class="board-button" href="COMBAT_STUDY.html">OPEN MOTION LAB</a>
+      </div>
+    </figure>
+    <figure>
+      <div class="study-label"><span>06</span><h3>CHEST / DISCOVERY RITUAL</h3></div>
+      <div class="phone" id="reward-phone">
+        <svg class="world" aria-hidden="true"><use href="#relay-world"/></svg><div class="vignette"></div>
+        <div class="status"><svg class="ico"><use href="#i-back"/></svg><span class="screen-name">VAULT</span><div class="micro acid">EARNED / 01</div></div>
+        <div class="chamber-title"><div class="micro acid" id="chest-family-label">FIELD CHEST / EXAMPLE</div><h2>UNLOCK<br>THE LATCH.</h2><p>One earned chest. One real outcome.</p></div>
+        <button class="chest-object" id="reveal-demo" aria-label="Preview opening an earned reward chest">
+          <img id="chest-art" src="../assets/images/chests/field-closed.png" alt="Closed Field Chest">
+        </button>
+        <div class="seal-instruction micro acid" id="chest-instruction">TAP THE CHEST LATCH</div>
+        <div class="reveal-stage" aria-live="polite">
+          <div class="discovery-title"><div class="micro acid" id="discovery-label">NEW AGENT</div><h2>NIGHTBLADE</h2><div class="micro rarity">RARE / SWIFT STRIKE</div></div>
+          <img src="../assets/images/fighters/human/shadow.png" alt="Nightblade discovery composition">
+          <button class="launch equip-demo" id="equip-demo" aria-label="Preview equipping the discovered agent"><svg class="ico"><use href="#i-equip"/></svg>EQUIP</button>
+          <div class="receipt"><div class="micro">ALREADY OWNED / CONVERTED</div><h3>+15 SHARDS</h3><div class="micro dim">EXAMPLE RARE DUPLICATE</div></div>
+        </div>
+        <div class="match-bottom"><span class="micro dim">OUTCOME IS FIXED BEFORE THE ANIMATION</span></div>
+      </div>
+      <figcaption><strong>A hinged chest, not a pod.</strong> Preview any of the four physical designs below. Each has a closed and open state. Families are cosmetic containers, not four new rarity or economy tiers.</figcaption>
+      <div class="family-controls" role="radiogroup" aria-label="Preview chest family">
+        <button class="board-button" role="radio" aria-checked="true" data-family="field">FIELD</button>
+        <button class="board-button" role="radio" aria-checked="false" data-family="arc">ARC</button>
+        <button class="board-button" role="radio" aria-checked="false" data-family="overdrive">OVERDRIVE</button>
+        <button class="board-button" role="radio" aria-checked="false" data-family="sovereign">SOVEREIGN</button>
+      </div>
+      <div class="prototype-controls"><button class="board-button" id="reset-demo">RESET STUDY</button><button class="board-button" id="duplicate-demo">PREVIEW DUPLICATE</button></div>
+      <output id="prototype-note" aria-live="polite">Board prototype only. No game state is connected.</output>
+    </figure>
+  </section>
+  <section class="icon-section" aria-label="Four reward chest designs">
+    <p class="eyebrow">Physical reward objects / four visual families / eight state illustrations</p>
+    <h2 class="section-title">CHESTS WITH WEIGHT. AND A REAL LID.</h2>
+    <p class="section-copy">Different silhouettes and materials, not four recolored pods. Open-state images are concept pairs; final hinge animation requires a matched lid/base asset pass. The current rarity odds and duplicate conversion remain unchanged.</p>
+    <div class="chest-gallery">
+      <article class="chest-design"><h3>FIELD CHEST</h3><div class="mono acid">GRAPHITE / RED STRAPS</div><img src="../assets/images/chests/field-closed.png" alt="Closed Field Chest design"><img src="../assets/images/chests/field-open.png" alt="Open Field Chest design"><p>Low practical steel body, protected corners and a square signal latch.</p></article>
+      <article class="chest-design"><h3>ARC CHEST</h3><div class="mono">IVORY / VIOLET CRYSTAL</div><img src="../assets/images/chests/arc-closed.png" alt="Closed Arc Chest design"><img src="../assets/images/chests/arc-open.png" alt="Open Arc Chest design"><p>Arched segmented lid, pale ceramic plates and a triangular crystal lock.</p></article>
+      <article class="chest-design"><h3>OVERDRIVE CHEST</h3><div class="mono red">RED BRACES / ACID RAILS</div><img src="../assets/images/chests/overdrive-closed.png" alt="Closed Overdrive Chest design"><img src="../assets/images/chests/overdrive-open.png" alt="Open Overdrive Chest design"><p>Heavy industrial reinforcement, dark front vents and energized light rails.</p></article>
+      <article class="chest-design"><h3>SOVEREIGN CHEST</h3><div class="mono">OBSIDIAN / WARM GOLD</div><img src="../assets/images/chests/sovereign-closed.png" alt="Closed Sovereign Chest design"><img src="../assets/images/chests/sovereign-open.png" alt="Open Sovereign Chest design"><p>Beveled lid, gold corner armor and an original ruby signal crest.</p></article>
+    </div>
+  </section>
+  <section class="icon-section">
+    <p class="eyebrow">Original glyph construction / silhouette studies</p>
+    <h2 class="section-title">A FAMILY, NOT A BAG OF ICONS.</h2>
+    <p class="section-copy">Shared chamfers, strong negative space and a central signal motif. Navigation, resources and abilities have different jobs but the same visual ancestry. These paths are original studies, not traced reference-game assets. Short labels and accessible names remain part of the production contract.</p>
+    <div class="icon-grid" id="icon-grid"></div>
+  </section>
+  <section class="principles" aria-label="Implementation priorities">
+    <div><h3>SCENES, NOT PAGES</h3><p>Do not rebuild the universal header/card/footer wrapper. Share spatial rules while allowing each game moment a different composition.</p></div>
+    <div><h3>PREPARE ONCE</h3><p>Owned agent and valid three-power kit live in preparation spaces. Do not repeatedly route through unchanged setup confirmations.</p></div>
+    <div><h3>PROGRESS IS REAL</h3><p>Use saved outcomes, collection and earned chests. Contracts, mastery rewards and shard redemption need rules and durable claims before activation.</p></div>
+    <div><h3>PROVE THE LOOP</h3><p>Review Lobby, Agent/Armory, articulated combat and Chest discovery as a coherent slice. Then migrate the remaining loop and its failure states.</p></div>
+  </section>
+  <footer>
+    <p><strong>Design boundary:</strong> original world and UI direction, not copied characters or branding. No fake multiplayer, competitive ladder, paid gacha, invented damage stats or undisclosed economy changes.</p>
+    <p>Read the <a href="GAME_EXPERIENCE_BLUEPRINT.md">complete experience blueprint</a> for every scene, state, motion rule, asset requirement and implementation gate. This board is allowed to scroll because it is a document; each proposed game screen is fixed to its own viewport.</p>
+  </footer>
+</main>
+<script>
+  const iconNames = [
+    ['arena','Arena'],['agents','Agents'],['armory','Armory'],['vault','Vault'],
+    ['career','Career'],['gear','Settings'],['back','Back'],['close','Close'],
+    ['equip','Equip'],['deploy','Deploy'],['queue','Queue'],['ban','Ban'],
+    ['pick','Pick'],['coin','Coin'],['shard','Shard'],['info','Inspect'],
+    ['split','50:50'],['time','Extra time'],['shield','Mind shield'],['double','Double damage'],
+    ['chain','Streak saver'],['lock','Locked'],['science','Science'],['sports','Sports'],
+    ['history','History'],['screen','Movies + TV'],['space','Space'],['tech','Technology'],
+    ['earth','Geography'],['music','Music']
+  ];
+  const iconGrid = document.getElementById('icon-grid');
+  iconNames.forEach(([id,label]) => {
+    const cell = document.createElement('div');
+    cell.className = 'icon-cell';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','ico');
+    svg.setAttribute('aria-hidden','true');
+    const use = document.createElementNS('http://www.w3.org/2000/svg','use');
+    use.setAttribute('href',`#i-${id}`);
+    svg.append(use);
+    const text = document.createElement('span');
+    text.textContent = label;
+    cell.append(svg,text);
+    iconGrid.append(cell);
+  });
+  const reward = document.getElementById('reward-phone');
+  const note = document.getElementById('prototype-note');
+  let family = 'field', revealTimer = null;
+  const chestArt = document.getElementById('chest-art');
+  const instruction = document.getElementById('chest-instruction');
+  function resetChest() {
+    clearTimeout(revealTimer);
+    reward.classList.remove('revealed','duplicate','opened');
+    chestArt.src = `../assets/images/chests/${family}-closed.png`;
+    chestArt.alt = `Closed ${family} chest`;
+    instruction.textContent = 'TAP THE CHEST LATCH';
+  }
+  document.querySelectorAll('[data-family]').forEach(button=>button.addEventListener('click',()=>{
+    family=button.dataset.family;
+    document.querySelectorAll('[data-family]').forEach(option=>option.setAttribute('aria-checked',String(option===button)));
+    document.getElementById('chest-family-label').textContent=`${family.toUpperCase()} CHEST / EXAMPLE`;
+    resetChest();
+    note.textContent='Cosmetic chest design selected. Loot odds are unchanged.';
+  }));
+  document.querySelectorAll('[data-combat]').forEach(button=>button.addEventListener('click',()=>{
+    document.getElementById('combat-study-frame').contentWindow.postMessage({
+      type:'brain-brawl-combat-study',action:button.dataset.combat,
+    },'*');
+  }));
+  document.getElementById('reveal-demo').addEventListener('click',() => {
+    if(reward.classList.contains('opened'))return;
+    reward.classList.add('opened');
+    chestArt.src = `../assets/images/chests/${family}-open.png`;
+    chestArt.alt = `Open ${family} chest`;
+    instruction.textContent='OPEN STATE / DISCOVERY NEXT';
+    document.getElementById('discovery-label').textContent = 'NEW AGENT';
+    revealTimer=setTimeout(()=>{
+      reward.classList.add('revealed');
+      note.textContent='New-agent composition preview. No item was granted or saved.';
+    },matchMedia('(prefers-reduced-motion: reduce)').matches?0:650);
+  });
+  document.getElementById('equip-demo').addEventListener('click',() => {
+    note.textContent = 'Equip interaction preview only. Production must validate ownership and persist before changing the lobby agent.';
+  });
+  document.getElementById('reset-demo').addEventListener('click',() => {
+    resetChest();
+    note.textContent = 'Study reset. No game state is connected.';
+  });
+  document.getElementById('duplicate-demo').addEventListener('click',() => {
+    clearTimeout(revealTimer);
+    reward.classList.add('revealed','duplicate');
+    document.getElementById('discovery-label').textContent = 'DUPLICATE AGENT';
+    note.textContent = 'Rare duplicate example: 15 shards under the existing rules. Nothing was granted.';
+  });
+</script>
+</body>
+</html>

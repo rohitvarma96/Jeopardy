@@ -13,6 +13,8 @@ export const routes = {
   animationPreview: '/battle/animation-preview',
   rewards: '/battle/rewards',
   settings: '/settings',
+  designLab: '/design-lab',
+  chestForge: '/chest-forge',
 } as const satisfies Record<string, Href>;
 
 export type TabHref = typeof routes.arena | typeof routes.profile;

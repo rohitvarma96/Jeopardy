@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { MatchSetupScreen } from '../../src/components/navigation/MatchSetupScreen';
-import { AppText, Badge, Button, Card, IconSlot, Panel, SelectableCard } from '../../src/components/ui';
+import { AppText, Badge, Button, IconSlot, Panel, SelectableCard } from '../../src/components/ui';
+import { PagedItems } from '../../src/components/ui/PagedItems';
 import { CATEGORIES, getCategory } from '../../src/data/categories';
 import { availableCategories } from '../../src/features/category-draft/draft';
 import { useMatchSetupStore } from '../../src/features/match-setup/store';
@@ -43,7 +44,9 @@ export default function CategoryDraft() {
   };
 
   return (
-    <MatchSetupScreen step="categoryDraft">
+    <MatchSetupScreen step="categoryDraft" footer={draft.stage === 'complete'
+      ? <Button label="Continue to fighter selection" onPress={() => router.push(routes.fighterSelect)} />
+      : <Button label={banning ? 'Confirm ban' : 'Confirm pick'} disabled={!choice} onPress={confirm} />}>
       {draft.playerBan && draft.opponentBan ? (
         <Panel>
           <AppText variant="label">Bans</AppText>
@@ -55,8 +58,9 @@ export default function CategoryDraft() {
       ) : null}
       {draft.stage === 'complete' ? (
         <>
-          <Card title="Match categories" description="Questions from these categories are mixed throughout the battle.">
-            {draft.categories.map((category) => (
+          <AppText variant="heading">Match categories</AppText>
+          <PagedItems items={draft.categories} keyExtractor={(item) => item.categoryId} label="Categories" itemHeight={52}
+            renderItem={(category) => (
               <View key={category.categoryId} style={styles.row}>
                 <IconSlot name={getCategory(category.categoryId).icon} size="small" />
                 <AppText variant="label" style={styles.fill}>
@@ -72,15 +76,13 @@ export default function CategoryDraft() {
                   }
                 />
               </View>
-            ))}
-          </Card>
-          <Button label="Continue to fighter selection" onPress={() => router.push(routes.fighterSelect)} />
+            )} />
         </>
       ) : (
         <>
           <AppText variant="heading">{banning ? 'Ban one category' : 'Pick one category'}</AppText>
-          <View style={styles.grid}>
-            {CATEGORIES.map((category) => {
+          <PagedItems items={CATEGORIES} keyExtractor={(item) => item.id} label="Categories" itemHeight={96} columns={2}
+            renderItem={(category) => {
               const status = categoryStatus(draft, category.id, opponentName);
               return (
                 <SelectableCard
@@ -89,20 +91,13 @@ export default function CategoryDraft() {
                   selected={choice === category.id}
                   disabled={!available.includes(category.id)}
                   onPress={() => setChoice(category.id)}
-                  style={styles.tile}
                 >
                   <IconSlot name={category.icon} size="small" />
                   <AppText variant="label">{category.name}</AppText>
                   {status ? <Badge label={status} tone="danger" /> : null}
                 </SelectableCard>
               );
-            })}
-          </View>
-          <Button
-            label={banning ? 'Confirm ban' : 'Confirm pick'}
-            disabled={!choice}
-            onPress={confirm}
-          />
+            }} />
         </>
       )}
     </MatchSetupScreen>
@@ -112,6 +107,4 @@ export default function CategoryDraft() {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.small },
   fill: { flex: 1 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.small },
-  tile: { flexGrow: 1, flexBasis: '45%' },
 });

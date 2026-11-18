@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { cancelAnimation, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { colors, layout, radii, spacing } from '../../theme';
+import { colors, layout, radii, spacing, volt } from '../../theme';
 import { AppText } from './AppText';
 
 export type ProgressBarProps = {
@@ -14,9 +14,10 @@ export type ProgressBarProps = {
   /** Opt in for battle HP only; labels and accessibility always expose the authoritative value. */
   animate?: boolean;
   showLabel?: boolean;
+  appearance?: 'default' | 'volt';
 };
 
-export function ProgressBar({ label, value, max = 100, tone = 'primary', testID, animate = false, showLabel = true }: ProgressBarProps) {
+export function ProgressBar({ label, value, max = 100, tone = 'primary', testID, animate = false, showLabel = true, appearance = 'default' }: ProgressBarProps) {
   const valid = Number.isFinite(value) && Number.isFinite(max) && max > 0;
   const bounded = valid ? Math.min(max, Math.max(0, value)) : 0;
   const percentage = valid ? (bounded / max) * 100 : 0;
@@ -55,10 +56,10 @@ export function ProgressBar({ label, value, max = 100, tone = 'primary', testID,
           {bounded} / {max}
         </AppText>
       </View> : null}
-      <View style={styles.track}>
+      <View style={[styles.track, appearance === 'volt' && styles.voltTrack]}>
         <Animated.View
           testID={testID ? `${testID}-fill` : undefined}
-          style={[styles.fill, fills[tone], { width }, animate && animatedFill]}
+          style={[styles.fill, fills[tone], appearance === 'volt' && styles.voltFill, { width }, animate && animatedFill]}
         />
       </View>
     </View>
@@ -80,6 +81,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   fill: { height: '100%', borderRadius: radii.full },
+  voltTrack: { backgroundColor: volt.color.ink, borderRadius: 0 },
+  voltFill: { backgroundColor: volt.color.acid, borderRadius: 0 },
 });
 
 const fills = StyleSheet.create({

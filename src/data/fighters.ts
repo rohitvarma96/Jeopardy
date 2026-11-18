@@ -8,8 +8,8 @@ export const FIGHTERS = [
   {
     id: 'arcane',
     name: 'Astral Sage',
-    role: 'Celestial spellweaver',
-    identity: 'A crescent-crowned scholar wielding a living star.',
+    role: 'Celestial strategist',
+    identity: 'A silver-haired human tactician in an asymmetric coat, wielding a star-data device.',
     icon: 'book-outline',
     passive: {
       name: 'Arcane Insight',
@@ -22,7 +22,7 @@ export const FIGHTERS = [
     id: 'shadow',
     name: 'Nightblade',
     role: 'Eclipse assassin',
-    identity: 'A masked duelist with twin crescent blades and a crimson scarf.',
+    identity: 'A sharp-eyed human infiltrator with short black hair, a crimson scarf and crescent bracers.',
     icon: 'flash-outline',
     passive: {
       name: 'Swift Strike',
@@ -35,8 +35,8 @@ export const FIGHTERS = [
   {
     id: 'sylva',
     name: 'Thorn Ranger',
-    role: 'Wildwood archer',
-    identity: 'An antler-hooded guardian carrying a living thornbow.',
+    role: 'Botanical scout',
+    identity: 'A human field scout in an olive technical jacket carrying a botanical scanner.',
     icon: 'leaf-outline',
     passive: {
       name: 'Keen Eye',
@@ -48,8 +48,8 @@ export const FIGHTERS = [
   {
     id: 'titan',
     name: 'Iron Bastion',
-    role: 'Dawnforged juggernaut',
-    identity: 'An imposing ivory sentinel with a tower shield and warhammer.',
+    role: 'Defensive engineer',
+    identity: 'A broad-shouldered human engineer in an ivory utility coat with an energy shield.',
     icon: 'shield-half-outline',
     passive: {
       name: 'Bulwark',
@@ -61,8 +61,8 @@ export const FIGHTERS = [
   {
     id: 'ember',
     name: 'Ember Sentinel',
-    role: 'Solar greatsword knight',
-    identity: 'Bronze plate, a flame-shaped crest and a sweeping crimson cape.',
+    role: 'Solar specialist',
+    identity: 'A copper-haired human specialist in an orange utility jacket, shaping an amber light pulse.',
     icon: 'flame-outline',
     passive: {
       name: 'Solar Resolve',
@@ -74,8 +74,8 @@ export const FIGHTERS = [
   {
     id: 'frost',
     name: 'Frost Warden',
-    role: 'Glacial axe guardian',
-    identity: 'Swept ivory horns, silver armour and a glacial-blue mantle.',
+    role: 'Glacial analyst',
+    identity: 'A silver-streaked human analyst in a blue-gray coat with a holographic wrist device.',
     icon: 'snow-outline',
     passive: {
       name: 'Glacial Guard',

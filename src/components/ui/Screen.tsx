@@ -1,19 +1,21 @@
 import { useRouter, type Href } from 'expo-router';
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { exitPreview } from '../../navigation/exitPreview';
-import type { TabHref } from '../../navigation/routes';
+import { routes, type TabHref } from '../../navigation/routes';
 import { colors, layout, spacing } from '../../theme';
 import { AppText } from './AppText';
 import { Badge } from './Badge';
 import { Button } from './Button';
+import { PageDeck, type ScreenPage } from './PageDeck';
 
 type ScreenProps = {
   title: string;
   description: string;
-  children: ReactNode;
+  children?: ReactNode;
+  pages?: readonly ScreenPage[];
   footer?: ReactNode;
   scrollKey?: string;
   tabScreen?: boolean;
@@ -21,86 +23,59 @@ type ScreenProps = {
   exitHref?: TabHref;
   exitLabel?: string;
   onExit?: () => void;
-  /** Pass null to hide the preview badge on implemented screens. */
   previewLabel?: string | null;
+  headerAction?: ReactNode;
 };
 
 export function Screen({
-  title,
-  description,
-  children,
-  footer,
-  scrollKey,
-  tabScreen = false,
-  backHref,
-  exitHref,
-  exitLabel = 'Exit preview',
-  onExit,
-  previewLabel = 'Phase 1 preview',
+  title, description, children, pages, footer, scrollKey, tabScreen = false,
+  backHref, exitHref, exitLabel = 'Leave match', onExit, previewLabel = 'Phase 1 preview', headerAction,
 }: ScreenProps) {
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const padding = width <= layout.compactWidth ? spacing.medium : spacing.large;
-
-  return (
-    <SafeAreaView
-      testID="screen-safe-area"
-      edges={tabScreen ? ['top', 'left', 'right'] : ['top', 'bottom', 'left', 'right']}
-      style={styles.container}
-    >
-      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      {backHref || exitHref ? (
-        <View style={[styles.toolbar, { paddingHorizontal: padding }]}>
-          {backHref ? (
-            <Button
-              label="Back"
-              variant="ghost"
-              onPress={() => (router.canGoBack() ? router.back() : router.replace(backHref))}
-            />
-          ) : null}
-          {exitHref ? (
-            <Button
-              label={exitLabel}
-              variant="ghost"
-              onPress={() => (onExit ? onExit() : exitPreview(exitHref))}
-            />
-          ) : null}
+  const { height, fontScale } = useWindowDimensions();
+  const compact = height < 700 || fontScale >= 1.5;
+  return <SafeAreaView testID="screen-safe-area"
+    edges={tabScreen ? ['top', 'left', 'right'] : ['top', 'bottom', 'left', 'right']} style={styles.screen}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <View style={[styles.layout, compact && styles.compact]}>
+        <View style={styles.header}>
+          <View style={styles.headerTitle}>
+            <AppText variant="caption" tone="accent" maxFontSizeMultiplier={1}>BRAIN BRAWL / ARENA PROTOCOL</AppText>
+            <AppText variant="title" maxFontSizeMultiplier={1.3}>{title}</AppText>
+          </View>
+          {previewLabel ? <Badge label={previewLabel} tone="accent" /> : null}
+          {headerAction}
         </View>
-      ) : null}
-      <ScrollView key={scrollKey} testID="screen-scroll" style={styles.scroll} contentContainerStyle={[styles.content, { padding }]}
-        keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentInsetAdjustmentBehavior="never">
-        {previewLabel ? <Badge label={previewLabel} tone="accent" /> : null}
-        <AppText variant="title">{title}</AppText>
-        <AppText tone="secondary">{description}</AppText>
-        {children}
-      </ScrollView>
-      {footer ? <View testID="screen-footer" style={[styles.footer, { paddingHorizontal: padding }]}>{footer}</View> : null}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
+        {!compact ? <AppText tone="secondary">{description}</AppText> : null}
+        <View testID="screen-content" style={styles.body}>
+          {children}
+          {pages ? <PageDeck key={scrollKey} pages={pages} /> : null}
+        </View>
+        {footer ? <View testID="screen-footer" style={styles.footer}>{footer}</View> : null}
+        {!tabScreen ? <View testID="game-navigation" style={styles.navigation}>
+          {backHref ? <Button label="Back" variant="secondary" style={styles.navItem}
+            onPress={() => router.canGoBack() ? router.back() : router.replace(backHref)} /> : null}
+          <Button label={exitHref ? exitLabel : 'Arena'} variant="secondary" style={styles.navItem}
+            onPress={() => onExit ? onExit() : exitPreview(exitHref ?? routes.arena)} />
+          {!exitHref ? <Button label="Profile" variant="secondary" style={styles.navItem}
+            onPress={() => { exitPreview(routes.profile); }} /> : null}
+        </View> : null}
+      </View>
+    </KeyboardAvoidingView>
+  </SafeAreaView>;
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scroll: { flex: 1 },
-  footer: {
-    width: '100%', maxWidth: layout.contentMaxWidth, alignSelf: 'center',
-    paddingVertical: spacing.small, gap: spacing.small, borderTopWidth: 1, borderTopColor: colors.border,
+  screen: { flex: 1, minHeight: 0, backgroundColor: colors.background },
+  layout: {
+    flex: 1, minHeight: 0, width: '100%', maxWidth: layout.contentMaxWidth, alignSelf: 'center',
+    padding: spacing.medium, gap: spacing.small,
   },
-  toolbar: {
-    width: '100%',
-    maxWidth: layout.contentMaxWidth,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingTop: spacing.small,
-  },
-  content: {
-    flexGrow: 1,
-    width: '100%',
-    maxWidth: layout.contentMaxWidth,
-    alignSelf: 'center',
-    gap: spacing.medium,
-  },
+  compact: { padding: spacing.small, gap: spacing.xsmall },
+  header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: spacing.small },
+  headerTitle: { flexShrink: 1 },
+  body: { flex: 1, minHeight: 0, gap: spacing.small },
+  footer: { flexShrink: 0, gap: spacing.small },
+  navigation: { flexDirection: 'row', gap: spacing.small, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.small },
+  navItem: { flex: 1, paddingHorizontal: spacing.xsmall },
 });

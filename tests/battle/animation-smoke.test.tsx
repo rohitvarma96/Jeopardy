@@ -10,7 +10,7 @@ import { BattleScene } from '../../src/components/battle/BattleScene';
 import { BattleScreen } from '../../src/components/battle/BattleScreen';
 import { combatCues, transitionFeedback } from '../../src/components/battle/combatFeedback';
 import { battlePresentation } from '../../src/components/battle/combatPresentation';
-import * as FighterRigs from '../../src/components/fighters/combat/FighterRig';
+import * as HumanArt from '../../src/components/fighters/HumanCombatArt';
 import { HealthBar } from '../../src/components/ui';
 import { REVEAL_MS, useBattleStore } from '../../src/features/battle/store';
 import { selectBattleView, step } from '../../src/game/battle';
@@ -142,7 +142,7 @@ test('answer submission and automatic progression preserve the battle clock duri
 test('tick renders do not restart motion; voided attacks never produce cosmetic damage', async () => {
   const view = ANIMATION_PREVIEWS[1].view;
   const timing = jest.spyOn(Reanimated, 'withTiming');
-  const rigs = jest.spyOn(FighterRigs, 'FighterRig');
+  const rigs = jest.spyOn(HumanArt, 'HumanCombatArt');
   const app = await render(<BattleScene view={view} motionEnabled />);
   const scheduled = timing.mock.calls.length;
   const drawn = rigs.mock.calls.length;

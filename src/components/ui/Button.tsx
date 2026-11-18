@@ -46,7 +46,7 @@ export function Button({
       ]}
     >
       {icon}
-      <AppText variant="label" style={[styles.label, variant === 'primary' && styles.primaryLabel, variant === 'gold' && styles.goldLabel]}>
+      <AppText variant="label" maxFontSizeMultiplier={1.3} style={[styles.label, variant === 'primary' && styles.primaryLabel, variant === 'gold' && styles.goldLabel]}>
         {loading ? `${label}...` : label}
       </AppText>
     </Pressable>

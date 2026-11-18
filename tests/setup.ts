@@ -32,6 +32,7 @@ jest.mock('expo-font', () => ({
   ...jest.requireActual<typeof import('expo-font')>('expo-font'),
   isLoaded: jest.fn(() => true),
   loadAsync: jest.fn(async () => {}),
+  useFonts: jest.fn(() => [true, null]),
 }));
 
 // In-memory storage provided by the package; device persistence is checked on Android.

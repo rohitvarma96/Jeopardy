@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Brain Brawl / Articulated Fight Study</title>
+  <style>
+    @font-face{font-family:Barlow;src:url("../assets/fonts/BarlowCondensed-ExtraBold.ttf")}
+    @font-face{font-family:Mono;src:url("../assets/fonts/SpaceMono-Regular.ttf")}
+    @font-face{font-family:Action;src:url("../assets/fonts/Bangers-Regular.ttf")}
+    *{box-sizing:border-box}
+    :root{color-scheme:dark;--acid:#e9ff3c;--red:#ff354f;--chalk:#f1f0e8}
+    html,body{height:100%;margin:0;background:#0b1019;color:var(--chalk);font:14px/1.4 system-ui,sans-serif}
+    body{display:flex;flex-direction:column}
+    header{padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #53677d55}
+    h1{font:30px Barlow;margin:0}header p{font:10px Mono;margin:0;color:#aab8ca}
+    .viewport{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,49fr) minmax(0,36fr) minmax(0,15fr);max-width:1180px;width:100%;align-self:center;background:#111b29}
+    .viewport.resolving{grid-template-rows:minmax(0,66fr) minmax(0,19fr) minmax(0,15fr)}
+    .stage{position:relative;min-height:0;background:#102234 url("../assets/images/arenas/relay-fight-stage.jpg") center bottom/auto 100% no-repeat;isolation:isolate}
+    #scene{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
+    .stage:after{content:"";position:absolute;inset:0;background:linear-gradient(#050a1766,transparent 28%,transparent 90%,#08101b44);pointer-events:none;z-index:-1}
+    .hud{position:absolute;top:12px;left:5%;right:5%;display:flex;justify-content:space-between;gap:12%;pointer-events:none}
+    .fighter-hud{width:42%;font:10px Mono;text-shadow:1px 2px #000}.fighter-hud.enemy{text-align:right}
+    .fighter-hud b{display:block;font:24px Barlow}
+    .bar{height:6px;margin-top:4px;background:#172333;border:1px solid #c1ccda33}
+    .bar span{display:block;height:100%;width:84%;background:var(--acid)}.enemy .bar span{width:71%;background:var(--red);margin-left:auto}
+    #word{position:absolute;left:0;right:0;top:24%;text-align:center;opacity:0;font:clamp(34px,9vw,100px)/1 Action;letter-spacing:3px;-webkit-text-stroke:2px #10141d;paint-order:stroke fill;text-shadow:4px 5px #b51c38,7px 8px #11141d;pointer-events:none}
+    .question{min-height:0;padding:10px 5%;display:flex;flex-direction:column;justify-content:center;gap:8px;border-top:2px solid var(--acid)}
+    .metadata{display:flex;justify-content:space-between;font:10px Mono;color:var(--acid)}
+    .question h2{margin:0;font:600 clamp(16px,2.1vw,22px)/1.3 system-ui}
+    .answers{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .answer{border:1px solid #6c8297;background:#1a293a;min-height:45px;padding:8px;display:flex;align-items:center;gap:12px}
+    .answer b{font:11px Mono;color:#adbdcc}.answer.selected{border-color:var(--acid);color:var(--acid);background:#2c3b29}
+    .answer-note{font:9px Mono;color:#adbdcc;margin:0}
+    .resolving .answers,.resolving .question h2{display:none}
+    .resolving .answer-note{font-size:12px;color:var(--chalk)}
+    .abilities{display:flex;justify-content:space-around;align-items:center;border-top:1px solid #6c829755;background:#0b1420;min-height:0}
+    .ability{display:flex;flex-direction:column;align-items:center;gap:4px;font:9px Mono}
+    .ability svg{width:38px;height:38px;fill:none;stroke:var(--acid);stroke-width:2}
+    .ability.armed{color:#9ce2ef}.ability.armed svg{stroke:#8da8b4}
+    .controls{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;padding:8px 12px}
+    button{min-height:48px;border:1px solid #6c8297;background:#1b2939;color:var(--chalk);font:16px Barlow;cursor:pointer}
+    button:hover,button:focus-visible{border-color:var(--acid);outline:1px solid var(--acid)}
+    button[data-play="ko"]{color:var(--acid)}
+    .transport{display:flex;gap:12px;padding:0 12px 10px;align-items:center;font:10px Mono;color:#b1bfce}
+    .transport input[type="range"]{flex:1;min-width:30px;accent-color:var(--acid)}
+    .transport label{display:flex;gap:6px;align-items:center}
+    .embedded header,.embedded .controls,.embedded .transport{display:none}
+    .embedded .viewport{height:100%;width:100%;max-width:none}
+    .embedded .hud{top:4%}.embedded #word{font-size:16vw}
+    @media(max-width:500px){header p{display:none}.controls{grid-template-columns:repeat(3,1fr)}h1{font-size:24px}.transport{flex-wrap:wrap;font-size:9px}.ability svg{width:30px;height:30px}.question{gap:6px;padding-top:7px;padding-bottom:7px}}
+    @media(max-height:650px){header{padding:4px 12px}.transport output{display:none}.question h2{font-size:16px}.answer{min-height:40px;padding:5px}.ability svg{width:25px;height:25px}.ability{font-size:8px}}
+    @media(min-aspect-ratio:4/3) and (max-height:650px){
+      .viewport,.viewport.resolving{grid-template-columns:minmax(0,58fr) minmax(0,42fr);grid-template-rows:minmax(0,80fr) minmax(0,20fr)}
+      .stage{grid-column:1;grid-row:1/3}.question{grid-column:2;grid-row:1}.abilities{grid-column:2;grid-row:2}
+    }
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <header><h1>THE RELAY / ARTICULATED COMBAT</h1><p>Shared game rig / synthetic motion fixtures / not a live match</p></header>
+  <main class="viewport" id="viewport">
+    <section class="stage" id="stage" aria-label="Human fighters sharing a grounded side-on arena">
+      <svg id="scene" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+      <div class="hud"><div class="fighter-hud">YOU / EMBER SENTINEL<b>84 HP</b><div class="bar"><span></span></div></div><div class="fighter-hud enemy">AI / NIGHTBLADE<b id="enemy-hp">71 HP</b><div class="bar"><span id="enemy-fill"></span></div></div></div>
+      <div id="word" aria-hidden="true">STRIKE</div>
+    </section>
+    <section class="question">
+      <div class="metadata"><span>SPACE / EASY</span><span id="clock">09s / YOUR TIMER</span></div>
+      <h2>Which planet is known as the Red Planet?</h2>
+      <div class="answers"><div class="answer"><b>A</b>Venus</div><div class="answer selected"><b>B</b>Mars</div><div class="answer"><b>C</b>Saturn</div><div class="answer"><b>D</b>Neptune</div></div>
+      <p class="answer-note" id="note">ANSWER LOCKED / WAITING FOR OPPONENT</p>
+    </section>
+    <div class="abilities">
+      <div class="ability"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 5H12V13H3ZM20 5H29V13H20ZM3 20H12V28H3ZM20 20H29V28H20M16 1V31"/></svg><span>50:50 / READY</span></div>
+      <div class="ability"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 3H26M6 29H26M9 3V10L16 16L23 10V3M9 29V22L16 16L23 22V29"/></svg><span>TIME / READY</span></div>
+      <div class="ability armed"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 5L16 2L28 5V16L24 23L16 30L8 23L4 16ZM16 9L22 15L16 23L10 15Z"/></svg><span>USED / ARMED</span></div>
+    </div>
+  </main>
+  <div class="controls" aria-label="Motion fixture controls">
+    <button data-play="punch">STRIKE</button><button data-play="kick">POWER KICK</button><button data-play="block">BLOCK</button>
+    <button data-play="ko">KO</button><button id="replay">REPLAY</button><button id="reset">RESET</button>
+  </div>
+  <div class="transport">
+    <label for="time">POSE TIME</label><input id="time" type="range" min="0" max="1700" value="0" aria-label="Animation time">
+    <label><input id="reduced" type="checkbox">REDUCED MOTION</label><output id="status" aria-live="polite">Ready. Limbs articulate; no game state is connected.</output>
+  </div>
+  <script src="design-assets/human-rig.js"></script>
+  <script>
+    const rig = globalThis.BrainBrawlHumanRig;
+    if (!rig) throw new Error('Shared articulated rig failed to load. Run node scripts/build-combat-study.cjs.');
+    const embedded = new URLSearchParams(location.search).get('embed') === '1';
+    document.body.classList.toggle('embedded',embedded);
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const scene = document.getElementById('scene'), stage = document.getElementById('stage');
+    const viewport = document.getElementById('viewport'), word = document.getElementById('word');
+    const scrubber = document.getElementById('time'), status = document.getElementById('status');
+    const reduced = document.getElementById('reduced');
+    const systemMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let worldWidth = 900, actorScale = .82, raf = 0, current = 'punch', playing = false, activeFixture = false, started = 0, frameTime = 0;
+    const timing = {duration:680,contact:245,fall:800,recoil:740};
+    function element(tag,attributes,parent) {
+      const e=document.createElementNS(svgNS,tag);
+      Object.entries(attributes).forEach(([key,value])=>e.setAttribute(key,String(value)));
+      if(parent)parent.append(e);
+      return e;
+    }
+    function actor(id,fighterId,direction) {
+      const design=rig.HUMAN_DESIGNS[fighterId];
+      const outer=element('g',{'data-actor':id},scene);
+      const root=element('g',{},outer),parts={};
+      function part(node,parent) {
+        const group=element('g',{'data-part':node.name},parent);parts[node.name]=group;
+        node.shapes.forEach(shape=>element('path',{
+          d:shape.path,fill:design[shape.fill],stroke:shape.stroke?design[shape.stroke]:'none',
+          'stroke-width':shape.width||2,'stroke-linejoin':'round',
+        },group));
+        if(node.name==='head')element('path',{d:design.hairPath,fill:design.hair},group);
+        if(node.name==='torso'&&design.longCoat) {
+          element('path',{d:'M-29 -3 L-8 1 L-21 94 L-50 117 Z',fill:design.cloth},group);
+          element('path',{d:'M12 0 L29 -3 L49 91 L25 105 Z',fill:design.panel},group);
+        }
+        rig.HUMAN_PARTS.filter(child=>child.parent===node.name).forEach(child=>part(child,group));
+      }
+      rig.HUMAN_PARTS.filter(node=>node.parent===null).forEach(node=>part(node,root));
+      return {id,direction,outer,root,parts,x:0};
+    }
+    const shadows=element('g',{},scene);
+    const shadowA=element('ellipse',{rx:60,ry:8,fill:'#03070b',opacity:.8},shadows);
+    const shadowB=element('ellipse',{rx:60,ry:8,fill:'#03070b',opacity:.8},shadows);
+    const attacker=actor('player','ember',1),defender=actor('opponent','shadow',-1);
+    const burst=element('g',{opacity:0},scene);
+    element('path',{d:'M0 -43 L9 -15 L36 -30 L19 -3 L47 7 L16 14 L27 42 L3 23 L-14 49 L-17 18 L-45 26 L-24 0 L-46 -17 L-15 -16 L-12 -43Z',fill:'#ffe773',stroke:'#ff354f','stroke-width':3},burst);
+    element('circle',{r:24,fill:'none',stroke:'#fff7dd','stroke-width':3},burst);
+    function pose(actor,pose) {
+      actor.root.setAttribute('transform',`translate(${rig.HUMAN_ORIGIN.x+pose.x},${rig.HUMAN_ORIGIN.y+pose.y})`);
+      rig.HUMAN_PARTS.forEach(part=>actor.parts[part.name].setAttribute('transform',
+        `translate(${part.x},${part.y}) rotate(${pose.angles[part.name]*180/Math.PI})`));
+    }
+    function resize() {
+      const rect=stage.getBoundingClientRect();
+      if(!rect.height)return;
+      worldWidth=rect.width/rect.height*540;
+      scene.setAttribute('viewBox',`0 0 ${worldWidth} 540`);
+      const knockout=activeFixture&&current==='ko';
+      actorScale=knockout ? .64 : .82;
+      const half=Math.min(worldWidth*.24,163,Math.max(0,worldWidth/2-actorScale*(knockout?275:150)-8));
+      attacker.x=worldWidth/2-half;defender.x=worldWidth/2+half;
+      [attacker,defender].forEach(a=>a.outer.setAttribute('transform',`translate(${a.x},500) scale(${a.direction*actorScale},${actorScale}) translate(-260,-540)`));
+      shadowA.setAttribute('cx',attacker.x);shadowA.setAttribute('cy',500);
+      shadowB.setAttribute('cx',defender.x);shadowB.setAttribute('cy',500);
+      draw(frameTime,activeFixture);
+    }
+    function draw(time,active=true) {
+      frameTime=time;
+      const motion=reduced.checked||systemMotion.matches;
+      const contact=timing.contact,duration=current==='kick'?880:timing.duration;
+      const advance=rig.humanAdvance((defender.x-attacker.x)/actorScale);
+      const t=motion?current==='ko'?contact+48+timing.fall:contact:time;
+      const action=current==='kick'?'special':'attack';
+      pose(attacker,active&&t<duration?rig.sampleHumanPose(action,t,duration,contact,advance):
+        rig.sampleHumanPose('idle',0,3000,0,advance));
+      const reactionTime=Math.max(0,t-contact-48);
+      const defending=current==='block';
+      const targetPose=!active?rig.sampleHumanPose('idle',0,3000,0):
+        defending?rig.sampleHumanPose('block',Math.min(380,t+135),760,245):
+        t<contact?rig.sampleHumanPose('idle',0,3000,0):
+        rig.sampleHumanPose(current==='ko'?'fall':'knockback',
+          Math.min(current==='ko'?timing.fall:timing.recoil,reactionTime),current==='ko'?timing.fall:timing.recoil,0);
+      pose(defender,targetPose);
+      const after=t-contact,show=active&&after>=0&&(current==='ko'||after<740);
+      word.textContent=current==='block'?'BLOCK':current==='ko'?'KO':current==='kick'?'POWER KICK':'STRIKE';
+      word.style.color=current==='block'?'#9ce2ef':current==='ko'?'#e9ff3c':'#f1f0e8';
+      word.style.opacity=show?'1':'0';
+      word.style.transform=`rotate(-7deg) scale(${motion?1:.7+Math.sin(Math.min(1,Math.max(0,after)/130)*Math.PI/2)*.4})`;
+      burst.setAttribute('transform',`translate(${defender.x-15},${current==='kick'?290:270}) scale(${.7+Math.min(1,Math.max(0,after)/150)})`);
+      burst.setAttribute('opacity',active&&after>=0&&after<210?String(1-after/210):'0');
+      document.getElementById('enemy-hp').textContent=active&&current==='ko'&&after>=0?'0 HP':'71 HP';
+      document.getElementById('enemy-fill').style.width=active&&current==='ko'&&after>=0?'0%':'71%';
+      scene.dataset.state=!active?'idle':current==='ko'&&after>=timing.fall?'ko-held':current;
+      scene.dataset.frameTime=String(Math.round(t));
+      scrubber.value=String(Math.round(time));
+    }
+    function play(action) {
+      if(!['punch','kick','block','ko'].includes(action))return;
+      cancelAnimationFrame(raf);current=action;playing=true;activeFixture=true;viewport.classList.add('resolving');
+      document.getElementById('clock').textContent='RESOLUTION STUDY';
+      document.getElementById('note').textContent='Correct answer: Mars / synthetic combat fixture, no live rewards or damage.';
+      resize();started=performance.now();
+      status.textContent=`${action.toUpperCase()} / anticipation, contact, reaction, recovery.`;
+      if(reduced.checked||systemMotion.matches){draw(1700,true);playing=false;return;}
+      function frame(now) {
+        const time=Math.min(1700,now-started);draw(time,true);
+        if(time<1700)raf=requestAnimationFrame(frame);
+        else {playing=false;status.textContent=action==='ko'?'KO held until reset or replay.':'Fixture complete. Replay or inspect the pose timeline.';}
+      }
+      raf=requestAnimationFrame(frame);
+    }
+    function reset() {
+      cancelAnimationFrame(raf);playing=false;activeFixture=false;frameTime=0;viewport.classList.remove('resolving');
+      document.getElementById('clock').textContent='09s / YOUR TIMER';
+      document.getElementById('note').textContent='ANSWER LOCKED / WAITING FOR OPPONENT';
+      resize();draw(0,false);status.textContent='Reset. No game state is connected.';
+    }
+    document.querySelectorAll('[data-play]').forEach(button=>button.addEventListener('click',()=>play(button.dataset.play)));
+    document.getElementById('replay').addEventListener('click',()=>play(current));
+    document.getElementById('reset').addEventListener('click',reset);
+    scrubber.addEventListener('input',()=>{cancelAnimationFrame(raf);playing=false;viewport.classList.add('resolving');draw(Number(scrubber.value),true);status.textContent='Paused pose inspection / not a live game clock.';});
+    reduced.addEventListener('change',()=>play(current));
+    systemMotion.addEventListener('change',()=>reset());
+    window.addEventListener('message',event=>{
+      if(event.source!==window.parent||!event.data||event.data.type!=='brain-brawl-combat-study')return;
+      if(event.data.action==='reset')reset();else play(event.data.action);
+    });
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);playing=false;}});
+    new ResizeObserver(resize).observe(stage);
+    reset();
+  </script>
+</body>
+</html>

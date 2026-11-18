@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { PlayerAvatar } from '../src/components/player/PlayerAvatar';
 import { PlayerDataNotice } from '../src/components/player/PlayerDataNotice';
 import { AppText, Button, Card, IconSlot, LoadingState, Screen, SelectableCard } from '../src/components/ui';
+import { PagedItems } from '../src/components/ui/PagedItems';
 import { normalizeUsername, PLAYER_AVATARS, usernameError } from '../src/data/player';
 import type { AvatarId, PlayerSettings } from '../src/game/types/player';
 import { routes } from '../src/navigation/routes';
@@ -34,10 +35,17 @@ export default function Settings() {
       description="Identity and preferences are saved on this device, not synced to an account."
       backHref={routes.profile}
       previewLabel={null}
-    >
-      <PlayerDataNotice />
-      {player.status === 'ready' ? <>
-      <Card title="Player identity" description="Save your name and avatar before leaving this screen.">
+      footer={player.status === 'ready' ? <Button label="Save identity" loading={busy === 'identity'} disabled={!changed || problem !== null || busy !== null} onPress={async () => {
+        setBusy('identity');
+        setNotice('');
+        try {
+          if (await player.saveIdentity(username, avatarId)) {
+            setDraftName(null); setDraftAvatar(null); setNotice('Identity saved.');
+          }
+        } finally { setBusy(null); }
+      }} /> : null}
+      pages={player.status === 'ready' ? [
+      { id: 'identity', label: 'Name', content: <Card title="Player identity" style={styles.page}>
         <PlayerAvatar username={username} avatarId={avatarId} />
         <AppText variant="label" nativeID="player-name-label">Player name</AppText>
         <TextInput
@@ -54,37 +62,32 @@ export default function Settings() {
           style={styles.input}
         />
         {problem ? <AppText accessibilityRole="alert">{problem}</AppText> : null}
+      </Card> },
+      { id: 'avatar', label: 'Avatar', content: <>
         <AppText variant="label">Avatar</AppText>
-        <AppText variant="caption" tone="secondary">Initials or built-in identity icons; these are not fighter artwork.</AppText>
-        <View style={styles.avatars}>
-          {PLAYER_AVATARS.map((avatar) => (
+        <PagedItems items={PLAYER_AVATARS} keyExtractor={(item) => item.id} label="Avatars" columns={2} itemHeight={104}
+          renderItem={(avatar) => (
             <SelectableCard key={avatar.id} label={`${avatar.label} avatar`} selected={avatar.id === avatarId}
               disabled={busy !== null} onPress={() => { setDraftAvatar(avatar.id); setNotice(''); }} style={styles.avatarChoice}>
               <IconSlot name={avatar.icon} size="small" />
               <AppText variant="label">{avatar.label}</AppText>
             </SelectableCard>
-          ))}
-        </View>
-        <Button label="Save identity" loading={busy === 'identity'} disabled={!changed || problem !== null || busy !== null} onPress={async () => {
-          setBusy('identity');
-          setNotice('');
-          try {
-            if (await player.saveIdentity(username, avatarId)) {
-              setDraftName(null); setDraftAvatar(null); setNotice('Identity saved.');
-            }
-          } finally { setBusy(null); }
-        }} />
-      </Card>
-      <Card title="Preferences">
-        <Preference label="Sound effects" description="Saved for future audio. This prototype plays no sound, even when enabled."
-          value={player.settings.soundEnabled} disabled={busy !== null} onPress={() => void savePreference('soundEnabled')} />
-        <Preference label="Reduce motion" description="Disable battle motion and animated loading. The device's reduced-motion setting always takes priority."
-          value={player.settings.reducedMotion} disabled={busy !== null} onPress={() => void savePreference('reducedMotion')} />
+          )} />
+      </> },
+      { id: 'preferences', label: 'Preferences', content: <>
+        <PagedItems items={[
+          { key: 'soundEnabled', label: 'Sound effects', description: 'Future audio only. This prototype is silent.' },
+          { key: 'reducedMotion', label: 'Reduce motion', description: 'Disable combat motion. System reduction always takes priority.' },
+        ] as const} keyExtractor={(item) => item.key} label="Preferences" itemHeight={130}
+          renderItem={(item) => <Preference label={item.label} description={item.description}
+            value={player.settings[item.key]} disabled={busy !== null} onPress={() => void savePreference(item.key)} />} />
         {busy === 'preference' ? <LoadingState label="Saving preference..." /> : null}
-        <AppText variant="caption" tone="secondary">Preferences save immediately. Answers and timers work with sound and motion off.</AppText>
-      </Card>
+        <AppText variant="caption" tone="secondary">Preferences save immediately.</AppText>
+      </> },
+      ] : undefined}
+    >
+      <PlayerDataNotice />
       {notice ? <AppText accessibilityLiveRegion="polite">{notice}</AppText> : null}
-      </> : null}
     </Screen>
   );
 }
@@ -113,7 +116,8 @@ const styles = StyleSheet.create({
     padding: spacing.small, fontSize: typography.body,
   },
   avatars: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.small },
-  avatarChoice: { flexBasis: 120, flexGrow: 1, minWidth: 0 },
+  avatarChoice: { minWidth: 0 },
+  page: { flex: 1, minHeight: 0, gap: spacing.small, padding: spacing.small, justifyContent: 'space-evenly' },
   preference: { minHeight: layout.touchTarget, flexDirection: 'row', alignItems: 'center', gap: spacing.small, paddingVertical: spacing.small },
   preferenceText: { flex: 1, minWidth: 0, gap: spacing.xsmall },
   pressed: { opacity: 0.8 },

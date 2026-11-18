@@ -60,7 +60,11 @@ export default function Matchmaking() {
   const opponent = match?.opponent;
 
   return (
-    <MatchSetupScreen step="matchmaking" blocked={modeId ? undefined : 'Choose a mode to start matchmaking.'}>
+    <MatchSetupScreen step="matchmaking" blocked={modeId ? undefined : 'Choose a mode to start matchmaking.'}
+      footer={<View style={styles.row}>
+        {opponent ? <Button label="Continue to category draft" onPress={() => router.push(routes.categoryDraft)} /> : null}
+        <Button label={opponent ? 'Cancel match' : 'Cancel search'} variant="secondary" onPress={cancel} />
+      </View>}>
       <Card>
         {error ? (
           <AppText accessibilityRole="alert">{error}</AppText>
@@ -78,10 +82,6 @@ export default function Matchmaking() {
           <LoadingState label="Searching for a local opponent..." />
         )}
       </Card>
-      {opponent ? (
-        <Button label="Continue to category draft" onPress={() => router.push(routes.categoryDraft)} />
-      ) : null}
-      <Button label={opponent ? 'Cancel match' : 'Cancel search'} variant="secondary" onPress={cancel} />
     </MatchSetupScreen>
   );
 }

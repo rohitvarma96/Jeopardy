@@ -14,6 +14,7 @@ type MatchSetupScreenProps = {
   children?: ReactNode;
   /** When set, the prerequisite state is missing (e.g. direct entry) and a safe recovery is shown. */
   blocked?: string;
+  footer?: ReactNode;
 };
 
 export function leaveMatch() {
@@ -21,7 +22,7 @@ export function leaveMatch() {
   exitPreview(routes.arena);
 }
 
-export function MatchSetupScreen({ step, children, blocked }: MatchSetupScreenProps) {
+export function MatchSetupScreen({ step, children, blocked, footer }: MatchSetupScreenProps) {
   const router = useRouter();
   const entry = journey.find((item) => item.id === step);
   if (!entry) throw new Error(`Unknown setup step: ${step}`);
@@ -35,8 +36,9 @@ export function MatchSetupScreen({ step, children, blocked }: MatchSetupScreenPr
       exitLabel="Leave match"
       onExit={leaveMatch}
       previewLabel={null}
+      footer={blocked ? undefined : footer}
     >
-      <ProgressBar label="Match setup" value={setupSteps.indexOf(step) + 1} max={setupSteps.length} />
+      <ProgressBar label="Match setup" value={setupSteps.indexOf(step) + 1} max={setupSteps.length} showLabel={false} />
       {blocked ? (
         <Card>
           <EmptyState

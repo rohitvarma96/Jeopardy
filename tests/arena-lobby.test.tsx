@@ -34,7 +34,9 @@ test('Arena shows saved identity, balances, fighter and loadout without Missions
     .toMatchObject({ now: 240, max: 400 });
   expect(screen.getByLabelText('Astral Sage artwork')).toBeTruthy();
   expect(screen.getByText('Arcane Insight')).toBeTruthy();
+  await fireEvent.press(screen.getByRole('button', { name: 'Battle kit' }));
   for (const name of ['50:50', 'Extra Time', 'Mind Shield']) {
+    if (!screen.queryByText(name)) await fireEvent.press(screen.getByRole('button', { name: 'Next Battle kit' }));
     expect(screen.getByText(name)).toBeTruthy();
   }
   expect(screen.queryByText('Missions')).toBeNull();

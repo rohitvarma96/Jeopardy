@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router/js-tabs';
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, layout, spacing, typography } from '../../src/theme';
+import { layout, spacing, volt } from '../../src/theme';
 
 export const unstable_settings = { anchor: 'arena' };
 
@@ -16,16 +16,18 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         animation: 'none',
-        tabBarActiveTintColor: colors.gold,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: volt.color.acid,
+        tabBarInactiveTintColor: volt.color.muted,
         tabBarStyle: {
-          backgroundColor: colors.background, borderTopColor: colors.border,
+          backgroundColor: volt.color.ink, borderTopColor: volt.color.border,
           height: Math.max(64, Math.ceil(56 * fontScale)) + insets.bottom,
         },
         tabBarItemStyle: { minHeight: layout.touchTarget, paddingVertical: spacing.xsmall },
         tabBarLabelStyle: {
-          fontSize: typography.label,
-          fontWeight: typography.weight.semibold,
+          fontSize: 11,
+          fontFamily: volt.font.technical,
+          textTransform: 'uppercase',
+          letterSpacing: 1,
         },
       }}
     >
@@ -35,7 +37,7 @@ export default function TabLayout() {
           title: 'Arena',
           tabBarAccessibilityLabel: 'Arena tab',
           tabBarIcon: ({ focused, size }) => (
-            <Ionicons name="flash-outline" color={focused ? colors.gold : colors.textSecondary} size={size} />
+            <Ionicons name="flash-outline" color={focused ? volt.color.acid : volt.color.muted} size={size} />
           ),
         }}
       />
@@ -45,7 +47,7 @@ export default function TabLayout() {
           title: 'Profile',
           tabBarAccessibilityLabel: 'Profile tab',
           tabBarIcon: ({ focused, size }) => (
-            <Ionicons name="person-circle-outline" color={focused ? colors.gold : colors.textSecondary} size={size} />
+            <Ionicons name="person-circle-outline" color={focused ? volt.color.acid : volt.color.muted} size={size} />
           ),
         }}
       />

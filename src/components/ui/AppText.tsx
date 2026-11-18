@@ -2,7 +2,7 @@ import { Children } from 'react';
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
 import { useLiveAnnouncement } from '../../hooks/useLiveAnnouncement';
-import { colors, typography } from '../../theme';
+import { colors, typography, volt } from '../../theme';
 
 type TextVariant = 'caption' | 'label' | 'body' | 'heading' | 'title';
 type TextTone = 'default' | 'secondary' | 'accent';
@@ -25,6 +25,7 @@ export function AppText({
   return (
     <Text
       {...props}
+      maxFontSizeMultiplier={props.maxFontSizeMultiplier ?? (variant === 'heading' || variant === 'title' ? 1.3 : undefined)}
       accessibilityRole={
         accessibilityRole ?? (variant === 'heading' || variant === 'title' ? 'header' : undefined)
       }
@@ -49,11 +50,13 @@ const styles = StyleSheet.create({
     lineHeight: typography.lineHeight.body,
   },
   heading: {
+    fontFamily: volt.font.display,
     fontSize: typography.heading,
     lineHeight: typography.lineHeight.heading,
     fontWeight: typography.weight.bold,
   },
   title: {
+    fontFamily: volt.font.display,
     fontSize: typography.title,
     lineHeight: typography.lineHeight.title,
     fontWeight: typography.weight.bold,

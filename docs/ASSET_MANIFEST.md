@@ -1,58 +1,52 @@
 # Asset manifest
 
-## Current combat assets
+## Current human character artwork
 
-| Asset | Runtime source | Use / provenance |
-|---|---|---|
-| Mystic Arena | `assets/images/arenas/mystic-arena.jpg`, 1280 x 720 RGB JPEG | Existing opaque arena background, unchanged |
-| Shared skeletal library | `src/components/fighters/combat/reference.json` | Original BB / 2D-Animation-Lab vector geometry, 19-bone rig, six shared actions and Frost special variant; source SHA-256 values included |
-| Six character designs | `src/components/fighters/combat/roster.ts`, `FighterRig.tsx` | Adapted Ember/Frost armour plus new hoods, masks, antlers, plate, weapons and per-character palettes |
-| Combat VFX | `src/components/battle/CombatStage.tsx` | Runtime Skia paths, circles, gradients, blur, particles, trails and elemental impacts; no image files |
-| Interface glyphs | Existing Ionicons | Labeled boosters, categories, capsule and navigation; not substitute character artwork |
+Original generated adult human illustrations. The reference images informed
+the broad painted/graphic treatment only; no reference characters, logos,
+outfits or weapon designs are copied. No exclusive copyright claim is made.
 
-Fighter designs are Astral Sage (`arcane`), Nightblade (`shadow`), Thorn Ranger
-(`sylva`), Iron Bastion (`titan`), Ember Sentinel (`ember`) and Frost Warden
-(`frost`). The first four IDs remain stable for saved equipment, inventory and
-match history. Every character has complete vector artwork; none is a placeholder.
+| ID | Bundled PNG under `assets/images/fighters/human/` | Dimensions |
+| --- | --- | --- |
+| `arcane` | `arcane.png` | 274 x 492 RGBA |
+| `shadow` | `shadow.png` | 248 x 483 RGBA |
+| `sylva` | `sylva.png` | 259 x 491 RGBA |
+| `titan` | `titan.png` | 267 x 492 RGBA |
+| `ember` | `ember.png` | 290 x 495 RGBA |
+| `frost` | `frost.png` | 278 x 496 RGBA |
 
-All six characters use independent runtime commands: Idle, Attack, Block,
-Knockback, Fall Down and Special Attack. No pair-specific animations, frame
-captures, raster sprite sheets, remote URLs, Rive binaries or dynamic asset paths
-are loaded. `FighterArt` draws the same rig statically in non-battle surfaces;
-the live stage animates the rig and weighted cape on the UI thread.
+The sources are statically required in `src/assets/human-fighters.ts`, with
+explicit dimensions. `FighterArt` and `HumanCombatArt` share this registry.
+The six PNGs have transparent backgrounds and full-body silhouettes; they are
+not screenshots or animation-frame captures.
 
-## Reproduce the reference import
+## Runtime support
 
-With the original local reference repository available:
+| Asset | Runtime source / purpose |
+| --- | --- |
+| Human combat motion | `human-rig.ts` / `HumanCombatArt.tsx`: articulated vector anatomy, inverse kinematics and existing contact clocks |
+| Combat VFX | Existing Skia paths, circles, gradients, blur, particles, trails and impacts |
+| Battle environment | `assets/images/arenas/relay-fight-stage.jpg`, 1774 x 887; original painted shared-floor arena |
+| Four chest families | `assets/images/chests/`, eight painted closed/open PNGs: Field, Arc, Overdrive, Sovereign |
+| Impact lettering | `assets/fonts/Bangers-Regular.ttf`, SIL OFL bundled alongside |
+| Interface glyphs | Existing Ionicons; generic categories, powers and navigation, not character substitutes |
+| Barlow Condensed ExtraBold | `assets/fonts/BarlowCondensed-ExtraBold.ttf`, SIL OFL bundled alongside |
+| Space Mono Regular | `assets/fonts/SpaceMono-Regular.ttf`, SIL OFL bundled alongside |
+| Browser graphics | Installed CanvasKit copied locally by `postinstall` into ignored `public/canvaskit.wasm` |
 
-```powershell
-python scripts\import_combat_reference.py --source 'E:\Personal\BB\2D-Animation-Lab'
-```
+No runtime CDN, generated asset URLs, remote fonts, backend or image-generation
+package is added. Native entry remains Expo Router; browser entry initializes
+local CanvasKit before importing any Skia-dependent routes.
 
-Only generated geometry and animation data are bundled; runtime never reads
-outside the project. The importer fails explicitly on unsupported vector
-primitives. It does not modify the reference repository.
+## Retained historical resources
 
-## Retired assets and historical evidence
+The previous raster fighters, Mystic Arena image, old vector `FighterRig`,
+skeletal reference geometry and import script are retained as historical
+resources. The active character renderers no longer draw the mascot-like rigs;
+the reference action metadata still supplies cosmetic contact timing. Earlier phase
+screenshots and APKs are not evidence of this new artwork or fixed-page UX.
 
-The previous `assets/images/fighters/arcane/full.png` (512 x 768 RGBA) and
-`assets/images/fighters/shadow/full.png` (512 x 768 RGBA) are retained on disk
-for history but have no runtime imports. Their Phase 2 AI-generated masters
-were external to the application; no exclusive ownership is asserted.
-The Sylva/Titan dashed missing-art frames have been removed.
-
-Historical phase screenshots, APKs and `docs/qa/phase2-asset-preview.jpg`
-show the previous raster presentation and are not validation of Skia.
-The arena remains the existing 1280 x 720 downsample of its 1672 x 941 source;
-it has not been artificially upscaled or replaced.
-
-## Scope and verification
-
-No separate portraits, category/booster/reward artwork, audio, remote fonts,
-additional arena images or image-generation dependencies were added.
-Skia 2.14.0 is the SDK-matched renderer; Reanimated and Worklets were already
-project dependencies. See [art direction](ART_DIRECTION.md) for visual rules.
-
-Native iOS and physical-device acceptance remain separate from host tests
-and Metro exports. The existing [platform audit](PLATFORM_VERIFICATION.md)
-is historical evidence for the previous renderer.
+No changes to saved IDs, inventory, passives, damage, timers, progression,
+capsule probabilities or duplicate conversion accompany the artwork change.
+See [art direction](ART_DIRECTION.md) and [the design system](VOLT_DESIGN_SYSTEM.md).
+Native iOS/Android device acceptance remains open.

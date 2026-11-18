@@ -20,3 +20,5 @@ yarn-error.*
 *.tsbuildinfo
 /ios
 /android
+# Generated from the installed Skia version by postinstall.
+/public/canvaskit.wasm

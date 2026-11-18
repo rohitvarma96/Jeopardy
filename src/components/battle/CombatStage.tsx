@@ -8,8 +8,9 @@ import {
 
 import { SIDES, type Side } from '../../game/battle';
 import type { FighterId } from '../../game/types/fighter';
-import { actionContact, actionDuration, boneMatrices, sampleAction, sampleTimeline, type BoneMatrix, type RigPose } from '../fighters/combat/actions';
-import { FighterRig } from '../fighters/combat/FighterRig';
+import { actionContact, actionDuration } from '../fighters/combat/actions';
+import { humanAdvance, sampleHumanPose, type HumanPose } from '../fighters/combat/human-rig';
+import { HumanCombatArt } from '../fighters/HumanCombatArt';
 import { COMBAT_ROSTER } from '../fighters/combat/roster';
 import type { CombatCue } from './combatFeedback';
 import type { CombatPresentation } from './combatPresentation';
@@ -43,7 +44,7 @@ export function useCombatClock(presentation: CombatPresentation, motionEnabled: 
 export function actorPosition(side: Side, geometry: StageGeometry) {
   'worklet';
   return {
-    x: geometry.width * (side === 'player' ? 0.26 : 0.74),
+    x: geometry.width / 2 + (side === 'player' ? -1 : 1) * Math.min(geometry.width * 0.24, geometry.fighterHeight * 0.34),
     ground: geometry.height - (geometry.height < 120 ? 5 : 14),
     scale: geometry.fighterHeight / 480,
     direction: side === 'player' ? 1 : -1,
@@ -55,23 +56,31 @@ function Actor({ side, presentation, geometry, clock, motionEnabled }: {
 }) {
   const fighterId = presentation.fighters[side];
   const commands = presentation.commands[side];
-  const design = COMBAT_ROSTER[fighterId];
   const position = actorPosition(side, geometry);
   const { elapsed, idle } = clock;
-  const pose = useDerivedValue<RigPose>(() => {
-    if (!motionEnabled && commands.length > 0) {
-      const { action } = commands[commands.length - 1];
-      return sampleAction(fighterId, action, action === 'fall' ? actionDuration(action) : actionContact(fighterId, action));
+  const opponentPosition = actorPosition(side === 'player' ? 'opponent' : 'player', geometry);
+  const advance = humanAdvance(Math.abs(position.x - opponentPosition.x) / position.scale);
+  const pose = useDerivedValue<HumanPose>(() => {
+    let active = -1;
+    for (let index = 0; index < commands.length; index++) {
+      if (commands[index].atMs <= elapsed.value) active = index;
     }
-    return sampleTimeline(fighterId, commands, elapsed.value, idle.value);
+    if (!motionEnabled && commands.length) active = commands.length - 1;
+    if (active < 0) return sampleHumanPose('idle', 0, 3000, 0, advance, idle.value);
+    const command = commands[active], duration = actionDuration(command.action);
+    const contact = actionContact(fighterId, command.action);
+    const time = motionEnabled ? Math.max(0, elapsed.value - command.atMs)
+      : command.action === 'fall' ? duration : contact;
+    return time >= duration && command.action !== 'fall' && motionEnabled
+      ? sampleHumanPose('idle', 0, 3000, 0, advance, idle.value)
+      : sampleHumanPose(command.action, Math.min(time, duration), duration, contact, advance);
   });
-  const matrices = useDerivedValue<readonly BoneMatrix[]>(() => boneMatrices(pose.value));
   return <Group transform={[
     { translateX: position.x }, { translateY: position.ground },
-    { scaleX: position.direction * position.scale * design.width }, { scaleY: position.scale },
+    { scaleX: position.direction * position.scale }, { scaleY: position.scale },
     { translateX: -260 }, { translateY: -540 },
   ]}>
-    <FighterRig fighterId={fighterId} pose={pose} matrices={matrices} />
+    <HumanCombatArt fighterId={fighterId} pose={pose} />
   </Group>;
 }
 
@@ -92,17 +101,15 @@ function Floor({ geometry, presentation }: { geometry: StageGeometry; presentati
       <LinearGradient start={vec(0, 0)} end={vec(0, height)}
         colors={['#10142330', '#14152955', '#0B101DD9']} positions={[0, 0.65, 1]} />
     </Rect>
-    <Oval x={width * 0.03} y={ground - 14} width={width * 0.94} height={34} color="#0A0D1D" opacity={0.75} />
-    <Oval x={width * 0.07} y={ground - 11} width={width * 0.86} height={25} color="#C6A46B" style="stroke" strokeWidth={0.7} opacity={0.32} />
-    <Oval x={width * 0.13} y={ground - 7} width={width * 0.74} height={17} color="#C6A46B" style="stroke" strokeWidth={0.6} opacity={0.2} />
     {SIDES.map((side) => {
       const design = COMBAT_ROSTER[presentation.fighters[side]];
       const x = actorPosition(side, geometry).x;
       return <Group key={side}>
-        <Oval x={x - width * 0.12} y={ground - 8} width={width * 0.24} height={16} color={design.accent} opacity={0.12}>
-          <BlurMask blur={8} style="normal" />
+        <Oval x={x - geometry.fighterHeight * 0.2} y={ground - 3}
+          width={geometry.fighterHeight * 0.4} height={8} color="#03070B" opacity={0.8}>
+          <BlurMask blur={3} style="normal" />
         </Oval>
-        <Oval x={x - width * 0.095} y={ground - 5} width={width * 0.19} height={10} color={design.accent} style="stroke" strokeWidth={0.8} opacity={0.45} />
+        <Line p1={vec(x - 12, ground + 2)} p2={vec(x + 12, ground + 2)} color={design.accent} opacity={0.25} />
       </Group>;
     })}
     {Array.from({ length: 9 }, (_, i) => <Line key={i}

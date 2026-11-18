@@ -13,6 +13,7 @@ import { outcomeText } from './battleText';
 import { transitionFeedback, type CombatCue } from './combatFeedback';
 import { battlePresentation, type CombatPresentation } from './combatPresentation';
 import { FeedbackPulse } from './FeedbackPulse';
+import { ImpactWord } from './ImpactWord';
 
 type SceneProps = {
   view: BattleView; motionEnabled: boolean; outcomeOnly?: boolean; fill?: boolean;
@@ -25,7 +26,9 @@ export function BattleScene({ view, motionEnabled, outcomeOnly = false, fill = f
   const [width, setWidth] = useState(window.width - spacing.large * 2);
   const [measuredHeight, setMeasuredHeight] = useState(80);
   const height = fill ? measuredHeight : Math.min(260, Math.max(170, window.height * 0.26));
-  const fighterHeight = Math.max(1, Math.min(height - (height < 120 ? 16 : 40), (width - 24) * 0.65));
+  const collapse = study ? study.finished : view.outcome?.reason === 'knockout';
+  const fighterHeight = Math.max(1, Math.min(height - (height < 120 ? 16 : 40), (width - 24) * 0.65)
+    * (collapse ? 0.8 : 1));
   const geometry = { width, height, fighterHeight };
   const presentation = study ?? battlePresentation(view, outcomeOnly);
   const clock = useCombatClock({ ...presentation, key: `${presentation.key}-${replayKey}` }, motionEnabled);
@@ -55,7 +58,9 @@ export function BattleScene({ view, motionEnabled, outcomeOnly = false, fill = f
         if (fill && measured.height > 0) setMeasuredHeight(measured.height);
       }}
       style={[styles.scene, fill ? styles.fill : { height }]}>
-      <Image source={battleAssets.arena.source} style={StyleSheet.absoluteFill} resizeMode="cover" accessible={false} />
+      <Image source={battleAssets.arena.source}
+        resizeMode={width / height > battleAssets.arena.width / battleAssets.arena.height ? 'contain' : 'cover'}
+        style={StyleSheet.absoluteFill} accessible={false} />
       <Animated.View style={[StyleSheet.absoluteFill, shake]}>
         <CombatStage presentation={presentation} geometry={geometry} clock={clock} motionEnabled={motionEnabled} />
       </Animated.View>
@@ -73,6 +78,8 @@ export function BattleScene({ view, motionEnabled, outcomeOnly = false, fill = f
         </FeedbackPulse>
       </View> : null}
       {!study ? cues.map((cue) => <DamageLabel key={cue.key} cue={cue} clock={clock} geometry={geometry} motionEnabled={motionEnabled} />) : null}
+      {cues.map((cue) => <ImpactWord key={`word-${cue.key}`} cue={cue} elapsed={elapsed}
+        height={height} motionEnabled={motionEnabled} study={Boolean(study)} />)}
       {!outcomeOnly && !study ? SIDES.map((side) => (
         <FighterFeedback key={side} view={view} side={side} motionEnabled={motionEnabled} />
       )) : null}
@@ -125,7 +132,7 @@ function FighterFeedback({ view, side, motionEnabled }: { view: BattleView; side
 }
 
 const styles = StyleSheet.create({
-  scene: { borderRadius: radii.large, overflow: 'hidden', borderWidth: 1, borderColor: '#5E4F47', backgroundColor: '#101423' },
+  scene: { borderRadius: radii.large, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background },
   fill: { flex: 1 },
   transition: { position: 'absolute', top: 7, maxWidth: '94%', alignSelf: 'center' },
   sceneLabel: { color: '#E8D3A5', backgroundColor: '#101422DD', paddingHorizontal: 10, paddingVertical: 3, borderRadius: radii.full, fontSize: 10, letterSpacing: 0.6 },

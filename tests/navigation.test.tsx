@@ -73,6 +73,16 @@ describe('Phase 1 navigation', () => {
     expect(app.getPathname()).toBe('/profile');
   });
 
+  test('Arena opens the design lab and returns without changing the game journey', async () => {
+    const app = await renderRouter('./app', { initialUrl: '/arena' });
+    await fireEvent.press(screen.getByRole('button', { name: 'Open design lab' }));
+    expect(app.getPathname()).toBe('/design-lab');
+    expect(screen.getByRole('header', { name: 'VOLT design language' })).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+    expect(app.getPathname()).toBe('/arena');
+    expect(screen.getByRole('button', { name: 'Play' })).toBeTruthy();
+  });
+
   test.each(['/unknown-route', '/vault'])('%s displays an explicit error and offers a home action', async (initialUrl) => {
     const app = await renderRouter('./app', { initialUrl });
     expect(screen.getByRole('header', { name: 'Page not found' })).toBeTruthy();

@@ -1,19 +1,16 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
 
-import { FighterArt } from '../../src/components/fighters/FighterArt';
+import { FighterRoster } from '../../src/components/fighters/FighterRoster';
 import { MatchSetupScreen } from '../../src/components/navigation/MatchSetupScreen';
 import { PlayerDataNotice } from '../../src/components/player/PlayerDataNotice';
-import { AppText, Badge, Button, SelectableCard } from '../../src/components/ui';
-import { FIGHTERS, getFighter } from '../../src/data/fighters';
-import { getCollectible } from '../../src/data/collectibles';
+import { Button } from '../../src/components/ui';
+import { getFighter } from '../../src/data/fighters';
 import { isDraftComplete } from '../../src/features/category-draft/draft';
 import { useMatchSetupStore } from '../../src/features/match-setup/store';
 import type { FighterId } from '../../src/game/types/fighter';
 import { routes } from '../../src/navigation/routes';
 import { usePlayerStore } from '../../src/store/player-store';
-import { spacing } from '../../src/theme';
 
 export default function FighterSelect() {
   const router = useRouter();
@@ -35,34 +32,7 @@ export default function FighterSelect() {
   }
 
   return (
-    <MatchSetupScreen step="fighterSelect">
-      {playerReady ? (
-        <>
-          <PlayerDataNotice />
-          {FIGHTERS.map((fighter) => (
-            <SelectableCard
-              key={fighter.id}
-              label={fighter.name}
-              hint={`${fighter.role}. Passive: ${fighter.passive.description}`}
-              selected={selected === fighter.id}
-              disabled={saving || !collectionIds.includes(`fighter:${fighter.id}`)}
-              onPress={() => setChoice(fighter.id)}
-            >
-              <View style={styles.row}>
-                <FighterArt fighterId={fighter.id} height={120} />
-                <View style={styles.fill}>
-                  <AppText variant="heading">{fighter.name}</AppText>
-                  <AppText variant="label" tone="accent">{fighter.role}</AppText>
-                  <AppText variant="caption" tone="secondary">{fighter.identity}</AppText>
-                  <Badge label={`Rarity: ${getCollectible(`fighter:${fighter.id}`).rarity}`} />
-                </View>
-              </View>
-              <AppText variant="label">Passive: {fighter.passive.name}</AppText>
-              <AppText variant="caption" tone="secondary">{fighter.passive.description}</AppText>
-              {!collectionIds.includes(`fighter:${fighter.id}`) ? <Badge label="Locked - collect from a capsule" /> : null}
-            </SelectableCard>
-          ))}
-          <Button
+    <MatchSetupScreen step="fighterSelect" footer={playerReady ? <Button
             label={`Confirm ${getFighter(selected).name}`}
             loading={saving}
             disabled={!collectionIds.includes(`fighter:${selected}`)}
@@ -76,16 +46,9 @@ export default function FighterSelect() {
                 router.push(routes.loadout);
               } finally { setSaving(false); }
             }}
-          />
-        </>
-      ) : (
-        <PlayerDataNotice />
-      )}
+          /> : null}>
+      <PlayerDataNotice />
+      {playerReady ? <FighterRoster selected={selected} ownedIds={collectionIds} disabled={saving} onSelect={setChoice} /> : null}
     </MatchSetupScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.medium },
-  fill: { flex: 1, minWidth: 100, gap: spacing.xsmall },
-});

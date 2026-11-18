@@ -1,6 +1,6 @@
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { BackHandler, Modal, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { BackHandler, Modal, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { leaveBattle } from '../../features/battle/session';
@@ -57,6 +57,9 @@ export function BattleScreen() {
   const compact = usableHeight < 700 || window.fontScale > 1.15 || (question?.prompt.length ?? 0) > 115;
   const names = { player: 'You', opponent: view.opponent.name };
   const autoAdvance = view.phase === 'resolved' && revealUntilMs !== null;
+  const combatFocus = view.phase === 'resolved' && view.reveal !== null;
+  const correctOption = combatFocus && question ? question.options.find((option) => option.correct === true) : null;
+  if (combatFocus && question && !correctOption) throw new Error('Resolved battle question is missing its correct answer.');
 
   return (
     <SafeAreaView testID="battle-safe-area" edges={['top', 'bottom', 'left', 'right']} style={styles.screen}>
@@ -67,10 +70,13 @@ export function BattleScreen() {
             if (playing) setConfirming(true);
             else { leaveBattle(); router.replace(routes.arena); }
           }} />
-        <View testID="battle-arena-region" style={[styles.arena, { maxHeight: Math.max(110, usableHeight * 0.28) }]}>
+        <View testID="battle-arena-region" style={[styles.arena, { maxHeight: Math.max(110, usableHeight * (combatFocus ? 0.48 : 0.32)) }]}>
           <BattleScene view={view} motionEnabled={motionEnabled} fill />
         </View>
-        {question ? <BattleQuestion question={question} compact={compact} motionEnabled={motionEnabled} /> : (
+        {question ? combatFocus ? <View testID="battle-correct-answer" style={styles.correctAnswer}>
+          <AppText variant="caption" tone="secondary">CORRECT ANSWER</AppText>
+          <AppText variant="label">{correctOption?.text}</AppText>
+        </View> : <BattleQuestion question={question} compact={compact} motionEnabled={motionEnabled} /> : (
           <View style={styles.transition}>
             <AppText variant="heading" style={styles.center}>
               {view.outcome?.winner === 'player' ? 'Victory' : 'Defeat'}
@@ -97,7 +103,7 @@ export function BattleScreen() {
       {confirming && playing ? (
         <Modal transparent animationType="none" visible onRequestClose={() => setConfirming(false)}>
           <SafeAreaView style={styles.confirmation}>
-            <ScrollView contentContainerStyle={styles.confirmationContent}>
+            <View style={styles.confirmationContent}>
               <Panel accessibilityViewIsModal>
                 <AppText variant="heading" accessibilityRole="alert">Forfeit this match?</AppText>
                 <AppText tone="secondary">Forfeiting counts as a loss. The timer keeps running while you decide.</AppText>
@@ -106,7 +112,7 @@ export function BattleScreen() {
                   <Button label="Keep playing" variant="secondary" onPress={() => setConfirming(false)} />
                 </View>
               </Panel>
-            </ScrollView>
+            </View>
           </SafeAreaView>
         </Modal>
       ) : null}
@@ -153,6 +159,7 @@ const styles = StyleSheet.create({
   },
   arena: { flex: 1, flexShrink: 1, flexBasis: '23%', minHeight: 80, zIndex: 0 },
   compactLayout: { gap: 3 },
+  correctAnswer: { padding: 8, gap: 4, backgroundColor: colors.surface, borderLeftWidth: 3, borderLeftColor: colors.success },
   transition: { flex: 1, justifyContent: 'center', gap: spacing.medium, padding: spacing.medium },
   status: { minHeight: 24, flexShrink: 0, justifyContent: 'center' },
   compactStatus: { minHeight: layout.touchTarget },

@@ -1,5 +1,5 @@
 export const layout = {
-  contentMaxWidth: 560,
+  contentMaxWidth: 1100,
   compactWidth: 360,
   touchTarget: 48,
   iconSmall: 24,

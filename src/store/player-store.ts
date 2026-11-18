@@ -189,11 +189,11 @@ export const usePlayerStore = create<PlayerStore>()((set, get) => {
         const data = snapshot(get());
         const record = data.matches.find((entry) => entry.matchId === matchId);
         if (!record) throw new Error('No reward record exists for this match.');
-        if (!record.capsule) throw new Error('This match has no capsule.');
+        if (!record.capsule) throw new Error('This match has no reward chest.');
         if (record.capsule.opened) return record;
         const reveal = revealCapsule(record, data.collectionIds);
         if (!Number.isSafeInteger(data.profile.shards + reveal.shards)) {
-          report('Shard balance exceeds supported limits. The capsule remains unopened.', new RangeError('Shard overflow'));
+          report('Shard balance exceeds supported limits. The chest remains unopened.', new RangeError('Shard overflow'));
           return null;
         }
         return await write({
