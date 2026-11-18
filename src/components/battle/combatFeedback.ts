@@ -13,6 +13,12 @@ export type CombatCue = {
   action: Extract<CombatAction, 'attack' | 'special'>;
 };
 
+export function impactWords(cues: readonly CombatCue[], preview = false) {
+  return cues.filter(cue => preview || cue.blocked || cue.damage > 0)
+    .sort((a, b) => a.contactMs - b.contactMs || Number(a.finishing) - Number(b.finishing) || Number(a.blocked) - Number(b.blocked))
+    .filter((cue, index, all) => all[index + 1]?.contactMs !== cue.contactMs);
+}
+
 /** Read published resolutions only. Never infer a hit from an answer or an HP difference. */
 export function combatCues(view: BattleView): CombatCue[] {
   const reveal = view.reveal;

@@ -1,7 +1,19 @@
 # VOLT / Arena Protocol
 
-Brain Brawl's original esports visual language. The references inform
+Brain Brawlers' original esports visual language. The references inform
 composition and energy, not copied logos, characters, illustrations or layouts.
+
+The current [identity build](BRAIN_BRAWLERS_IDENTITY.md) adds an original
+Brain Brawlers logo, reusable punchy type units, painterly key visual and modern
+chest hardware. The runtime term for a character is Brawler; storage IDs remain
+unchanged. Brand studio and Chest forge are non-mutating inspection surfaces.
+
+The [scene-based world implementation](WORLD_EXPERIENCE_IMPLEMENTATION.md) now
+replaces the page-wrapper approach for Arena, Brawlers, Armory, Vault, Career,
+acquisition, draft, VS entrance, results and discovery. Its ink/paper/acid/pink
+scene controls, 31 original glyphs and bounded entrance motion are the active
+game shell. Components described below remain available for utility/inspection
+and development screens; they are not the mandatory match-entry journey.
 
 ## Direction
 

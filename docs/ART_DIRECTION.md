@@ -1,8 +1,12 @@
 # Human character art direction
 
+The public game name is **Brain Brawlers** and human characters are **Brawlers**.
+See [the identity build](BRAIN_BRAWLERS_IDENTITY.md) for the logo, punchy type units,
+modern reward hardware and original painterly action key visual.
+
 ## VOLT / Arena Protocol
 
-Mature, original human agents with natural adult proportions, expressive faces,
+Mature, original human brawlers with natural adult proportions, expressive faces,
 angular painted shading, tailored street-tech clothing and controlled electric
 rim lighting. No chibi bodies, giant mascot heads, generic fantasy helmets,
 borrowed characters, game logos or copied outfits. Knowledge and energy devices
@@ -21,23 +25,43 @@ These are original generated illustrations, not copies of the reference game's
 characters. A six-character master was separated into transparent PNGs; there
 is no runtime generation, external art service or asset download.
 
-The same six local illustration sources are used in Arena, the hero picker,
-mode selection, matchmaking, fighter selection and reward details. Combat uses
-articulated human vector counterparts with matching identities and palettes.
+The same six local illustration sources are now used in Arena, selection,
+preparation, discovery **and combat**. Combat no longer substitutes simplified
+vector counterparts for the painted faces, outfits and equipment.
 IDs, names, abilities, collection rarities and ownership behavior are preserved.
 
 ## Rendering and motion
 
-`FighterArt` uses the full-body human illustration for non-battle surfaces.
-`HumanCombatArt` now draws jointed human anatomy with independent shoulders,
-elbows, wrists, hips, knees and ankles, plus torso/head movement. Inverse
-kinematics plants stance feet; punches extend the arm, kicks chamber/extend the
-leg, and knockouts hold a collapsed pose. Existing clocks supply contact timing.
-This is a working faceted/vector rig, not finished painted or 3D animation.
-The old mascot renderer and whole-PNG motion are no longer used for combat.
+`FighterArt` uses the full-body human illustration for static collection,
+discovery and result surfaces. The living Arena opts into the painted mesh for
+restrained breathing/posture while keeping its feet fixed.
+`HumanCombatArt` draws the exact `humanFighters` texture on an articulated Skia
+mesh. Per-Brawler shoulder/elbow/wrist/hip/knee/ankle controls are placed on
+the actual source painting, not a generic replacement body. The rest mesh maps
+the original pixels without distortion; facial vertices remain a rigid painted
+region. Limb weights and support-foot correction retain independent action
+timelines. Active KO holds an upright recoil and dissolves through the original
+alpha, with source-colored fragments; no current presentation schedules a
+collapsed body or a KO zoom-out.
 
-Existing attack/special contact timestamps, charge, trails, impact rings,
-particles, damage labels and shield feedback remain. Presentation never
+Punches aim the painted forearm forward, kicks chamber/extend the leg, and the
+same clothing/equipment moves with its owner. No whole-image-only combat fallback
+or flat vector body is drawn. This is painted mesh animation, not newly authored
+frame-by-frame poses or 3D models; extreme occlusion/cloth polish still needs
+production animation work.
+
+Rebuild alpha coverage after changing a source painting, then rebuild the
+portable motion study:
+
+```powershell
+python .\scripts\build-painted-coverage.py
+python .\scripts\build-brawler-fragments.py
+node .\scripts\build-combat-study.cjs
+```
+
+Existing attack/special contact timestamps remain authoritative. Signature
+signal/smear/ink contact, alpha-aware vaporization, bounded source fragments,
+damage labels and shield compression now provide the treatment. Presentation never
 calculates damage, changes answers or gates battle progression. The shared
 animation data remains the timing source, not a new game mechanic.
 

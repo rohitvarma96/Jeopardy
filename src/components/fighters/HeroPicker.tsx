@@ -25,18 +25,18 @@ export function HeroPicker({ onClose }: { onClose: () => void }) {
   return (
     <Modal transparent animationType="none" visible onRequestClose={onClose}>
       <SafeAreaView style={styles.overlay}>
-        <View testID="hero-picker" accessibilityViewIsModal style={styles.sheet}>
+        <View testID="brawler-picker" accessibilityViewIsModal style={styles.sheet}>
           <View style={styles.header}>
             <View style={styles.heading}>
-              <VoltSectionLabel index="01" label="Fighter roster" />
-              <VoltText variant="title">Change hero</VoltText>
+              <VoltSectionLabel index="01" label="Brawler roster" />
+              <VoltText variant="title">Change Brawler</VoltText>
             </View>
-            <VoltButton label="Close" accessibilityLabel="Close hero picker" variant="outline"
+            <VoltButton label="Close" accessibilityLabel="Close Brawler picker" variant="outline"
               size="compact" icon="close" onPress={onClose} />
           </View>
           {error ? <VoltText accessibilityRole="alert" tone="red" style={styles.notice}>{error}</VoltText> : (
           <VoltText tone="muted" style={styles.notice}>
-            Choose an owned hero. Unlock more heroes from earned chests.
+            Choose an owned Brawler. Unlock more Brawlers from earned chests.
           </VoltText>
           )}
           <FighterRoster selected={selected} ownedIds={collectionIds} disabled={saving} onSelect={setSelected} />

@@ -48,7 +48,8 @@ test('major presentation fixtures schedule motion and retain readable static red
         <HealthBar label="Preview health" value={view.opponent.hp} animate />
       </>,
     );
-    expect(screen.getByText(transitionFeedback(view).label)).toBeTruthy();
+    if (combatCues(view).some(cue => cue.finishing)) expect(screen.queryByText(transitionFeedback(view).label)).toBeNull();
+    else expect(screen.getByText(transitionFeedback(view).label)).toBeTruthy();
     expect(screen.getByTestId('battle-scene').props.pointerEvents).toBe('none');
     expect(screen.getByTestId('fighter-player')).toBeTruthy();
     expect(screen.getByTestId('fighter-opponent')).toBeTruthy();
@@ -63,7 +64,8 @@ test('major presentation fixtures schedule motion and retain readable static red
     const cancellations = cancel.mock.calls.length;
     await app.rerender(<BattleScene view={view} motionEnabled={false} />);
     expect(cancel.mock.calls.length).toBeGreaterThan(cancellations);
-    expect(screen.getByText(transitionFeedback(view).label)).toBeTruthy();
+    if (combatCues(view).some(cue => cue.finishing)) expect(screen.queryByText(transitionFeedback(view).label)).toBeNull();
+    else expect(screen.getByText(transitionFeedback(view).label)).toBeTruthy();
     for (const cue of combatCues(view)) {
       const label = cue.blocked ? 'Shielded' : cue.damage === 0 ? 'No damage' : `-${cue.damage}`;
       expect(within(screen.getByTestId(`damage-${cue.key}`)).getByText(label)).toBeTruthy();
@@ -176,4 +178,14 @@ test('compressed arena prioritizes fighters over the decorative round banner', a
   expect(StyleSheet.flatten(screen.getByLabelText('Astral Sage artwork').props.style).height).toBe(64);
   expect(screen.queryByText(transitionFeedback(ANIMATION_PREVIEWS[0].view).label)).toBeNull();
   expect(screen.getByTestId('fighter-opponent')).toBeTruthy();
+});
+
+test.each([80, 360])('impact lettering follows fighter geometry rather than covering faces in a %s px stage', async height => {
+  const view = ANIMATION_PREVIEWS[1].view;
+  await render(<BattleScene view={view} motionEnabled={false} fill />);
+  await fireEvent(screen.getByTestId('battle-scene'), 'layout', { nativeEvent: { layout: { width: 350, height } } });
+  const fighter = StyleSheet.flatten(screen.getByTestId('fighter-player').props.style);
+  const word = StyleSheet.flatten(screen.getByTestId(`impact-word-${combatCues(view)[0].key}`, { includeHiddenElements: true }).props.style);
+  expect(word.top).toBeCloseTo(height - fighter.bottom - fighter.height * .5);
+  expect(word.top).toBeGreaterThan(height - fighter.bottom - fighter.height * .7);
 });

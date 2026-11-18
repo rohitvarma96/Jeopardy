@@ -113,7 +113,7 @@ test('new heroes can be equipped on Arena, persist, and a later duplicate adds s
   expect(usePlayerStore.getState().collectionIds.filter((id) => id === 'fighter:shadow')).toHaveLength(1);
   expect(usePlayerStore.getState().profile.shards).toBe(40);
   const arena = await render(<Arena />);
-  await fireEvent.press(screen.getByRole('button', { name: 'Change hero' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Change Brawler' }));
   await fireEvent.press(screen.getByRole('radio', { name: 'Nightblade', disabled: false }));
   await fireEvent.press(screen.getByRole('button', { name: 'Equip Nightblade' }));
   expect(usePlayerStore.getState().fighterId).toBe('shadow');

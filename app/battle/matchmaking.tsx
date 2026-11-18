@@ -1,25 +1,36 @@
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { AppState, StyleSheet, View } from 'react-native';
+import { Stack, useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { AppState, BackHandler, StyleSheet, View } from 'react-native';
 
-import { FighterArt } from '../../src/components/fighters/FighterArt';
-import { MatchSetupScreen } from '../../src/components/navigation/MatchSetupScreen';
-import { AppText, Badge, Button, Card, LoadingState } from '../../src/components/ui';
+import { BrawlerStage } from '../../src/components/world/BrawlerStage';
+import { SceneAction, SceneText, worldColors } from '../../src/components/world/SceneControls';
+import { WorldIcon } from '../../src/components/world/WorldIcon';
+import { WorldScene } from '../../src/components/world/WorldScene';
 import { getFighter } from '../../src/data/fighters';
 import { useMatchSetupStore } from '../../src/features/match-setup/store';
+import { exitPreview } from '../../src/navigation/exitPreview';
 import { routes } from '../../src/navigation/routes';
 import { usePlayerStore } from '../../src/store/player-store';
 import { MatchmakingCancelledError, mockMatchmaking } from '../../src/services/mock-matchmaking';
-import { spacing } from '../../src/theme';
+import { AppText } from '../../src/components/ui';
+import { volt } from '../../src/theme';
 
 export default function Matchmaking() {
   const router = useRouter();
   const modeId = useMatchSetupStore((state) => state.modeId);
   const match = useMatchSetupStore((state) => state.match);
   const matchFound = useMatchSetupStore((state) => state.matchFound);
-  const reset = useMatchSetupStore((state) => state.reset);
+  const fighterId = usePlayerStore((state) => state.fighterId);
   const [error, setError] = useState<string>();
-
+  const [attempt, setAttempt] = useState(0);
+  const cancel = useCallback(() => {
+    useMatchSetupStore.getState().reset();
+    exitPreview(routes.arena);
+  }, []);
+  useFocusEffect(useCallback(() => {
+    const listener = BackHandler.addEventListener('hardwareBackPress', () => { cancel(); return true; });
+    return () => listener.remove();
+  }, [cancel]));
   useFocusEffect(useCallback(() => {
     if (!modeId || match) return;
     let controller: AbortController | null = null;
@@ -30,63 +41,53 @@ export default function Matchmaking() {
       const request = new AbortController();
       controller = request;
       setError(undefined);
-      mockMatchmaking
-      .findOpponent({ modeId, seed }, request.signal)
-      .then(async (found) => {
+      mockMatchmaking.findOpponent({ modeId, seed }, request.signal).then(async (found) => {
         if (request.signal.aborted) return;
         const matchId = await usePlayerStore.getState().reserveMatchId();
         if (request.signal.aborted) return;
-        if (!matchId) { setError('Unable to save a unique match ID. Go back and retry loading player data.'); return; }
+        if (!matchId) { setError('Could not reserve a saved match ID. Retry search.'); return; }
         matchFound({ ...found, matchId });
-      })
-      .catch((reason: unknown) => {
+      }).catch((reason: unknown) => {
         if (!request.signal.aborted && !(reason instanceof MatchmakingCancelledError)) {
-          console.warn('Mock matchmaking failed.', reason);
-          setError('Matchmaking failed. Go back and try again.');
+          console.warn(`Local opponent acquisition failed on attempt ${attempt + 1}.`, reason);
+          setError('Search failed. Retry or return to Arena.');
         }
       });
     };
     if (AppState.currentState !== 'background' && AppState.currentState !== 'inactive') start();
     const subscription = AppState.addEventListener('change', (state) => state === 'active' ? start() : stop());
     return () => { stop(); subscription.remove(); };
-  }, [modeId, match, matchFound]));
-
-  const cancel = () => {
-    reset();
-    if (router.canGoBack()) router.back();
-    else router.replace(routes.mode);
-  };
-
-  const opponent = match?.opponent;
-
-  return (
-    <MatchSetupScreen step="matchmaking" blocked={modeId ? undefined : 'Choose a mode to start matchmaking.'}
-      footer={<View style={styles.row}>
-        {opponent ? <Button label="Continue to category draft" onPress={() => router.push(routes.categoryDraft)} /> : null}
-        <Button label={opponent ? 'Cancel match' : 'Cancel search'} variant="secondary" onPress={cancel} />
-      </View>}>
-      <Card>
-        {error ? (
-          <AppText accessibilityRole="alert">{error}</AppText>
-        ) : opponent ? (
-          <View style={styles.row}>
-            <FighterArt fighterId={opponent.fighterId} height={135} />
-            <View style={styles.fill}>
-              <Badge label="Opponent found" tone="success" />
-              <AppText variant="heading">{opponent.name}</AppText>
-              <AppText tone="secondary">Local AI opponent - {getFighter(opponent.fighterId).name}</AppText>
-              <AppText variant="caption">Level {opponent.level} - {opponent.rank}</AppText>
-            </View>
-          </View>
-        ) : (
-          <LoadingState label="Searching for a local opponent..." />
-        )}
-      </Card>
-    </MatchSetupScreen>
-  );
+  }, [modeId, match, matchFound, attempt]));
+  useEffect(() => {
+    if (match) router.replace(routes.categoryDraft);
+  }, [match, router]);
+  return <WorldScene title="Opponent acquisition" utilities={false} onBack={cancel} backLabel="Cancel search"
+    footer={error ? <SceneAction label="Retry search" icon="arena" onPress={() => setAttempt(attempt + 1)} /> : undefined}>
+    <Stack.Screen options={{ gestureEnabled: false }} />
+    {!modeId ? <View style={styles.recovery}><SceneText>No active deployment. Start from the lobby.</SceneText>
+      <SceneAction label="Arena home" icon="arena" onPress={cancel} /></View> : <>
+      <AppText maxFontSizeMultiplier={1.2} style={styles.title}>FIND YOUR RIVAL.</AppText>
+      <SceneText muted>Local AI acquisition. No network or human queue.</SceneText>
+      <View style={styles.banners}>
+        <View style={styles.banner}><BrawlerStage fighterId={fighterId} /><SceneText>{getFighter(fighterId).name}</SceneText><AppText style={styles.ready}>READY</AppText></View>
+        <View style={styles.versus}><WorldIcon name="arena" size={40} color={worldColors.pink} /></View>
+        <View style={styles.banner}>
+          <View style={styles.signal}><WorldIcon name="brawlers" size={70} color={worldColors.muted} /></View>
+          <SceneText>LOCAL AI</SceneText><AppText style={styles.ready}>SEARCHING</AppText>
+        </View>
+      </View>
+      {error ? <AppText accessibilityRole="alert" style={styles.error}>{error}</AppText>
+        : <SceneText muted>Acquiring an opponent and securing your match record...</SceneText>}
+    </>}
+  </WorldScene>;
 }
-
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.medium },
-  fill: { flex: 1, minWidth: 100, gap: spacing.xsmall },
+  title: { color: worldColors.paper, fontFamily: volt.font.display, fontSize: 36, lineHeight: 38 },
+  banners: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 8, paddingVertical: 16 },
+  banner: { flex: 1, minWidth: 0, gap: 5, borderBottomWidth: 3, borderBottomColor: worldColors.acid, backgroundColor: '#10131A88', padding: 8 },
+  versus: { justifyContent: 'center' },
+  signal: { flex: 1, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: '#677183' },
+  ready: { color: worldColors.acid, fontFamily: volt.font.technical, fontSize: 9, lineHeight: 15 },
+  recovery: { flex: 1, justifyContent: 'center', gap: 18 },
+  error: { color: '#FFB7CF', fontSize: 13, lineHeight: 19 },
 });

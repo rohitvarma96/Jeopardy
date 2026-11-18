@@ -11,7 +11,7 @@ import { VoltOption } from '../../src/components/volt';
 import { FIGHTERS } from '../../src/data/fighters';
 import { SIDES, type Side } from '../../src/game/battle';
 import type { FighterId } from '../../src/game/types/fighter';
-import { useBattleMotion } from '../../src/hooks/useBattleMotion';
+import { useSceneMotion } from '../../src/hooks/useBattleMotion';
 import { routes } from '../../src/navigation/routes';
 import { spacing } from '../../src/theme';
 
@@ -21,7 +21,7 @@ export default function AnimationPreview() {
   const [fixture, setFixture] = useState<number | null>(null);
   const [replay, setReplay] = useState(0);
   const [reduced, setReduced] = useState(false);
-  const motionEnabled = useBattleMotion(reduced);
+  const { enabled: motionEnabled, ready: motionReady } = useSceneMotion(reduced);
   const preview = ANIMATION_PREVIEWS[fixture ?? 0];
   const view = {
     ...preview.view,
@@ -30,7 +30,7 @@ export default function AnimationPreview() {
   };
   const presentation = fixture === null ? actionPresentation(fighters, actions, replay) : undefined;
   const change = () => { setFixture(null); setReplay((value) => value + 1); };
-  return <Screen title="Combat atelier" description="Original human illustrations with cue-driven pose and impact motion."
+  return <Screen title="Combat atelier" description="The same painted Brawlers as selection, with joint-driven motion and impacts."
     backHref={routes.arena} previewLabel={null}
     footer={__DEV__ ? <View style={styles.row}>
       <Button label="Replay animation" style={styles.action} onPress={() => setReplay((value) => value + 1)} />
@@ -39,8 +39,8 @@ export default function AnimationPreview() {
     </View> : null}
     pages={__DEV__ ? [
       ...SIDES.flatMap((side) => [
-        { id: `${side}-fighter`, label: `${side === 'player' ? 'Left' : 'Right'} fighter`, content:
-          <PagedItems items={FIGHTERS} keyExtractor={(item) => item.id} label={`${side} fighters`} columns={2} itemHeight={60}
+        { id: `${side}-fighter`, label: `${side === 'player' ? 'Left' : 'Right'} Brawler`, content:
+          <PagedItems items={FIGHTERS} keyExtractor={(item) => item.id} label={`${side} Brawlers`} columns={2} itemHeight={60}
             renderItem={(fighter) => <VoltOption label={`${side} character ${fighter.name}`} role="radio"
               selected={fighters[side] === fighter.id}
               onPress={() => { setFighters((value) => ({ ...value, [side]: fighter.id })); change(); }}>
@@ -60,7 +60,7 @@ export default function AnimationPreview() {
             onPress={() => { setFixture(index); setReplay((value) => value + 1); }} />} /> },
     ] : undefined}>
     {__DEV__ ? <View style={styles.scene}>
-      <BattleScene replayKey={replay} view={view} motionEnabled={motionEnabled} presentation={presentation} fill />
+      <BattleScene replayKey={replay} view={view} motionEnabled={motionEnabled} motionReady={motionReady} presentation={presentation} fill />
     </View> : <AppText>Animation previews are available in development builds only.</AppText>}
   </Screen>;
 }

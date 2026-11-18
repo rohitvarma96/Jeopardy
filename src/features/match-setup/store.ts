@@ -8,6 +8,7 @@ import type { FighterId } from '../../game/types/fighter';
 import type { CategoryId, DraftState, FoundMatch, GameModeId, MatchSetup } from '../../game/types/match';
 import { createDraft, isDraftComplete, submitBan, submitPick } from '../category-draft/draft';
 import { isValidLoadout, loadoutError } from '../loadout/loadout';
+import { preparationError } from '../loadout/preparation';
 
 /** Transient pre-battle state. Never persisted; kept apart from long-lived player data (ARC-04). */
 type MatchSetupState = {
@@ -27,6 +28,7 @@ type MatchSetupActions = {
   pick: (categoryId: CategoryId) => void;
   confirmFighter: (fighterId: FighterId) => void;
   confirmLoadout: (boosterIds: readonly string[]) => { ok: true; setup: MatchSetup } | { ok: false; errors: string[] };
+  prepareSavedEquipment: () => { ok: true; setup: MatchSetup } | { ok: false; errors: string[] };
   reset: () => void;
 };
 
@@ -46,8 +48,8 @@ export function validateMatchSetup(
   const errors: string[] = [];
   if (!state.match || !isAvailableMode(state.match.modeId)) errors.push('No active offline match.');
   if (!isDraftComplete(state.draft)) errors.push('The category draft is incomplete.');
-  if (!isFighterId(state.fighterId)) errors.push('Choose a fighter.');
-  else if (!usePlayerStore.getState().collectionIds.includes(`fighter:${state.fighterId}`)) errors.push('Collect this fighter before battle.');
+  if (!isFighterId(state.fighterId)) errors.push('Choose a Brawler.');
+  else if (!usePlayerStore.getState().collectionIds.includes(`fighter:${state.fighterId}`)) errors.push('Collect this Brawler before battle.');
   if (!isValidLoadout(boosterIds)) errors.push('Select exactly three distinct boosters.');
   else {
     const problem = loadoutError(boosterIds);
@@ -82,7 +84,7 @@ export const useMatchSetupStore = create<MatchSetupState & MatchSetupActions>()(
   confirmFighter: (fighterId) => {
     if (!isDraftComplete(get().draft)) throw new Error('Finish the category draft first.');
     if (!isFighterId(fighterId)) throw new Error(`Unknown fighter: ${String(fighterId)}`);
-    if (!usePlayerStore.getState().collectionIds.includes(`fighter:${fighterId}`)) throw new Error('Collect this fighter before equipping it.');
+    if (!usePlayerStore.getState().collectionIds.includes(`fighter:${fighterId}`)) throw new Error('Collect this Brawler before equipping it.');
     set({ fighterId, ready: null });
   },
   confirmLoadout: (boosterIds) => {
@@ -99,6 +101,15 @@ export const useMatchSetupStore = create<MatchSetupState & MatchSetupActions>()(
     };
     set({ boosterIds, ready: setup });
     return { ok: true, setup };
+  },
+  prepareSavedEquipment: () => {
+    const player = usePlayerStore.getState();
+    const error = preparationError(player);
+    if (error) return { ok: false, errors: [error] };
+    const errors = validateMatchSetup({ ...get(), fighterId: player.fighterId }, player.boosterIds);
+    if (errors.length) return { ok: false, errors };
+    set({ fighterId: player.fighterId });
+    return get().confirmLoadout(player.boosterIds);
   },
   reset: () => set(emptySetup),
 }));

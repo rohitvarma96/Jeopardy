@@ -154,7 +154,7 @@ function sampleHumanPose(action, time, duration, contact, advance = 100, idleMs 
     const backArm = solveLimb(93 - guard * 26, 13 - guard * 27, 80, 74, 1);
     const frontArm = solveLimb(78 + (action === 'attack' ? effort * 74 : -kick * 18), -11 + (action === 'attack' ? effort * 34 : -guard * 42), 80, 74, 1);
     return {
-        x, y,
+        x, y, action, effort,
         angles: {
             torso, head: -torso * 0.4 - reaction * 0.2,
             backArm: backArm.upper, backForearm: backArm.lower,
@@ -171,3 +171,306 @@ function sampleHumanPose(action, time, duration, contact, advance = 100, idleMs 
 
 globalThis.BrainBrawlHumanRig = exports;
 })();
+(function () {
+'use strict';
+const exports = {};
+const require = (name) => { if (name === './human-rig') return globalThis.BrainBrawlHumanRig; if (name.endsWith('painted-coverage.json')) return {"arcane":{"width":274,"height":492,"columns":24,"rows":48,"cells":[10,11,12,13,33,34,35,36,37,57,58,59,60,61,81,82,83,84,85,105,106,107,108,127,128,129,130,131,132,139,140,151,152,153,154,155,156,157,158,162,163,164,165,173,174,175,176,177,178,179,180,181,182,185,186,187,188,189,190,195,196,197,198,199,200,201,202,203,204,205,206,207,209,210,211,212,213,214,215,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,290,291,292,293,294,295,296,297,298,299,300,301,302,303,305,306,307,308,309,310,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,330,331,332,333,334,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,459,460,461,462,463,464,465,466,467,468,469,470,471,483,484,485,486,487,488,489,490,491,492,493,494,495,496,508,509,510,511,512,513,514,515,516,517,518,519,520,532,533,534,535,536,537,538,539,540,541,542,543,544,557,558,559,560,561,562,563,564,565,566,567,568,581,582,583,584,585,586,587,588,589,590,591,592,593,604,605,606,607,608,609,610,611,612,613,614,615,616,617,628,629,630,631,632,633,634,635,636,637,638,639,640,641,652,653,654,655,656,657,658,659,660,661,662,663,664,665,666,675,676,677,678,679,680,681,682,683,684,685,686,687,688,689,690,699,700,701,702,703,704,705,706,707,708,709,710,711,712,713,714,723,724,725,726,727,728,729,730,731,732,733,734,735,736,737,738,746,747,748,749,750,751,752,753,754,755,756,757,758,759,760,761,762,763,770,771,772,773,774,775,776,777,778,779,780,781,782,783,784,785,786,787,794,795,796,797,798,799,800,802,803,804,805,806,807,808,809,810,811,818,819,820,821,822,823,824,826,827,828,829,830,831,832,833,834,835,843,844,845,846,847,848,850,851,852,853,854,855,856,857,858,859,866,867,868,869,870,871,874,875,876,877,878,880,881,882,890,891,892,893,894,899,900,901,902,905,906,914,915,916,917,918,923,924,925,926,929,938,939,940,941,942,948,949,950,962,963,964,965,971,972,973,974,975,986,987,988,989,996,997,998,999,1010,1011,1012,1020,1021,1022,1023,1024,1033,1034,1035,1036,1043,1044,1045,1046,1047,1048,1049,1057,1058,1059,1060,1067,1068,1069,1070,1071,1072,1073,1074,1080,1081,1082,1083,1084,1091,1092,1093,1094,1095,1096,1097,1098,1104,1105,1106,1107,1108,1118,1119,1120,1121,1128,1129,1130,1131,1132]},"ember":{"width":290,"height":495,"columns":24,"rows":48,"cells":[9,10,11,12,32,33,34,35,36,37,56,57,58,59,60,61,79,80,81,82,83,84,85,86,103,104,105,106,107,108,109,110,127,128,129,130,131,132,133,134,151,152,153,154,155,156,157,158,164,175,176,177,178,179,180,181,182,183,186,187,188,189,190,198,199,200,201,202,203,204,205,206,207,210,211,212,213,214,215,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,316,317,318,319,320,321,322,323,324,325,326,327,328,330,331,332,333,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,412,413,414,415,416,417,418,419,420,421,422,423,424,425,437,438,439,440,441,442,443,444,445,446,447,448,462,463,464,465,466,467,468,469,470,471,472,487,488,489,490,491,492,493,494,495,496,497,511,512,513,514,515,516,517,518,519,520,521,534,535,536,537,538,539,540,541,542,543,544,545,558,559,560,561,562,563,564,565,566,567,568,569,570,581,582,583,584,585,586,587,588,589,590,591,592,593,594,605,606,607,608,609,610,611,612,613,614,615,616,617,618,629,630,631,632,633,634,635,636,637,638,639,640,641,642,643,652,653,654,655,656,657,658,659,660,661,662,663,664,665,666,667,676,677,678,679,680,681,682,683,684,685,686,687,688,689,690,691,700,701,702,703,704,705,706,707,708,709,710,711,712,713,714,715,716,723,724,725,726,727,728,729,730,731,732,733,734,735,736,737,738,739,740,748,749,750,751,752,753,754,755,757,758,759,760,761,762,763,764,771,772,773,774,775,776,777,778,781,782,783,784,785,786,787,795,796,797,798,799,800,801,802,805,806,807,808,809,810,811,819,820,821,822,823,824,825,826,829,830,831,832,833,834,843,844,845,846,847,848,849,852,853,854,855,856,857,866,867,868,869,870,871,872,873,876,877,878,879,880,881,889,890,891,892,893,894,895,900,901,902,903,904,905,913,914,915,916,917,918,919,924,925,926,927,928,929,937,938,939,940,941,942,943,948,949,950,951,952,953,961,962,963,964,965,966,967,972,973,974,975,976,977,985,986,987,988,989,990,996,997,998,999,1000,1009,1010,1011,1012,1021,1022,1023,1024,1033,1034,1035,1036,1045,1046,1047,1048,1057,1058,1059,1060,1069,1070,1071,1072,1073,1080,1081,1082,1083,1084,1093,1094,1095,1096,1097,1104,1105,1106,1107,1108,1117,1118,1119,1120,1121,1128,1129,1130,1131,1142,1143,1144,1145]},"frost":{"width":278,"height":496,"columns":24,"rows":48,"cells":[8,9,10,11,31,32,33,34,35,36,54,55,56,57,58,59,60,78,79,80,81,82,83,84,103,104,105,106,107,108,126,127,128,129,130,131,132,149,150,151,152,153,154,155,156,172,173,174,175,176,177,178,179,180,181,186,187,188,189,195,196,197,198,199,200,201,202,203,204,205,206,207,209,210,211,212,213,214,219,220,221,222,223,224,225,226,227,228,229,230,231,233,234,235,236,237,238,239,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,433,434,435,436,437,438,439,440,441,442,443,444,445,447,448,449,457,458,459,460,461,462,463,464,465,466,467,468,469,470,482,483,484,485,486,487,488,489,490,491,492,493,494,507,508,509,510,511,512,513,514,515,516,517,518,531,532,533,534,535,536,537,538,539,540,541,542,543,555,556,557,558,559,560,561,562,563,564,565,566,567,578,579,580,581,582,583,584,585,586,587,588,589,590,591,602,603,604,605,606,607,608,609,610,611,612,613,614,615,626,627,628,629,630,631,632,633,634,635,636,637,638,639,640,650,651,652,653,654,655,656,657,658,659,660,661,662,663,664,673,674,675,676,677,678,679,680,681,682,683,684,685,686,687,688,697,698,699,700,701,702,703,704,705,706,707,708,709,710,711,712,721,722,723,724,725,726,727,728,729,730,731,732,733,734,735,736,737,744,745,746,747,748,749,750,751,752,753,754,755,756,757,758,759,760,761,768,769,770,771,772,773,774,775,776,777,778,779,780,781,782,783,784,785,792,793,794,795,796,797,798,799,800,801,802,803,804,805,806,807,808,809,816,817,818,819,820,821,822,823,824,825,826,827,828,829,830,831,832,833,841,842,843,845,846,847,848,850,851,852,853,854,855,856,857,865,866,867,869,870,871,872,874,875,876,877,878,879,880,893,894,895,896,900,901,902,903,917,918,919,920,924,925,926,927,928,940,941,942,943,944,949,950,951,952,965,966,967,968,973,974,975,976,989,990,991,992,997,998,999,1000,1012,1013,1014,1015,1016,1021,1022,1023,1024,1035,1036,1037,1038,1039,1040,1045,1046,1047,1048,1049,1059,1060,1061,1062,1063,1064,1069,1070,1071,1072,1073,1081,1082,1083,1084,1085,1086,1087,1088,1093,1094,1095,1096,1097,1098,1105,1106,1107,1108,1109,1110,1111,1112,1117,1118,1119,1120,1121,1122,1129,1130,1131,1132,1143,1144,1145,1146]},"shadow":{"width":248,"height":483,"columns":24,"rows":48,"cells":[8,9,10,31,32,33,34,35,54,55,56,57,58,59,60,78,79,80,81,82,83,84,101,102,103,104,105,106,107,108,126,127,128,129,130,131,132,133,134,150,151,152,153,154,155,156,157,158,173,174,175,176,177,178,179,180,181,182,183,197,198,199,200,201,202,203,204,205,206,207,208,221,222,223,224,225,226,227,228,229,230,231,232,233,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,316,317,318,319,320,321,322,323,324,325,326,327,328,329,332,333,334,335,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,356,357,358,359,363,364,365,366,367,368,369,370,371,372,373,374,375,376,379,380,381,382,383,385,386,387,388,389,390,391,392,393,394,395,398,399,400,401,403,404,405,406,409,410,411,412,413,414,415,416,417,418,419,420,422,423,424,425,428,429,430,433,434,435,436,437,438,439,440,441,442,443,444,446,447,448,449,452,453,454,457,458,459,460,461,462,463,464,465,466,467,468,471,472,473,477,478,481,482,483,484,485,486,487,488,489,490,491,492,493,495,496,497,502,503,505,506,507,508,509,510,511,512,513,514,515,516,517,519,520,521,526,527,528,529,530,531,532,533,534,535,536,537,538,539,540,541,542,543,544,545,550,551,552,553,554,555,556,557,558,559,560,561,562,563,564,565,566,567,568,569,576,577,578,579,580,581,582,583,584,585,586,587,588,589,590,591,592,593,601,602,603,604,605,606,607,608,609,610,611,612,613,614,615,626,627,628,629,630,631,632,634,635,636,637,638,639,650,651,652,653,654,655,656,658,659,660,661,662,663,675,676,677,678,679,683,684,685,686,687,688,700,701,702,703,704,707,708,709,710,711,712,724,725,726,727,728,732,733,734,735,736,737,748,749,750,751,752,756,757,758,759,760,761,771,772,773,774,775,776,781,782,783,784,785,795,796,797,798,799,800,805,806,807,808,809,810,819,820,821,822,823,824,830,831,832,833,834,844,845,846,847,848,854,855,856,857,858,868,869,870,871,872,878,879,880,881,882,883,892,893,894,895,902,903,904,905,906,907,916,917,918,919,927,928,929,930,931,940,941,942,943,952,953,954,955,964,965,966,976,977,978,979,988,989,990,1001,1002,1003,1011,1012,1013,1014,1015,1025,1026,1027,1028,1035,1036,1037,1038,1039,1049,1050,1051,1052,1057,1058,1059,1060,1061,1062,1063,1073,1074,1075,1076,1081,1082,1083,1084,1085,1086,1087,1097,1098,1099,1100,1101,1104,1105,1106,1107,1108,1109,1110,1111,1121,1122,1123,1124,1125,1130,1131,1145,1146,1147,1148,1149]},"sylva":{"width":259,"height":491,"columns":24,"rows":48,"cells":[7,8,9,10,31,32,33,34,35,36,54,55,56,57,58,59,60,61,77,78,79,80,81,82,83,84,85,101,102,103,104,105,106,107,108,109,110,125,126,127,128,129,130,131,132,133,134,139,140,150,151,152,153,154,155,156,157,158,161,162,163,164,165,166,174,175,176,177,178,179,180,181,182,185,186,187,188,189,190,198,199,200,201,202,203,204,205,206,209,210,211,212,213,214,215,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,268,269,270,271,272,273,274,275,276,277,278,279,280,282,283,284,285,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,460,461,462,463,464,465,466,467,468,469,470,471,472,484,485,486,487,488,489,490,491,492,493,494,495,496,497,508,509,510,511,512,513,514,515,516,517,518,519,520,521,532,533,534,535,536,537,538,539,540,541,542,543,544,545,555,556,557,558,559,560,561,562,563,564,565,566,567,568,569,580,581,582,583,584,585,586,587,588,589,590,591,592,593,603,604,605,606,607,608,609,610,611,612,613,614,615,616,617,628,629,630,631,632,633,634,635,636,637,638,639,640,641,652,653,654,655,656,657,658,659,660,661,662,663,664,665,678,679,680,681,682,684,685,686,687,688,702,703,704,705,706,709,710,711,712,726,727,728,729,730,732,733,734,735,736,749,750,751,752,753,757,758,759,760,773,774,775,776,777,780,781,782,783,784,796,797,798,799,800,804,805,806,807,808,819,820,821,822,823,824,828,829,830,831,843,844,845,846,847,851,852,853,854,855,867,868,869,870,871,875,876,877,878,879,891,892,893,894,895,900,901,902,903,914,915,916,917,918,924,925,926,927,938,939,940,941,942,948,949,950,951,962,963,964,965,972,973,974,975,986,987,988,989,996,997,998,999,1009,1010,1011,1012,1019,1020,1021,1022,1023,1033,1034,1035,1036,1043,1044,1045,1046,1047,1048,1057,1058,1059,1060,1067,1068,1069,1070,1071,1072,1073,1080,1081,1082,1083,1084,1091,1092,1093,1094,1095,1096,1097,1104,1105,1106,1107,1108,1117,1118,1119,1120,1121,1128,1129,1130,1131]},"titan":{"width":267,"height":492,"columns":24,"rows":48,"cells":[10,11,12,13,14,34,35,36,37,38,58,59,60,61,62,82,83,84,85,86,104,105,106,107,108,109,110,128,129,130,131,132,133,134,135,136,149,150,151,152,153,154,155,156,157,158,159,160,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,381,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,453,454,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,500,501,502,505,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524,525,526,529,530,531,532,533,534,535,536,537,538,539,540,541,542,543,544,545,546,547,548,549,550,553,554,555,556,557,558,559,560,561,562,563,564,565,566,567,568,569,570,571,572,573,574,575,577,578,579,580,581,582,583,584,585,586,587,588,589,590,591,592,593,594,595,596,597,598,600,601,602,603,604,605,606,607,608,609,610,611,612,613,614,615,616,617,618,619,620,621,624,625,626,627,628,629,630,631,632,633,634,635,636,637,638,639,640,641,642,643,644,648,649,650,651,652,653,654,655,656,657,658,659,660,661,662,663,664,665,666,667,668,672,673,674,675,676,677,678,679,680,681,682,683,684,685,686,687,688,689,690,691,692,696,697,698,699,700,701,702,703,704,705,706,707,708,709,710,711,712,713,714,715,716,720,721,722,723,724,725,726,727,728,729,730,731,732,733,734,735,736,737,738,739,744,745,746,747,748,749,750,751,752,753,754,755,756,757,758,759,760,761,762,763,768,769,770,771,772,773,774,775,776,777,778,779,780,782,783,784,785,786,787,793,794,795,796,797,798,799,800,801,802,805,806,807,808,809,810,811,817,818,819,820,821,822,823,824,825,826,829,830,831,832,833,834,835,841,842,843,844,845,846,847,848,849,853,854,855,856,857,858,859,866,867,868,869,870,871,872,873,878,879,880,881,882,883,891,892,893,894,895,896,902,903,904,905,906,907,908,915,916,917,918,919,920,927,928,929,930,931,939,940,941,942,943,951,952,953,954,955,963,964,965,966,967,975,976,977,978,979,980,987,988,989,990,991,1000,1001,1002,1003,1004,1011,1012,1013,1014,1015,1024,1025,1026,1027,1028,1035,1036,1037,1038,1039,1048,1049,1050,1051,1052,1053,1058,1059,1060,1061,1062,1063,1071,1072,1073,1074,1075,1076,1077,1078,1082,1083,1084,1085,1086,1087,1095,1096,1097,1098,1099,1100,1101,1102,1103,1105,1106,1107,1108,1109,1110,1111,1119,1120,1121,1122,1123,1124,1125,1126,1127,1129,1130,1131,1132,1133,1134,1146,1147,1148,1149,1150,1151]}}; throw new Error('Unsupported painted rig dependency: ' + name); };
+const __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PAINTED_ANATOMY = void 0;
+exports.createPaintedMesh = createPaintedMesh;
+exports.paintedAnchor = paintedAnchor;
+exports.deformPaintedMesh = deformPaintedMesh;
+const human_rig_1 = require("./human-rig");
+const painted_coverage_json_1 = __importDefault(require("../../../assets/painted-coverage.json"));
+/** Source-specific anatomy in normalized coordinates of the actual selection paintings. */
+exports.PAINTED_ANATOMY = {
+    arcane: {
+        hip: [.49, .40], neck: [.48, .16], crown: [.48, .05],
+        backArm: [[.20, .21], [.13, .33], [.25, .42], [.28, .44]],
+        frontArm: [[.61, .22], [.65, .34], [.82, .31], [.89, .27]],
+        backLeg: [[.42, .42], [.28, .68], [.15, .91], [.14, .98]],
+        frontLeg: [[.56, .42], [.55, .67], [.61, .90], [.68, .97]],
+        attachment: { joint: 'frontHand', bounds: [.71, .10, .99, .28] },
+    },
+    shadow: {
+        hip: [.48, .38], neck: [.45, .16], crown: [.43, .05],
+        backArm: [[.24, .23], [.17, .37], [.08, .47], [.07, .50]],
+        frontArm: [[.62, .23], [.68, .37], [.73, .46], [.74, .49]],
+        backLeg: [[.40, .40], [.32, .68], [.25, .90], [.20, .98]],
+        frontLeg: [[.56, .40], [.68, .69], [.79, .90], [.81, .98]],
+    },
+    sylva: {
+        hip: [.50, .40], neck: [.50, .17], crown: [.48, .05],
+        backArm: [[.25, .22], [.20, .37], [.23, .48], [.25, .50]],
+        frontArm: [[.66, .23], [.72, .33], [.88, .25], [.92, .23]],
+        backLeg: [[.42, .42], [.30, .65], [.23, .90], [.18, .98]],
+        frontLeg: [[.57, .41], [.60, .69], [.60, .91], [.68, .98]],
+        attachment: { joint: 'frontHand', bounds: [.76, .10, 1, .25] },
+    },
+    titan: {
+        hip: [.51, .44], neck: [.50, .16], crown: [.50, .05],
+        backArm: [[.18, .23], [.12, .38], [.12, .47], [.15, .50]],
+        frontArm: [[.76, .23], [.82, .38], [.89, .46], [.90, .49]],
+        backLeg: [[.41, .45], [.35, .72], [.26, .91], [.23, .98]],
+        frontLeg: [[.59, .45], [.66, .72], [.75, .91], [.82, .98]],
+        attachment: { joint: 'backHand', bounds: [0, .48, .29, .75] },
+    },
+    ember: {
+        hip: [.49, .40], neck: [.44, .17], crown: [.42, .06],
+        backArm: [[.22, .23], [.18, .35], [.30, .39], [.33, .40]],
+        frontArm: [[.62, .23], [.63, .34], [.78, .28], [.86, .25]],
+        backLeg: [[.40, .41], [.29, .68], [.18, .91], [.16, .98]],
+        frontLeg: [[.56, .41], [.62, .68], [.65, .91], [.70, .98]],
+        attachment: { joint: 'frontHand', bounds: [.70, .14, .99, .28] },
+    },
+    frost: {
+        hip: [.50, .43], neck: [.40, .17], crown: [.39, .05],
+        backArm: [[.20, .22], [.13, .38], [.27, .41], [.30, .42]],
+        frontArm: [[.63, .24], [.65, .36], [.80, .31], [.87, .28]],
+        backLeg: [[.43, .44], [.37, .70], [.30, .91], [.25, .98]],
+        frontLeg: [[.56, .44], [.55, .70], [.62, .92], [.68, .98]],
+        attachment: { joint: 'frontHand', bounds: [.72, .13, 1, .31] },
+    },
+};
+function distance(point, from, to) {
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const t = Math.max(0, Math.min(1, ((point.x - from.x) * dx + (point.y - from.y) * dy) / Math.max(1, dx * dx + dy * dy)));
+    return (point.x - from.x - t * dx) ** 2 + (point.y - from.y - t * dy) ** 2;
+}
+function createPaintedMesh(fighterId, imageWidth, imageHeight) {
+    if (!Number.isFinite(imageWidth) || !Number.isFinite(imageHeight) || imageWidth <= 0 || imageHeight <= 0) {
+        throw new RangeError('Painted combat requires valid source dimensions.');
+    }
+    const anatomy = exports.PAINTED_ANATOMY[fighterId];
+    const width = 480 * imageWidth / imageHeight;
+    const point = ([x, y]) => ({ x: 260 + (x - .5) * width, y: 66 + y * 480 });
+    const bones = [
+        { joint: 'torso', parent: -1, pivot: point(anatomy.hip), end: point(anatomy.neck) },
+        { joint: 'head', parent: 0, pivot: point(anatomy.neck), end: point(anatomy.crown) },
+    ];
+    const chain = (points, joints, parent) => {
+        const start = bones.length;
+        for (let index = 0; index < 3; index++)
+            bones.push({
+                joint: joints[index], parent: index === 0 ? parent : start + index - 1,
+                pivot: point(points[index]), end: point(points[index + 1]),
+            });
+    };
+    chain(anatomy.backArm, ['backArm', 'backForearm', 'backHand'], 0);
+    chain(anatomy.frontArm, ['frontArm', 'frontForearm', 'frontHand'], 0);
+    chain(anatomy.backLeg, ['backThigh', 'backShin', 'backFoot'], -1);
+    chain(anatomy.frontLeg, ['frontThigh', 'frontShin', 'frontFoot'], -1);
+    const mask = painted_coverage_json_1.default[fighterId];
+    if (mask.width !== imageWidth || mask.height !== imageHeight)
+        throw new Error('Painted source dimensions changed. Rebuild painted coverage.');
+    const { columns, rows } = mask;
+    const visible = new Set(mask.cells);
+    const bind = [], textures = [], indices = [], weights = [];
+    for (let row = 0; row <= rows; row++) {
+        for (let column = 0; column <= columns; column++) {
+            const x = column / columns, y = row / rows, vertex = point([x, y]);
+            const torsoProgress = Math.max(0, Math.min(1, (y - anatomy.neck[1]) / (anatomy.hip[1] - anatomy.neck[1])));
+            const torsoLeft = (anatomy.backArm[0][0] + .09) * (1 - torsoProgress) + (anatomy.backLeg[0][0] - .10) * torsoProgress;
+            const torsoRight = (anatomy.frontArm[0][0] - .09) * (1 - torsoProgress) + (anatomy.frontLeg[0][0] + .10) * torsoProgress;
+            const attached = anatomy.attachment;
+            bind.push(vertex);
+            textures.push({ x: x * imageWidth, y: y * imageHeight });
+            // Faces remain one rigid painted piece rather than bending across neighbouring arm weights.
+            if (y <= anatomy.neck[1] && Math.abs(x - anatomy.neck[0]) < .2) {
+                weights.push([{ bone: 1, amount: 1 }]);
+            }
+            else if (attached && x >= attached.bounds[0] && y >= attached.bounds[1] && x <= attached.bounds[2] && y <= attached.bounds[3]) {
+                weights.push([{ bone: bones.findIndex((bone) => bone.joint === attached.joint), amount: 1 }]);
+            }
+            else if (y > anatomy.neck[1] && y < anatomy.hip[1] + .025 && x > torsoLeft && x < torsoRight) {
+                weights.push([{ bone: 0, amount: 1 }]);
+            }
+            else {
+                const belowHands = y > Math.max(anatomy.backArm[3][1], anatomy.frontArm[3][1], anatomy.hip[1]) + .06;
+                const candidates = bones.map((bone, index) => ({ bone: index, score: distance(vertex, bone.pivot, bone.end) }))
+                    .filter((candidate) => !belowHands || candidate.bone === 0 || candidate.bone >= 8)
+                    .sort((a, b) => a.score - b.score).slice(0, 2);
+                const scores = candidates.map((candidate) => 1 / (candidate.score + 25) ** 2);
+                const sum = scores[0] + scores[1];
+                weights.push(candidates.map((candidate, index) => ({ bone: candidate.bone, amount: scores[index] / sum })));
+            }
+            if (row < rows && column < columns && visible.has(row * columns + column)) {
+                const a = row * (columns + 1) + column, b = a + 1, c = a + columns + 1, d = c + 1;
+                indices.push(a, b, c, b, d, c);
+            }
+        }
+    }
+    return { bind, textures, indices, weights, bones, rest: (0, human_rig_1.sampleHumanPose)('idle', 0, 3000, 0), support: point(anatomy.backLeg[3]) };
+}
+function transform(matrix, point) {
+    'worklet';
+    return { x: matrix.a * point.x + matrix.c * point.y + matrix.x, y: matrix.b * point.x + matrix.d * point.y + matrix.y };
+}
+function paintedTransforms(mesh, pose) {
+    'worklet';
+    const matrices = [];
+    for (const bone of mesh.bones) {
+        const parent = bone.parent < 0 ? { a: 1, b: 0, c: 0, d: 1, x: 0, y: 0 } : matrices[bone.parent];
+        let delta = pose.angles[bone.joint] - mesh.rest.angles[bone.joint];
+        if (pose.action === 'attack' && (bone.joint === 'frontArm' || bone.joint === 'frontForearm')) {
+            const desired = Math.PI / 2 + pose.angles.torso + pose.angles.frontArm
+                + (bone.joint === 'frontForearm' ? pose.angles.frontForearm : 0);
+            const source = Math.atan2(bone.end.y - bone.pivot.y, bone.end.x - bone.pivot.x);
+            let aimed = desired - source - Math.atan2(parent.b, parent.a);
+            while (aimed > Math.PI)
+                aimed -= Math.PI * 2;
+            while (aimed < -Math.PI)
+                aimed += Math.PI * 2;
+            delta += (aimed - delta) * pose.effort;
+        }
+        const cos = Math.cos(delta), sin = Math.sin(delta);
+        const a = parent.a * cos + parent.c * sin, b = parent.b * cos + parent.d * sin;
+        const c = parent.c * cos - parent.a * sin, d = parent.d * cos - parent.b * sin;
+        const pivot = transform(parent, bone.pivot);
+        matrices.push({ a, b, c, d, x: pivot.x - a * bone.pivot.x - c * bone.pivot.y, y: pivot.y - b * bone.pivot.x - d * bone.pivot.y });
+    }
+    const supportIndex = mesh.bones.findIndex((bone) => bone.joint === 'backFoot');
+    const foot = transform(matrices[supportIndex], mesh.support);
+    const collapse = Math.max(0, Math.min(1, (-pose.angles.torso - .5) / .85));
+    const correctionX = (mesh.support.x - foot.x - pose.x) * (1 - collapse);
+    const correctionY = (mesh.support.y - foot.y - pose.y) * (1 - collapse);
+    return { matrices, collapse, correctionX, correctionY };
+}
+function paintedAnchor(mesh, pose, joint, along = 1) {
+    'worklet';
+    const index = mesh.bones.findIndex(bone => bone.joint === joint);
+    if (index < 0)
+        throw new Error(`Missing painted joint: ${joint}`);
+    const bone = mesh.bones[index];
+    const { matrices, correctionX, correctionY } = paintedTransforms(mesh, pose);
+    const point = transform(matrices[index], {
+        x: bone.pivot.x + (bone.end.x - bone.pivot.x) * along,
+        y: bone.pivot.y + (bone.end.y - bone.pivot.y) * along,
+    });
+    return { x: point.x + pose.x + correctionX, y: point.y + pose.y + correctionY };
+}
+function deformPaintedMesh(mesh, pose) {
+    'worklet';
+    const { matrices, collapse, correctionX, correctionY } = paintedTransforms(mesh, pose);
+    let vertices = mesh.bind.map((point, index) => {
+        let x = 0, y = 0;
+        for (const weight of mesh.weights[index]) {
+            const mapped = transform(matrices[weight.bone], point);
+            x += mapped.x * weight.amount;
+            y += mapped.y * weight.amount;
+        }
+        return { x: x + pose.x + correctionX, y: y + pose.y + correctionY };
+    });
+    if (collapse > 0) {
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        for (const vertex of vertices) {
+            minX = Math.min(minX, vertex.x);
+            maxX = Math.max(maxX, vertex.x);
+            minY = Math.min(minY, vertex.y);
+            maxY = Math.max(maxY, vertex.y);
+        }
+        const scale = Math.min(1, 490 / Math.max(1, maxX - minX), 460 / Math.max(1, maxY - minY));
+        const dx = 260 - (minX + maxX) / 2 * scale;
+        const dy = 538 - maxY * scale;
+        vertices = vertices.map((vertex) => ({
+            x: vertex.x * (1 + (scale - 1) * collapse) + dx * collapse,
+            y: vertex.y * (1 + (scale - 1) * collapse) + dy * collapse,
+        }));
+    }
+    return vertices;
+}
+
+globalThis.BrainBrawlPaintedMesh = exports;
+})();
+globalThis.BrainBrawlPaintingSources = {"arcane":{"source":"../assets/images/fighters/human/arcane.png","width":274,"height":492},"shadow":{"source":"../assets/images/fighters/human/shadow.png","width":248,"height":483},"sylva":{"source":"../assets/images/fighters/human/sylva.png","width":259,"height":491},"titan":{"source":"../assets/images/fighters/human/titan.png","width":267,"height":492},"ember":{"source":"../assets/images/fighters/human/ember.png","width":290,"height":495},"frost":{"source":"../assets/images/fighters/human/frost.png","width":278,"height":496}};
+(function () { const exports = {};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SIGNAL_DISSOLVE_SHADER = exports.KO_HOLD_MS = exports.KO_BODY_END_MS = exports.KO_END_MS = void 0;
+exports.koFrame = koFrame;
+exports.koFragment = koFragment;
+exports.dissolveField = dissolveField;
+exports.KO_END_MS = 1000;
+exports.KO_BODY_END_MS = 650;
+exports.KO_HOLD_MS = 80;
+function koFrame(time, motion = true) {
+    'worklet';
+    const progress = motion ? Math.max(0, Math.min(1, (time - 220) / 430)) : 1;
+    return {
+        progress,
+        opacity: motion && time < exports.KO_BODY_END_MS ? 1 : 0,
+        edge: motion && time >= exports.KO_HOLD_MS && time < exports.KO_BODY_END_MS ? Math.min(1, (time - exports.KO_HOLD_MS) / 100) : 0,
+        shadow: motion ? Math.max(0, 1 - Math.max(0, time - 220) / 650) : 0,
+    };
+}
+function koFragment(time, index) {
+    'worklet';
+    const q = Math.max(0, (time - 320 - (index % 6) * 16) / 520);
+    return {
+        x: Math.sin(index * 2.399) * 32 * q,
+        y: -(32 + index % 7 * 7) * q,
+        opacity: q > 0 && q < 1 ? Math.sin(q * Math.PI) * (1 - q) * 1.5 : 0,
+        scale: (.8 + index % 3 * .15) * (1 - Math.min(1, q) * .5),
+        rotation: index * .7 + q * (index % 2 ? 1 : -1),
+    };
+}
+function hash(x, y, seed) {
+    'worklet';
+    x = x * 123.34 - Math.floor(x * 123.34);
+    y = y * 345.45 - Math.floor(y * 345.45);
+    const dot = x * (x + 34.345 + seed) + y * (y + 34.345 + seed);
+    const value = (x + dot) * (y + dot);
+    return value - Math.floor(value);
+}
+function noise(x, y, seed) {
+    'worklet';
+    const ix = Math.floor(x), iy = Math.floor(y);
+    const fx = x - ix, fy = y - iy;
+    const u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+    return (hash(ix, iy, seed) * (1 - u) + hash(ix + 1, iy, seed) * u) * (1 - v)
+        + (hash(ix, iy + 1, seed) * (1 - u) + hash(ix + 1, iy + 1, seed) * u) * v;
+}
+/** CPU study/test counterpart of the GPU shader's source-local threshold field. */
+function dissolveField(x, y, seed) {
+    'worklet';
+    return noise(x * 19, y * 31, seed) * .65 + noise(x * 41, y * 67, seed) * .15 + y * .2;
+}
+exports.SIGNAL_DISSOLVE_SHADER = `
+uniform shader artwork;
+uniform float2 dimensions;
+uniform float progress;
+uniform float edge;
+uniform float3 accent;
+uniform float seed;
+float hash(float2 p) {
+  p = fract(p * float2(123.34, 345.45));
+  p += dot(p, p + 34.345 + seed);
+  return fract(p.x * p.y);
+}
+float noise(float2 p) {
+  float2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + float2(1, 0)), f.x),
+    mix(hash(i + float2(0, 1)), hash(i + float2(1, 1)), f.x), f.y);
+}
+half4 main(float2 p) {
+  half4 original = artwork.eval(p);
+  if (progress <= 0.0 && edge <= 0.0) return original;
+  if (progress >= 1.0 || original.a <= 0.0) return half4(0);
+  float2 uv = p / dimensions;
+  float field = noise(uv * float2(19, 31)) * 0.65
+    + noise(uv * float2(41, 67)) * 0.15 + uv.y * 0.2;
+  float keep = progress <= 0.0 ? 1.0 : smoothstep(progress - 0.035, progress + 0.035, field);
+  float neighbourAlpha = min(min(artwork.eval(p + float2(1.5, 0)).a, artwork.eval(p - float2(1.5, 0)).a),
+    min(artwork.eval(p + float2(0, 1.5)).a, artwork.eval(p - float2(0, 1.5)).a));
+  float contour = max(0.0, original.a - neighbourAlpha);
+  float rim = max(1.0 - smoothstep(0.0, 0.07, abs(field - progress)), contour * 0.8) * edge;
+  half3 rgb = mix(original.rgb, half3(accent) * original.a, rim * 0.85);
+  return half4(rgb * keep, original.a * keep);
+}`;
+
+globalThis.BrainBrawlSignature = exports;
+})();
+globalThis.BrainBrawlFragmentSources = {"arcane":{"width":274,"height":492,"points":[{"vertex":187,"color":"#201144"},{"vertex":1176,"color":"#622FC6"},{"vertex":1143,"color":"#6C3ABB"},{"vertex":759,"color":"#1C1920"},{"vertex":273,"color":"#2C1A3E"},{"vertex":353,"color":"#120F21"},{"vertex":718,"color":"#100E0D"},{"vertex":513,"color":"#252228"},{"vertex":853,"color":"#362E62"},{"vertex":1112,"color":"#160432"},{"vertex":393,"color":"#F2F2F4"},{"vertex":433,"color":"#2B2630"},{"vertex":864,"color":"#07050C"},{"vertex":207,"color":"#B3A1BE"},{"vertex":655,"color":"#9557ED"},{"vertex":194,"color":"#151225"},{"vertex":1030,"color":"#100820"},{"vertex":918,"color":"#BCAAD5"},{"vertex":339,"color":"#252028"},{"vertex":689,"color":"#262328"},{"vertex":1040,"color":"#221634"},{"vertex":585,"color":"#18151A"},{"vertex":60,"color":"#6E5971"},{"vertex":310,"color":"#18141B"},{"vertex":907,"color":"#1C1920"},{"vertex":911,"color":"#0E022B"},{"vertex":566,"color":"#D8DBE4"},{"vertex":480,"color":"#2E2933"},{"vertex":1179,"color":"#9E73C6"},{"vertex":371,"color":"#521E1D"},{"vertex":63,"color":"#755D72"},{"vertex":331,"color":"#060409"}]},"ember":{"width":290,"height":495,"points":[{"vertex":187,"color":"#77331D"},{"vertex":1176,"color":"#EF6E2B"},{"vertex":992,"color":"#27212B"},{"vertex":656,"color":"#DC5E27"},{"vertex":298,"color":"#6C3D17"},{"vertex":566,"color":"#36353A"},{"vertex":1007,"color":"#8C4427"},{"vertex":306,"color":"#342225"},{"vertex":786,"color":"#670F22"},{"vertex":770,"color":"#FFB06D"},{"vertex":461,"color":"#1E1820"},{"vertex":268,"color":"#201219"},{"vertex":1164,"color":"#3F2C38"},{"vertex":952,"color":"#4C2319"},{"vertex":791,"color":"#2A1521"},{"vertex":59,"color":"#894123"},{"vertex":988,"color":"#F56D2D"},{"vertex":830,"color":"#201B22"},{"vertex":482,"color":"#A8533C"},{"vertex":390,"color":"#740E17"},{"vertex":638,"color":"#0C090F"},{"vertex":1079,"color":"#1B1720"},{"vertex":234,"color":"#A22F20"},{"vertex":609,"color":"#14141A"},{"vertex":215,"color":"#7E3020"},{"vertex":1192,"color":"#2D111A"},{"vertex":808,"color":"#201D26"},{"vertex":37,"color":"#71180E"},{"vertex":418,"color":"#9D482D"},{"vertex":668,"color":"#4C0C1D"},{"vertex":337,"color":"#171013"},{"vertex":371,"color":"#20141B"}]},"frost":{"width":278,"height":496,"points":[{"vertex":162,"color":"#6CCFE9"},{"vertex":1178,"color":"#7496B6"},{"vertex":892,"color":"#3694C1"},{"vertex":579,"color":"#8499AF"},{"vertex":273,"color":"#09161D"},{"vertex":562,"color":"#082B40"},{"vertex":908,"color":"#15141F"},{"vertex":230,"color":"#727F97"},{"vertex":367,"color":"#0E121A"},{"vertex":1164,"color":"#0E060C"},{"vertex":851,"color":"#176396"},{"vertex":1158,"color":"#38698F"},{"vertex":359,"color":"#28334B"},{"vertex":787,"color":"#12121D"},{"vertex":58,"color":"#080B10"},{"vertex":683,"color":"#171621"},{"vertex":691,"color":"#070813"},{"vertex":402,"color":"#000A1C"},{"vertex":1193,"color":"#282A38"},{"vertex":363,"color":"#77809B"},{"vertex":963,"color":"#1A2A42"},{"vertex":780,"color":"#11172C"},{"vertex":219,"color":"#111827"},{"vertex":507,"color":"#2A2A3B"},{"vertex":240,"color":"#8FABC7"},{"vertex":1031,"color":"#232636"},{"vertex":1041,"color":"#152131"},{"vertex":395,"color":"#0B0A15"},{"vertex":209,"color":"#2D3650"},{"vertex":380,"color":"#414966"},{"vertex":727,"color":"#D0ECF5"},{"vertex":36,"color":"#AEB3BD"}]},"shadow":{"width":248,"height":483,"points":[{"vertex":187,"color":"#6A1229"},{"vertex":1178,"color":"#1C161F"},{"vertex":1171,"color":"#D83F64"},{"vertex":548,"color":"#79172E"},{"vertex":552,"color":"#2E272E"},{"vertex":763,"color":"#342C31"},{"vertex":856,"color":"#08080C"},{"vertex":466,"color":"#5A2A3B"},{"vertex":484,"color":"#30282F"},{"vertex":206,"color":"#A60830"},{"vertex":918,"color":"#2E2123"},{"vertex":295,"color":"#DE2649"},{"vertex":1082,"color":"#871D35"},{"vertex":631,"color":"#2D262D"},{"vertex":34,"color":"#AB464E"},{"vertex":405,"color":"#20191D"},{"vertex":241,"color":"#540726"},{"vertex":587,"color":"#211F23"},{"vertex":387,"color":"#721A26"},{"vertex":373,"color":"#7E1732"},{"vertex":284,"color":"#393138"},{"vertex":1093,"color":"#231824"},{"vertex":617,"color":"#CA594A"},{"vertex":791,"color":"#3B0B20"},{"vertex":940,"color":"#66172E"},{"vertex":758,"color":"#E52752"},{"vertex":678,"color":"#6E0F28"},{"vertex":980,"color":"#141317"},{"vertex":446,"color":"#6B122D"},{"vertex":159,"color":"#130F17"},{"vertex":314,"color":"#2F2A32"},{"vertex":664,"color":"#020306"}]},"sylva":{"width":259,"height":491,"points":[{"vertex":187,"color":"#8F553B"},{"vertex":1176,"color":"#999681"},{"vertex":1142,"color":"#080B11"},{"vertex":630,"color":"#363339"},{"vertex":248,"color":"#131913"},{"vertex":642,"color":"#3E382A"},{"vertex":956,"color":"#23241D"},{"vertex":305,"color":"#070714"},{"vertex":511,"color":"#201D20"},{"vertex":888,"color":"#36332A"},{"vertex":367,"color":"#0D0A0D"},{"vertex":1137,"color":"#5B5052"},{"vertex":82,"color":"#97624A"},{"vertex":759,"color":"#1D1B21"},{"vertex":334,"color":"#7F854E"},{"vertex":194,"color":"#192618"},{"vertex":688,"color":"#443B30"},{"vertex":363,"color":"#A69F99"},{"vertex":482,"color":"#111017"},{"vertex":816,"color":"#36352C"},{"vertex":1028,"color":"#566032"},{"vertex":515,"color":"#050506"},{"vertex":35,"color":"#0C0C0F"},{"vertex":454,"color":"#413C30"},{"vertex":345,"color":"#22131A"},{"vertex":806,"color":"#1B181E"},{"vertex":1039,"color":"#565932"},{"vertex":265,"color":"#343628"},{"vertex":184,"color":"#4A4A2F"},{"vertex":609,"color":"#333030"},{"vertex":1154,"color":"#04030A"},{"vertex":879,"color":"#42382A"}]},"titan":{"width":267,"height":492,"points":[{"vertex":187,"color":"#3C373B"},{"vertex":1198,"color":"#7B3C19"},{"vertex":1177,"color":"#02020C"},{"vertex":552,"color":"#06060B"},{"vertex":572,"color":"#272429"},{"vertex":787,"color":"#4D454A"},{"vertex":204,"color":"#E3D6B9"},{"vertex":894,"color":"#18161B"},{"vertex":244,"color":"#94794F"},{"vertex":855,"color":"#634A33"},{"vertex":484,"color":"#CDBFB0"},{"vertex":1166,"color":"#6F573F"},{"vertex":516,"color":"#2A282C"},{"vertex":1107,"color":"#B49468"},{"vertex":776,"color":"#060208"},{"vertex":631,"color":"#817062"},{"vertex":258,"color":"#E3D6C9"},{"vertex":405,"color":"#958482"},{"vertex":741,"color":"#312F33"},{"vertex":940,"color":"#241C1E"},{"vertex":388,"color":"#0C0B0E"},{"vertex":1070,"color":"#2A1E1A"},{"vertex":396,"color":"#FBFEFF"},{"vertex":587,"color":"#0B0A0D"},{"vertex":720,"color":"#FAF8F0"},{"vertex":884,"color":"#363336"},{"vertex":1029,"color":"#05070F"},{"vertex":166,"color":"#884620"},{"vertex":709,"color":"#A77349"},{"vertex":367,"color":"#B0A199"},{"vertex":38,"color":"#211D24"},{"vertex":377,"color":"#08050F"}]}};

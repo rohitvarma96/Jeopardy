@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react-native';
 import { AccessibilityInfo, AppState, Dimensions, Platform, StyleSheet } from 'react-native';
 
-import Profile from '../app/(tabs)/profile';
+import Profile from '../app/(tabs)/career';
 import Settings from '../app/settings';
 import { BattleScreen } from '../src/components/battle/BattleScreen';
 import { useBattleClock } from '../src/features/battle/useBattleClock';

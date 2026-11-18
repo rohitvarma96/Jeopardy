@@ -28,8 +28,8 @@ export const journey = [
   {
     id: 'fighterSelect',
     href: routes.fighterSelect,
-    title: 'Fighter selection',
-    description: 'Choose your fighter. Your choice is saved on this device.',
+    title: 'Brawler selection',
+    description: 'Choose your Brawler. Your choice is saved on this device.',
     icon: 'person-outline',
   },
   {

@@ -1,102 +1,63 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { BattleScene } from '../../src/components/battle/BattleScene';
-import { PlayerDataNotice } from '../../src/components/player/PlayerDataNotice';
-import { AppText, Button, Card, EmptyState, HealthBar, Screen } from '../../src/components/ui';
+import { ResultTableau } from '../../src/components/battle/ResultTableau';
 import { PagedItems } from '../../src/components/ui/PagedItems';
-import { getBooster } from '../../src/data/boosters';
-import { getFighter } from '../../src/data/fighters';
+import { SceneAction, SceneText, SigilButton } from '../../src/components/world/SceneControls';
+import { WorldOverlay } from '../../src/components/world/WorldOverlay';
+import { WorldScene } from '../../src/components/world/WorldScene';
 import { leaveBattle, playAgain } from '../../src/features/battle/session';
 import { useBattleStore } from '../../src/features/battle/store';
-import { SIDES, selectBattleView } from '../../src/game/battle';
-import { useBattleMotion } from '../../src/hooks/useBattleMotion';
-import { usePlayerStore } from '../../src/store/player-store';
-import { exitPreview } from '../../src/navigation/exitPreview';
 import { routes } from '../../src/navigation/routes';
-import { spacing } from '../../src/theme';
+import { usePlayerStore } from '../../src/store/player-store';
 
 export default function Result() {
   const router = useRouter();
-  const battle = useBattleStore((state) => state.battle);
   const { matchId } = useLocalSearchParams<{ matchId?: string }>();
-  const matches = usePlayerStore((state) => state.matches);
-  const claimMatch = usePlayerStore((state) => state.claimMatch);
-  const ready = usePlayerStore((state) => state.status === 'ready');
-  const motionEnabled = useBattleMotion();
-  const savingBattle = battle?.outcome && (matchId === undefined || matchId === battle.setup.matchId) ? battle : null;
-  useEffect(() => { if (savingBattle) void claimMatch(savingBattle); }, [savingBattle, claimMatch]);
-  const id = matchId ?? (battle?.outcome ? battle.setup.matchId : matches[0]?.matchId);
-  const record = matches.find((entry) => entry.matchId === id);
-  if (!record) return <Screen title="Results"
-    description={savingBattle ? 'Saving your match and rewards locally.' : matchId ? 'The requested match was not found.' : 'No finished battle to show.'}
-    previewLabel={null}>
-    <PlayerDataNotice />
-    {savingBattle ? <Button label="Retry reward grant" disabled={!ready} onPress={() => void claimMatch(savingBattle)} />
-      : <EmptyState icon="ribbon-outline" title="No result yet" description="Finish a battle to see its result here."
-        action={<Button label="Arena home" onPress={() => exitPreview()} />} />}
-  </Screen>;
-  const { outcome, fighters } = record;
-  return <Screen title={outcome.winner === 'player' ? 'Victory' : 'Defeat'}
-    description={`Final score is damage dealt, not XP or remaining HP.`} previewLabel={null}
-    exitHref={routes.arena} exitLabel="Arena home" onExit={leaveBattle}
-    footer={<View style={styles.actions}>
-      <Button label="Continue" disabled={!ready} style={styles.action}
-        onPress={() => router.push({ pathname: routes.rewards, params: { matchId: record.matchId } })} />
-      <Button label="Play again" variant="secondary" style={styles.action} onPress={playAgain} />
-    </View>}
-    pages={[
-      { id: 'outcome', label: 'Outcome', content: <>
-        <AppText variant="heading">{outcome.winner === 'player' ? 'You defeated' : 'You lost to'} {fighters.opponent.name}</AppText>
-        <View style={styles.scene}>
-          {battle?.outcome && battle.setup.matchId === record.matchId
-            ? <BattleScene view={selectBattleView(battle, battle.nowMs)} motionEnabled={motionEnabled} outcomeOnly fill />
-            : <AppText>Saved match / {getFighter(fighters.player.fighterId).name} vs {getFighter(fighters.opponent.fighterId).name}</AppText>}
-        </View>
-      </> },
-      { id: 'scores', label: 'Final scores', content: <Card style={styles.page}>
-        <AppText variant="heading">Final scores</AppText>
-        <AppText>You: {fighters.player.score}</AppText>
-        <AppText>{fighters.opponent.name}: {fighters.opponent.score}</AppText>
-        <HealthBar label="Your health" value={fighters.player.hp} max={record.startingHp} animate={motionEnabled} />
-        <HealthBar label={`${fighters.opponent.name} health`} value={fighters.opponent.hp} max={record.startingHp} animate={motionEnabled} />
-      </Card> },
-      ...SIDES.map((side) => {
-        const fighter = fighters[side];
-        const used = fighter.boostersUsed.map((boosterId) => getBooster(boosterId).name);
-        const rows = [
-          { label: 'Correct answers', value: fighter.stats.correct },
-          { label: 'Wrong answers', value: fighter.stats.wrong },
-          { label: 'Timeouts', value: fighter.stats.timeouts },
-          { label: 'Damage dealt', value: fighter.stats.damageDealt },
-          { label: 'Attacks blocked', value: fighter.stats.attacksBlocked },
-          { label: 'Best combo', value: fighter.bestCombo },
-          { label: 'Boosters used', value: used.length ? used.join(', ') : 'None' },
-        ];
-        return { id: side, label: side === 'player' ? 'Your stats' : 'Rival stats', content: <>
-          <AppText variant="heading">{side === 'player' ? 'You' : fighter.name} - {getFighter(fighter.fighterId).name}</AppText>
-          <PagedItems items={rows} keyExtractor={(item) => item.label} label="Battle stats" itemHeight={52}
-            renderItem={(item) => <AppText>{item.label}: {item.value}</AppText>} />
-        </> };
-      }),
-      { id: 'rewards', label: 'Rewards', content: <Card title="Rewards saved" style={styles.page}>
-        <AppText variant="heading">+{record.xp} XP / +{record.coins} coins</AppText>
-        <AppText>Level {record.levelBefore} to {record.levelAfter}</AppText>
-        {record.levelAfter > record.levelBefore ? <AppText accessibilityLiveRegion="polite">Level up!</AppText> : null}
-        <AppText tone="secondary">{record.capsule ? record.capsule.opened
-          ? 'Chest already opened. Your collectible is saved.' : 'One earned chest is ready to open.'
-          : 'Forfeits do not grant rewards or a chest.'}</AppText>
-        {__DEV__ ? <Button label="Animation preview" variant="ghost" onPress={() => router.push(routes.animationPreview)} /> : null}
-      </Card> },
-    ]}>
-    <PlayerDataNotice />
-  </Screen>;
+  const battle = useBattleStore((state) => state.battle);
+  const player = usePlayerStore();
+  const [details, setDetails] = useState(false);
+  const savingBattle = battle?.outcome && (!matchId || matchId === battle.setup.matchId) ? battle : null;
+  useEffect(() => { if (savingBattle) void usePlayerStore.getState().claimMatch(savingBattle); }, [savingBattle]);
+  const id = matchId ?? (battle?.outcome ? battle.setup.matchId : player.matches[0]?.matchId);
+  const record = player.matches.find((match) => match.matchId === id);
+  const won = record?.outcome.winner === 'player';
+  return <WorldScene title={record ? won ? 'Victory' : 'Defeat' : 'Results'} utilities={false}
+    entrance={false}
+    onBack={leaveBattle} backLabel="Leave results" footer={record ? <View style={styles.actions}>
+      <SceneAction label={record.capsule && !record.capsule.opened ? 'Open' : 'Home'}
+        accessibilityLabel={record.capsule && !record.capsule.opened ? 'Open earned chest' : 'Arena home'} icon={record.capsule && !record.capsule.opened ? 'vault' : 'arena'}
+        style={styles.primary} onPress={() => record.capsule && !record.capsule.opened
+          ? router.push({ pathname: routes.rewards, params: { matchId: record.matchId } }) : leaveBattle()} />
+      <SigilButton icon="deploy" label="Rematch" onPress={playAgain} />
+      <SigilButton icon="career" label="Inspect match record" onPress={() => setDetails(true)} />
+    </View> : undefined}>
+    {!record ? <View style={styles.recovery}>
+      <SceneText>{savingBattle ? 'Securing your result and rewards before another duel.' : matchId ? 'The requested match was not found.' : 'No result yet. Finish a duel first.'}</SceneText>
+      {savingBattle ? <SceneAction label="Retry reward grant" icon="career" disabled={player.status !== 'ready'}
+        onPress={async () => { await player.claimMatch(savingBattle); }} /> : <SceneAction label="Arena home" icon="arena" onPress={leaveBattle} />}
+    </View> : <ResultTableau key={record.matchId} record={record}
+      fresh={!matchId && Boolean(battle?.outcome) && battle?.setup.matchId === record.matchId && player.matches[0]?.matchId === record.matchId}
+      account={player.matches[0]?.matchId === record.matchId && player.profile.level === record.levelAfter ? player.profile : undefined} />}
+    {details && record ? <WorldOverlay title="Match record" onClose={() => setDetails(false)}>
+      <PagedItems items={[
+        { label: 'Your damage score', value: record.fighters.player.score },
+        { label: 'Rival damage score', value: record.fighters.opponent.score },
+        { label: 'Your final HP', value: record.fighters.player.hp },
+        { label: 'Rival final HP', value: record.fighters.opponent.hp },
+        { label: 'Correct answers', value: record.fighters.player.stats.correct },
+        { label: 'Wrong answers', value: record.fighters.player.stats.wrong },
+        { label: 'Timeouts', value: record.fighters.player.stats.timeouts },
+        { label: 'Attacks blocked', value: record.fighters.player.stats.attacksBlocked },
+      ]} keyExtractor={(item) => item.label} label="Match details" itemHeight={52}
+        renderItem={(item) => <SceneText>{item.label}: {item.value}</SceneText>} />
+      <SceneText muted>Damage is the score, not XP or remaining HP. Rewards are saved exactly once.</SceneText>
+    </WorldOverlay> : null}
+  </WorldScene>;
 }
-
 const styles = StyleSheet.create({
-  actions: { flexDirection: 'row', gap: spacing.small },
-  action: { flex: 1 },
-  scene: { flex: 1, minHeight: 0 },
-  page: { flex: 1, minHeight: 0, padding: spacing.small, gap: spacing.small, justifyContent: 'space-evenly' },
+  actions: { flexDirection: 'row', gap: 6, alignItems: 'center' },
+  primary: { flex: 1 },
+  recovery: { flex: 1, justifyContent: 'center', gap: 20 },
 });

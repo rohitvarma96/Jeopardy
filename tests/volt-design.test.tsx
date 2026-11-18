@@ -14,9 +14,13 @@ const mockReplace = jest.fn();
 const mockBack = jest.fn();
 const mockCanGoBack = jest.fn(() => false);
 
-jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush, replace: mockReplace, back: mockBack, canGoBack: mockCanGoBack }),
-}));
+jest.mock('expo-router', () => {
+  const { useEffect } = jest.requireActual<typeof import('react')>('react');
+  return {
+    useRouter: () => ({ push: mockPush, navigate: mockPush, replace: mockReplace, back: mockBack, canGoBack: mockCanGoBack }),
+    useFocusEffect: (callback: () => void | (() => void)) => useEffect(callback, [callback]),
+  };
+});
 
 afterEach(() => {
   jest.restoreAllMocks();
@@ -67,11 +71,11 @@ test('VOLT display text uses bundled typography without replacing body readabili
     .toMatchObject({ fontSize: 14, lineHeight: 21 });
 });
 
-test('Arena links to the design library without adding a game mode', async () => {
+test('Arena links to the persistent Brawler destination rather than a picker page', async () => {
   await usePlayerStore.getState().hydrate();
   await render(<Arena />);
-  await fireEvent.press(screen.getByRole('button', { name: 'Open design lab' }));
-  expect(mockPush).toHaveBeenCalledWith(routes.designLab);
+  await fireEvent.press(screen.getByRole('button', { name: 'Change Brawler' }));
+  expect(mockPush).toHaveBeenCalledWith(routes.brawlers);
 });
 
 test.each([
@@ -83,8 +87,8 @@ test.each([
   await usePlayerStore.getState().hydrate();
   await render(<Arena />);
   expect(screen.getByRole('header', { name: 'Arena' })).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Play', disabled: false })).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Change hero' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Duel', disabled: false })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Change Brawler' })).toBeTruthy();
   expect(screen.getByRole('progressbar', { name: 'XP to level 4' })).toBeTruthy();
   expect(screen.getByLabelText('Astral Sage artwork')).toBeTruthy();
 });

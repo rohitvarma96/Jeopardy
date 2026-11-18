@@ -1,25 +1,33 @@
-# BRAIN BRAWL / THE RELAY
+# BRAIN BRAWLERS / THE RELAY
 
 ## Ground-up game experience proposal
 
-**Status: design proposal, not an implemented or approved redesign.**
+**Status: core scene/navigation and match-loop implementation now exists.**
+See [the implementation handoff](WORLD_EXPERIENCE_IMPLEMENTATION.md) for what is
+actually shipped in the working tree and its validation. Final cinematic art,
+the latest logo revision, audio/haptics and device acceptance remain separate.
 This supersedes the earlier website-like VOLT screen structure. Existing code
 and generated character images are working prototypes, not final design evidence.
 VOLT's electric palette can survive; its generic page composition should not.
+
+The [Brain Brawlers identity build](BRAIN_BRAWLERS_IDENTITY.md) now implements
+the public name, original split-BB logo, punchy type units, painterly action
+key art and modern chest hardware. Characters are called Brawlers. The larger
+world-navigation/orchestration blueprint below now has a working core rollout.
 
 Companion: [visual composition board](GAME_EXPERIENCE_BOARD.html).
 The board is a design document with six fixed-screen studies, not production UI.
 
 ## 1. The actual change
 
-Brain Brawl should feel like entering a competitive world, preparing a human
-agent, and stepping into a knowledge-powered duel. It should not feel like
+Brain Brawlers should feel like entering a competitive world, preparing a human
+brawler, and stepping into a knowledge-powered duel. It should not feel like
 completing a setup wizard or browsing a dashboard.
 
 | Retire | Replace with |
 | --- | --- |
 | Page title, explanatory paragraph, cards, full-width CTA | An immersive scene with a few anchored game controls |
-| Generic Arena/Profile application tabs | Five recognizable game destinations: Arena, Agents, Armory, Vault, Career |
+| Generic Arena/Profile application tabs | Five recognizable game destinations: Arena, Brawlers, Armory, Vault, Career |
 | A route for every configuration step | Persistent preparation plus a short match-entry sequence |
 | Repeated Back / Arena / Profile button rows | An edge-mounted back chevron, context controls, and consistent navigation |
 | Previous section / Next section through an entire screen | Direct spatial selection, named sub-tabs, portrait rails and object inspection |
@@ -43,12 +51,12 @@ The player belongs to a roster of human specialists competing inside a
 monumental signal reactor. This is the game's setting, not a new game mechanic.
 
 - **Lobby:** an architectural hangar overlooking a red reactor and distant city.
-  The selected agent is a full-body foreground presence, not a thumbnail.
-- **Agents:** the same world from the roster gallery; portrait banners and
-  personal emblems make each agent collectible and recognizable.
+  The selected brawler is a full-body foreground presence, not a thumbnail.
+- **Brawlers:** the same world from the roster gallery; portrait banners and
+  personal emblems make each brawler collectible and recognizable.
 - **Armory:** a luminous preparation console. Powers are devices inserted into
   three sockets, not items in a settings list.
-- **Battle:** a restrained arena silhouette, opposing agents, readable question
+- **Battle:** a restrained arena silhouette, opposing brawlers, readable question
   field and high-contrast hit effects. Reading comes before spectacle.
 - **Vault:** a darker extraction chamber where a single hinged chest becomes the
   center of attention.
@@ -76,8 +84,8 @@ concept candidates, not a finished production animation set.
 
 | Destination | Player intent | Entry / exit model |
 | --- | --- | --- |
-| Arena | See my agent, readiness and next match | Default return destination |
-| Agents | Inspect, collect and equip a character | Fixed gallery; inspect without equipping |
+| Arena | See my brawler, readiness and next match | Default return destination |
+| Brawlers | Inspect, collect and equip a character | Fixed gallery; inspect without equipping |
 | Armory | Replace one of my three powers | Tap socket, choose replacement, persist valid kit |
 | Vault | Open earned chests; inspect collection | Only real pending rewards receive a badge |
 | Career | See real progression, records and mastery | Direct Progress / Record / Milestones sub-tabs |
@@ -104,7 +112,7 @@ Avoid nested modal stacks. One inspection and, when needed, one confirmation.
 flowchart TD
   Boot[Load local profile and assets] -->|valid| Lobby[The Relay / lobby]
   Boot -->|failed| Recovery[Explicit recovery / no reset or fake defaults]
-  Lobby <--> Agents[Agent hangar]
+  Lobby <--> Brawlers[Brawler hangar]
   Lobby <--> Armory[Three-socket armory]
   Lobby <--> Vault[Earned chest vault]
   Lobby <--> Career[Career and records]
@@ -146,8 +154,8 @@ change. Failed storage loads show recovery, never a new blank player.
 
 - Compact player emblem/level at the upper left; real currencies and gear at
   the upper right. No dashboard header or explanatory paragraph.
-- Human agent occupies the central stage. Tapping the body/name inspects the
-  agent. A subtle selection pedestal establishes ownership and readiness.
+- Human brawler occupies the central stage. Tapping the body/name inspects the
+  brawler. A subtle selection pedestal establishes ownership and readiness.
 - The three equipped powers are small but inspectable objects near the stage.
 - A compact AI Duel selector sits above a dedicated angular deployment module.
   Deployment uses an original duel sigil, short label and framed press feedback;
@@ -158,16 +166,16 @@ change. Failed storage loads show recovery, never a new blank player.
   material/shape emphasis, not just a colored website tab label.
 
 At 360 x 640, remove secondary promotional content before shrinking the primary
-controls. Preserve the agent, kit, deployment and navigation. At 320 x 568,
+controls. Preserve the brawler, kit, deployment and navigation. At 320 x 568,
 reduce decorative stage depth and use inspection for details, not clipped text.
 
-### 02 / Agent hangar
+### 02 / Brawler hangar
 
 Large selected human, name treatment, personal emblem and passive state.
 Six portrait banners form a directly selectable rail or compact fixed gallery.
 Owned, selected, equipped and locked are different states.
 
-Inspecting a locked agent shows their real passive, rarity and acquisition
+Inspecting a locked brawler shows their real passive, rarity and acquisition
 source. It does not silently select them or offer a nonfunctional unlock CTA.
 The equip seal persists only an owned selection; failure leaves the prior
 equipment authoritative and the error visible. Closing inspection discards an
@@ -193,7 +201,7 @@ into battle on an unsaved optimistic selection.
 ### 04 / Opponent acquisition
 
 A player banner and an AI opponent banner occupy the scene. The selected
-agent/powers remain visible as locked preparation. Cancel is an edge-mounted
+brawler/powers remain visible as locked preparation. Cancel is an edge-mounted
 control, not a second primary CTA.
 
 The existing local search remains clearly AI, cancellable and deterministic.
@@ -272,7 +280,7 @@ The hinged chest is the interactive object. Tap its latch: chamber lights conver
 the lid opens, rarity is expressed by light AND frame/sigil, then the actual
 item resolves. No repeated website-like Open / Continue / Continue sequence.
 
-- **New agent:** full discovery art, name, rarity and passive; optional equip
+- **New brawler:** full discovery art, name, rarity and passive; optional equip
   seal, with Keep current as a clear alternative.
 - **New power:** enlarged power emblem and concise effect; inspect in Armory.
 - **Duplicate:** actual item visibly converts into the actual shard amount.
@@ -284,20 +292,20 @@ must not pretend the user can time the tap to change rarity. Normal reveal is
 short and can be accelerated; reduced motion resolves immediately. Leaving
 before opening preserves the pending chest in Vault.
 
-Four physical container designs are Field (graphite/red straps), Arc
-(ivory/violet arch lid), Overdrive (industrial red/acid rails) and Sovereign
-(obsidian/gold/ruby). These are cosmetic families, not four new rarity tiers.
+Four physical container designs are Field (slim graphite/flush red lock), Arc
+(faceted ivory/violet seams), Overdrive (aerodynamic red/carbon/acid LEDs) and
+Sovereign (midnight shell/titanium/cyan seam). These are cosmetic families, not four new rarity tiers.
 Closed/open illustrations exist for all four; segmented hinge animation still
 requires a matched lid/base asset pass. Existing internal capsule storage names
 are retained for compatibility, not exposed as the new visual direction.
 
 ### 10 / Career and milestones
 
-Career emphasizes account progress, owned roster, real records and per-agent
+Career emphasizes account progress, owned roster, real records and per-brawler
 usage. Direct named sub-tabs replace generic document pagination.
 
 Use permanent achievement-style milestones before daily chores: first completed
-duel, first win, owned-agent collection and real combo accomplishments.
+duel, first win, owned-brawler collection and real combo accomplishments.
 Derived progress can use existing saved records. Claimable rewards require a
 new durable claim ledger and an approved reward budget; they are not fabricated
 from the current demo missions.
@@ -321,14 +329,14 @@ reference glyphs. The board contains initial silhouette studies, not final icons
 
 | Family | Required original glyphs |
 | --- | --- |
-| Core / 16 | Arena, Agents, Armory, Vault, Career, Settings, Back, Close, Equip, Deploy, Queue, Ban, Pick, Coin, Shard, Info |
+| Core / 16 | Arena, Brawlers, Armory, Vault, Career, Settings, Back, Close, Equip, Deploy, Queue, Ban, Pick, Coin, Shard, Info |
 | Categories / 8 | Science, Sports, History, Movies & TV, Space, Technology, Geography, Music |
 | Compatible powers / 5 | 50:50, Extra Time, Double Damage, Mind Shield, Streak Saver |
 | Collection rarity / 3 | Common, Rare, Epic frame/sigil treatments |
 | Shared states / 4 | Locked, new/unseen, saving, settled |
 
 Second Chance remains a legacy incompatible collectible, not a sixth active
-battle ability. Personal agent emblems and career achievements are separate from
+battle ability. Personal brawler emblems and career achievements are separate from
 rarity; they must not imply different combat power.
 
 ## 6. Gamification without inventing an economy
@@ -342,12 +350,12 @@ rarity; they must not imply different combat power.
 - Existing win/loss XP and coins, correct-answer XP, one chest per completed
   non-forfeit match, duplicate conversion and idempotent settlement.
 - Current chest rarity odds: common 70%, rare 25%, epic 5%. These are
-  **rarity odds**, not equal per-agent odds.
+  **rarity odds**, not equal per-brawler odds.
 - Duplicate conversion: common 5, rare 15, epic 40 shards.
 
 ### Proposed, not approved mechanics
 
-Permanent contracts, cosmetic agent mastery, milestone badges, targeted shard
+Permanent contracts, cosmetic brawler mastery, milestone badges, targeted shard
 redemption and a guaranteed-unlock/pity rule are candidates, not implemented
 promises. Each needs an explicit rule, migration/claim model, probability or
 cost specification and balancing approval before becoming interactive.
@@ -362,7 +370,7 @@ unspecified odds are part of this proposal.
 | --- | --- |
 | Boot | Reading, asset readiness, ready, storage failure, unsupported data |
 | Lobby | Ready, incompatible kit, saving equipment, unsaved result gate |
-| Agent | Inspecting, owned, locked, selected, equipped, saving, failed save |
+| Brawler | Inspecting, owned, locked, selected, equipped, saving, failed save |
 | Armory | Socket focus, compatible preview, duplicate prevention, repair, committing, failed commit |
 | Queue | Searching, cancelling, cancelled, reserving ID, found, reservation failure |
 | Draft | Ban preview/commit, AI ban, pick preview/commit, AI pick, fill, complete, invalid/direct entry |
@@ -421,7 +429,7 @@ environment; one extraction chamber; one original campaign/arrival key visual.
 Maintain clean focal zones for controls. Do not paste a full-screen illustration
 behind a generic stack of UI cards.
 
-For each agent: approved full-body design, portrait crop, personal emblem,
+For each brawler: approved full-body design, portrait crop, personal emblem,
 discovery/victory treatment and a compatible animation source. Real alpha and
 consistent ground contact/scale are required.
 
@@ -434,7 +442,7 @@ These should share material and geometry; not every object needs a glowing box.
 ### Reusable game components
 
 `SceneShell`, `WorldBackdrop`, `PlayerCrest`, `ResourceChip`, `GameNavSigil`,
-`UtilityGlyph`, `DeployModule`, `AgentStage`, `PortraitBanner`, `PowerSocket`,
+`UtilityGlyph`, `DeployModule`, `BrawlerStage`, `PortraitBanner`, `PowerSocket`,
 `CategoryCrest`, `VersusBanner`, `AnswerSlab`, `AbilitySigil`, `OutcomeTableau`,
 `ChestObject`, `DiscoveryCard`, `ProgressMedallion`, `GameOverlay`.
 
@@ -444,7 +452,7 @@ screen compositions.
 
 ## 10. Implementation sequence and gates
 
-1. **Approve a real vertical slice:** lobby, agent hangar/armory inspection,
+1. **Approve a real vertical slice:** lobby, brawler hangar/armory inspection,
    and chest discovery. Review these as game compositions at actual phone
    size before propagating a component library.
 2. **Build the scene foundation:** original core icons, environment layers,
@@ -467,7 +475,7 @@ navigation. Existing deep links need safe adapters until migration is complete.
 
 ### Acceptance gates
 
-- The first impression is a human agent inside a world, not a title and cards.
+- The first impression is a human brawler inside a world, not a title and cards.
 - Main destinations are recognizable by silhouette at phone scale.
 - Returning players never repeat unchanged setup confirmations.
 - 320 x 568, 360 x 640, 390 x 844, 430 x 932 and wide layouts keep required
@@ -493,10 +501,11 @@ This plan was checked against:
 - [Eight category definitions](../src/data/categories.ts).
 - [Setup validation and orchestration](../src/features/match-setup/store.ts).
 
-The new experience requires orchestration and presentation work; the current
-prototype does not already provide it. Mock multiplayer, a paid store, real
+The core five-destination world, persistent preparation, shorter deployment,
+VS asset gate, result inspection, Vault discovery and recognition milestones
+are implemented. Multiplayer, a paid store, real
 competitive rank, claimable contracts and finished painterly/3D human animation
 are not implemented and must not be presented as complete. The articulated
 vector rig, grounded stage, impact lettering and four chest families are now
 implemented as the scoped combat/reward revision; the rest of this world-flow
-blueprint remains a proposal.
+blueprint remains a reference for final art, animation and future mechanics.

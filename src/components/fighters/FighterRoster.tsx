@@ -21,7 +21,7 @@ export function FighterRoster({ selected, ownedIds, disabled = false, onSelect }
       <VoltText tone="muted">{fighter.role}</VoltText>
       <VoltText variant="label" tone="acid">{fighter.passive.name}</VoltText>
       <VoltText>{fighter.passive.description}</VoltText>
-    </View> : <PagedItems items={FIGHTERS} keyExtractor={(item) => item.id} label="Fighters"
+    </View> : <PagedItems items={FIGHTERS} keyExtractor={(item) => item.id} label="Brawlers"
       columns={2} itemHeight={98} renderItem={(entry) => {
         const owned = ownedIds.includes(`fighter:${entry.id}`);
         return <VoltOption label={entry.name} role="radio" selected={selected === entry.id}
@@ -39,7 +39,7 @@ export function FighterRoster({ selected, ownedIds, disabled = false, onSelect }
       }} />}
     <View style={styles.toolbar}>
       <VoltText variant="micro" tone="muted" style={styles.copy}>{fighter.passive.name}</VoltText>
-      <VoltButton label={details ? 'Roster' : 'Fighter details'} variant="outline" size="compact"
+      <VoltButton label={details ? 'Roster' : 'Brawler details'} variant="outline" size="compact"
         icon={details ? 'grid-outline' : 'information-circle-outline'} onPress={() => setDetails(!details)} />
     </View>
     {!ownedIds.includes(`fighter:${selected}`) ? <VoltTag label="Locked - collect from a chest" /> : null}

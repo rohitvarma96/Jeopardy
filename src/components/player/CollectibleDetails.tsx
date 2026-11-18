@@ -18,7 +18,7 @@ export function CollectibleDetails({ item }: { item: Collectible }) {
           : <IconSlot name={getBooster(item.boosterId).icon} />}
         <View style={styles.text}>
           <AppText variant="heading">{collectibleName(item)}</AppText>
-          <Badge label={`${item.rarity[0].toUpperCase()}${item.rarity.slice(1)} ${item.kind}`} />
+          <Badge label={`${item.rarity[0].toUpperCase()}${item.rarity.slice(1)} ${item.kind === 'fighter' ? 'Brawler' : 'power'}`} />
           <AppText variant="caption" tone="secondary">{description}</AppText>
         </View>
       </View>

@@ -36,7 +36,7 @@ export default function RootLayout() {
   if (fontError) throw fontError;
   if (!fontsLoaded) {
     return <View style={{ flex: 1, backgroundColor: volt.color.ink, justifyContent: 'center' }}>
-      <ActivityIndicator accessibilityLabel="Loading Brain Brawl fonts" color={volt.color.acid} />
+      <ActivityIndicator accessibilityLabel="Loading Brain Brawlers fonts" color={volt.color.acid} />
     </View>;
   }
 

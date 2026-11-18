@@ -23,7 +23,7 @@ test('fixed game screens contain no scroll host and retain bottom navigation', a
   expect(screen.getByTestId('screen-content')).toBeTruthy();
   expect(screen.getByTestId('game-navigation')).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Arena' })).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Profile' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Career' })).toBeTruthy();
 });
 
 test('section paging makes only one self-contained panel active', async () => {

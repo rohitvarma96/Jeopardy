@@ -7,7 +7,7 @@ import { leaveBattle } from '../../features/battle/session';
 import { useBattleStore } from '../../features/battle/store';
 import { useBattleClock } from '../../features/battle/useBattleClock';
 import { selectBattleView, SIDES, type BattleView, type QuestionView } from '../../game/battle';
-import { useBattleMotion } from '../../hooks/useBattleMotion';
+import { useSceneMotion } from '../../hooks/useBattleMotion';
 import { exitPreview } from '../../navigation/exitPreview';
 import { routes } from '../../navigation/routes';
 import { colors, layout, spacing } from '../../theme';
@@ -31,7 +31,7 @@ export function BattleScreen() {
   const window = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const usableHeight = window.height - insets.top - insets.bottom;
-  const motionEnabled = useBattleMotion();
+  const { enabled: motionEnabled, ready: motionReady } = useSceneMotion();
   const playing = battle !== null && battle.phase !== 'finished';
   const view = useMemo(() => (battle ? selectBattleView(battle, nowMs) : null), [battle, nowMs]);
   useBattleClock(playing);
@@ -48,7 +48,7 @@ export function BattleScreen() {
   if (!battle || !view) return (
     <Screen title="Battle arena" description="No battle is in progress." previewLabel={null}>
       <EmptyState icon="flash-outline" title="No active battle"
-        description="Start a match from Arena home: choose a mode, draft categories, then pick your fighter and boosters."
+        description="Start a match from Arena home: choose a mode, draft categories, then pick your Brawler and boosters."
         action={<Button label="Arena home" onPress={() => exitPreview()} />} />
     </Screen>
   );
@@ -71,7 +71,7 @@ export function BattleScreen() {
             else { leaveBattle(); router.replace(routes.arena); }
           }} />
         <View testID="battle-arena-region" style={[styles.arena, { maxHeight: Math.max(110, usableHeight * (combatFocus ? 0.48 : 0.32)) }]}>
-          <BattleScene view={view} motionEnabled={motionEnabled} fill />
+          <BattleScene view={view} motionEnabled={motionEnabled} motionReady={motionReady} fill />
         </View>
         {question ? combatFocus ? <View testID="battle-correct-answer" style={styles.correctAnswer}>
           <AppText variant="caption" tone="secondary">CORRECT ANSWER</AppText>

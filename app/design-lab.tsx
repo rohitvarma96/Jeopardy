@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { FighterArt } from '../src/components/fighters/FighterArt';
+import { TypeUnit } from '../src/components/brand/TypeUnit';
 import { Button, Screen } from '../src/components/ui';
 import { PagedItems } from '../src/components/ui/PagedItems';
 import { VoltButton, VoltOption, VoltPanel, VoltProgress, VoltTag, VoltText } from '../src/components/volt';
@@ -33,6 +34,7 @@ export default function DesignLab() {
   const { height, fontScale } = useWindowDimensions();
   return <Screen title="Design lab" description="VOLT / Original visual language and component library."
     headerAction={<Button label="Chest forge" variant="secondary" onPress={() => router.push(routes.chestForge)} />}
+    footer={<Button label="Brand studio" variant="secondary" onPress={() => router.push(routes.brandStudio)} />}
     backHref={routes.arena} previewLabel={null} pages={[
       { id: 'colors', label: 'Color system', content: <>
         <VoltText variant="heading" accessibilityLabel="VOLT design language">HIGH VOLTAGE. ZERO NOISE.</VoltText>
@@ -44,14 +46,14 @@ export default function DesignLab() {
           </View>} />
       </> },
       { id: 'type', label: 'Typography', content: <VoltPanel style={styles.page}>
-        <VoltText variant={height < 700 ? 'title' : 'display'}>PLAY BOLD.</VoltText>
+        <TypeUnit lead="Think fast." punch="Hit harder." size={height < 700 ? 'compact' : 'regular'} />
         <VoltText variant="label" tone="acid">BARLOW CONDENSED / EXTRA BOLD</VoltText>
         <VoltText>Human faces. Angular silhouettes. Quiet, readable questions.</VoltText>
         <VoltText variant="micro" tone="muted">SPACE MONO / PLAYER DATA / 0123456789</VoltText>
         <VoltText variant="micro" tone="muted">DISPLAY 88 / TITLE 52 / HEADING 30 / BODY 14</VoltText>
       </VoltPanel> },
       { id: 'characters', label: 'Human roster', content: <>
-        <VoltTag label="Original adult human characters" tone="acid" />
+        <VoltTag label="Original adult human Brawlers" tone="acid" />
         <PagedItems items={FIGHTERS} keyExtractor={(item) => item.id} label="Character art"
           columns={2} itemHeight={fontScale >= 1.5 ? 116 : 202}
           renderItem={(fighter) => <VoltPanel style={styles.artCard}>

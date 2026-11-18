@@ -5,6 +5,7 @@ import { routes, type TabHref } from '../../navigation/routes';
 import { useMatchSetupStore } from '../match-setup/store';
 import { useBattleStore } from './store';
 import { usePlayerStore } from '../../store/player-store';
+import { preparationError } from '../loadout/preparation';
 
 function clearSavedBattle() {
   const battle = useBattleStore.getState().battle;
@@ -24,10 +25,24 @@ export function leaveBattle() {
   finishSession(routes.arena);
 }
 
+export function returnToVault() {
+  finishSession(routes.vault);
+}
+
 /** Starts setup again; only a durably recorded finished battle is discarded. */
 export function playAgain() {
-  router.dismissAll();
-  router.push(routes.mode);
+  const battle = useBattleStore.getState().battle;
+  if (battle?.outcome && !usePlayerStore.getState().matches.some((match) => match.matchId === battle.setup.matchId)) {
+    router.replace(routes.result);
+    return;
+  }
+  const error = preparationError(usePlayerStore.getState());
+  if (error) {
+    finishSession(routes.armory);
+    return;
+  }
   clearSavedBattle();
-  useMatchSetupStore.getState().reset();
+  useMatchSetupStore.getState().beginSetup('offline-duel');
+  router.dismissAll();
+  router.push(routes.matchmaking);
 }

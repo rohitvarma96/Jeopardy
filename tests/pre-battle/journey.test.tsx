@@ -47,7 +47,7 @@ describe('Phase 8A integration', () => {
     const app = await openHome();
     await findOpponent();
     await draftCategories();
-    await press('button', 'Continue to fighter selection');
+    await press('button', 'Continue to Brawler selection');
     if (step === 'loadout') await press('button', 'Confirm Astral Sage');
     let complete!: () => void;
     jest.spyOn(AsyncStorage, 'setItem').mockImplementationOnce(() => new Promise<void>((resolve) => { complete = resolve; }));
@@ -71,7 +71,7 @@ describe('Phase 8A integration', () => {
     const initialProfile = { ...usePlayerStore.getState().profile };
     await findOpponent();
     await draftCategories();
-    await press('button', 'Continue to fighter selection');
+    await press('button', 'Continue to Brawler selection');
     await press('button', 'Confirm Astral Sage');
     await press('button', 'Save loadout and enter battle');
     const stages = new Set<string>();
@@ -165,7 +165,7 @@ describe('Phase 3 pre-battle journey', () => {
     expect(screen.getByText("NightQuill's pick")).toBeTruthy();
     expect(screen.getAllByText('System')).toHaveLength(3);
 
-    await press('button', 'Continue to fighter selection');
+    await press('button', 'Continue to Brawler selection');
     expect(screen.getByRole('radio', { name: 'Astral Sage', checked: true })).toBeTruthy();
     expect(screen.queryByText('Placeholder art')).toBeNull();
     await press('radio', 'Iron Bastion');
@@ -202,7 +202,7 @@ describe('Phase 3 pre-battle journey', () => {
     expect(screen.getByText('Iron Bastion')).toBeTruthy();
     await findOpponent();
     await draftCategories();
-    await press('button', 'Continue to fighter selection');
+    await press('button', 'Continue to Brawler selection');
     expect(screen.getByRole('radio', { name: 'Iron Bastion', checked: true })).toBeTruthy();
     await press('button', 'Confirm Iron Bastion');
     expect(screen.getByRole('checkbox', { name: 'Second Chance', checked: true })).toBeTruthy();

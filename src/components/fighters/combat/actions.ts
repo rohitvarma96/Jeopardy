@@ -6,7 +6,7 @@ export const COMBAT_ACTIONS = ['idle', 'attack', 'block', 'knockback', 'fall', '
 export type CombatAction = typeof COMBAT_ACTIONS[number];
 export const ACTION_LABELS: Record<CombatAction, string> = {
   idle: 'Idle', attack: 'Attack', block: 'Block', knockback: 'Knockback',
-  fall: 'Fall Down', special: 'Power Kick',
+  fall: 'Vaporization KO', special: 'Power Kick',
 };
 
 export const BONE_NAMES = [

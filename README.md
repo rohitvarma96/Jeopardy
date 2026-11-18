@@ -1,4 +1,6 @@
-# Brain Brawl
+# Brain Brawlers
+
+Current handoff: [done/pending status and resume log](docs/PROJECT_STATUS.md).
 
 An offline trivia duel on Expo SDK 58, with six human fighters, articulated
 Skia combat, a grounded Relay stage and four physical reward chest designs.
@@ -43,49 +45,47 @@ npx expo install --check
 Use `npm ci` for a reproducible installation from the lockfile. Expo generates
 its typed-route declarations when the development server starts.
 
-## Navigation and pre-battle journey (Phase 3)
+## Scene-based game experience
 
-- Launch opens Arena. The only bottom tabs are Arena and Profile.
-- The Arena tab uses a compact lobby with player level/XP, demo rank, currency
-  balances, an artwork-led saved fighter showcase, a gold `Play` action and the
-  saved booster loadout. `Change hero` opens an owned-hero picker and saves
-  equipment locally; unowned heroes remain locked until collected. Boosters
-  are changed during match setup. Missions, Vault and the mode summary above
-  `Play` have been removed.
-  The layout expands into two columns on wider screens and stacks for large
-  text; the live battle and animation arena screens are unchanged.
-- `Play` -> mode (Offline Duel only) -> mock matchmaking (1.2 s, cancellable)
-  -> category ban/pick draft -> fighter select -> loadout (exactly three
-  distinct boosters) -> live battle (Phase 4).
-- Mode selection matches Arena's dark/gold styling, with an artwork-led Offline
-  Duel card, compact locked future modes and a safe-area-aware fixed
-  `Find opponent` action. Mode cards scroll on short or large-text screens;
-  wider layouts use two columns. Availability and the setup journey are unchanged.
-- Arcane and the default three boosters are initially owned. Other choices
-  unlock through earned chests. Fighter and loadout persist locally (AsyncStorage)
-  and are validated for ownership on load and before battle entry. Match state
-  is transient; completed results and rewards persist. Details:
-  `docs/GAMEPLAY_DECISIONS.md`.
-- Pre-battle `Back` returns one step; `Cancel search`/`Cancel match` returns to
-  mode; `Leave match` clears the match and returns to Arena. Direct entry into
-  a later step shows "Match setup not ready" with a `Choose a mode` recovery.
-- Battle: offline match against the deterministic mock opponent using your
-  fighter and loadout. Both players follow one shared sequence of mixed-category
-  questions with independent 12 s timers. Answers lock independently; attacks
-  resolve after both players finish. Play continues until knockout or forfeit,
-  with no rounds, bonuses, caps or clash turns. Compatible boosters and passives
-  remain active; Second Chance is disabled (no retries). `Forfeit` (or Android
-  Back) asks for confirmation. The
-  result screen shows battle stats, `Play again` and `Arena home`. Rules:
-  `docs/GAMEPLAY_DECISIONS.md`; engine: `src/game/battle/`.
-- Results grant XP/coins once; `Continue` opens the chest reveal and `Arena home`
-  exits the finished match. Collected heroes and boosters remain saved locally.
-  Unopened chests and results can be reopened from Profile history after
-  restarting.
-- Profile shows a saved name/avatar, level/XP, wins/losses, win rate, answer
-  accuracy, damage, best combo and recent history. Settings saves identity
-  explicitly and preferences immediately. Unknown paths show an explicit
-  not-found screen with an Arena return action.
+The app now has five icon-led world destinations: **Arena, Brawlers, Armory,
+Vault and Career**. The [implementation handoff](docs/WORLD_EXPERIENCE_IMPLEMENTATION.md)
+records the actual behavior and remaining art/device work.
+
+The [motion and interaction plan](docs/MOTION_AND_INTERACTION_PLAN.md) specifies
+the remaining animation work. Initial grounded Arena idles, personal effects,
+two-layer haze, reactor light and calm battle ambience are now implemented.
+Transaction-aware chest opening is also implemented. The first signature slice
+now adds painted-limb signal/smear impacts, source-alpha vaporization KO and a
+saved winner/progression tableau. Duel/VS choreography, draft/equip/socket
+commitment effects, authored secondary acting and broader Career celebrations
+remain separate work.
+
+- Arena is an equipped Brawler in the Relay, with real XP/resources, three
+  power sockets, a mode inspection and deployment. AI Duel is the only mode.
+- Brawlers is a direct portrait gallery. Inspect locked Brawlers, but equip only
+  owned ones. Equipment persists explicitly; failed saves remain visible.
+- Armory replaces one power in one of three sockets. Duplicate, incompatible and
+  unowned powers cannot be fitted. Legacy Second Chance kits can be repaired.
+- Vault separates real earned chests from four repeatable practice chests.
+  An empty Vault opens Practice by default; examples never change inventory,
+  currencies or earned records. Career contains actual progression, records and
+  permanent recognition milestones, with no invented claim rewards.
+- **Duel -> AI search -> ban/pick -> VS readiness -> live battle.** Saved
+  preparation is validated before entry; unchanged equipment is not confirmed
+  again. Required assets load before the battle clock starts.
+- Cancelling search/draft/entrance returns to Arena and clears transient setup.
+  Missing prerequisites and asset/save errors have explicit recovery.
+- Battle rules stay unchanged: shared question, independent 12-second deadlines,
+  existing damage/boosters/passives, knockout or confirmed forfeit. No rounds,
+  clash, retries, extra reward mechanics or network multiplayer.
+- Results show a tableau and concise real stats, with optional record inspection.
+  Earned chests settle exactly once; discovery can equip a new Brawler or inspect
+  a power in Armory. Pending chests and settled records survive restart.
+- Rematch goes directly to acquisition when preparation is valid. Unsaved results
+  cannot be discarded for another battle.
+- Legacy Profile/mode/fighter/loadout URLs safely redirect to Career/Arena/
+  Brawlers/Armory. Settings still saves identity explicitly and preferences
+  immediately. Unknown paths recover to Arena.
 
 No network access is used. Starting profile values, the default username and rank
 are demo data. The username/avatar are editable; earned XP, coins,
@@ -94,38 +94,47 @@ labeled demo.
 
 ## Shared UI
 
-**Proposed next direction:** the [ground-up game experience blueprint](docs/GAME_EXPERIENCE_BLUEPRINT.md)
-and [visual composition board](docs/GAME_EXPERIENCE_BOARD.html) supersede the
-page-based UX approach below. They define a scene-based lobby, original icon
-family, persistent preparation and a shorter match/reward loop. These are design
-proposals, not claims that the current prototype implements the new experience.
+**Brain Brawlers identity:** the original split-BB logo, reusable speed/type
+units, painterly action key visual and modern tech-chest redesign are integrated.
+Characters are called **Brawlers** in the UI; internal fighter/storage IDs stay
+unchanged. Open **Design lab -> Brand studio** for the logo/art/type showcase and
+**Chest forge** for the four closed/open chest families. See the
+[identity build](docs/BRAIN_BRAWLERS_IDENTITY.md) and
+[vector logo](assets/images/brand/brain-brawlers-color.svg).
+
+The [ground-up blueprint](docs/GAME_EXPERIENCE_BLUEPRINT.md) and
+[visual composition board](docs/GAME_EXPERIENCE_BOARD.html) establish the art
+direction. The core world navigation, persistent preparation and shorter loop
+are now implemented; see the handoff above for the distinction between working
+features and proposed final art/animation.
 
 The game now uses **VOLT / Arena Protocol**, an original signal-red, acid-yellow,
 chalk and ink esports design language, with six mature illustrated human
 fighters. All game screens use fixed viewport layouts, bottom navigation and
 explicit section/item paging instead of page scrolling. Arena, setup, profile,
-settings, results, rewards and the development labs share this structure.
+settings, results, rewards and the development labs use fixed layouts.
 Battle retains its fixed HUD and ability dock, with confirmation before forfeit.
-The interactive **Arena -> Design lab** (`/design-lab`) demonstrates the
+The development **Design lab** (`/design-lab`) demonstrates the
 reusable component library. Gameplay rules remain unchanged. See the
 [VOLT design system](docs/VOLT_DESIGN_SYSTEM.md) for tokens, typography,
 component contracts, accessibility and rollout boundaries.
 
 `src/theme` contains palette, spacing, typography, radii, shadow and layout
 tokens. `src/components/ui` contains text, buttons, cards/panels, icon slots,
-bars, badges, loading/empty states and safe-area-aware scrolling screens.
-The darker action-purple token provides readable white button labels while
-preserving the specified arcane accent. Ionicons are generic interface icons,
-not substitute fighter, arena, booster or reward artwork.
+bars, badges, loading/empty states and fixed inspection screens.
+`src/components/world` contains the scene framing, five-sigil navigation,
+power/category controls, rough ink headline and bounded entrance motion.
+Questions remain readable and quiet; generic Ionicons are retained only in
+older utility/development surfaces.
 
 The app plays no sound, even when the saved future-audio preference is enabled.
-Navigation transitions remain static. Battle motion and loading indicators
+Native stack transitions remain static. Scene entrance motion, battle effects and loading indicators
 follow either the device's reduced-motion preference or the app's Reduce motion
 setting; the app cannot override system reduction. Player identity/preferences,
 equipment, progression, inventory and completed matches persist locally;
 live battle state is transient.
 
-The four Brain Brawl documents in this directory govern future phases.
+The four Brain Brawlers documents in this directory govern future phases.
 Purchases, cloud sync and backend work remain deferred.
 
 See [the Phase 1 handoff](docs/PHASE_1_HANDOFF.md) for the exact validation
@@ -134,10 +143,21 @@ results, file inventory, Android screenshots and remaining limitations.
 ## Assets
 
 The original Relay fight-stage illustration replaces the old Mystic Arena in
-combat. Non-battle surfaces use six adult human illustrations; combat uses
-matching articulated vector counterparts rather than moving the whole PNG.
-Four chest families each have closed/open art: Field, Arc, Overdrive, Sovereign.
+combat. Selection and combat use the exact same six adult human paintings.
+Combat articulates weighted texture meshes rather than substituting flat vector
+bodies or moving one rigid PNG.
+Four chest families use the exact closed/open paintings from Experience Board
+section 06: Field, Arc, Overdrive and Sovereign. After saving and art readiness,
+Containment Break uses a 3.2-second closed-pressure/held-breath sequence,
+mouth-anchored smoke and a continuous reveal of the actual reward.
+The Relay composition, full-body Brawler and faded duplicate receipt
+follow that reference instead of the superseded reconstructed hinge.
+The rejected floating crystal and pre-open vapor graphic are gone.
+Repeated taps cannot skip the sequence or grant again; reduced motion shows the
+saved outcome immediately. Practice controls provide family/reset/duplicate
+inspection without covering the scene.
 Chest family is cosmetic and does not change rarity odds or rewards.
+See [chest implementation and testing](docs/COMBAT_AND_CHESTS.md).
 
 See the [Phase 2 handoff](docs/PHASE_2_HANDOFF.md),
 [art direction](docs/ART_DIRECTION.md), [asset manifest](docs/ASSET_MANIFEST.md)
@@ -160,9 +180,11 @@ See [combat and chests](docs/COMBAT_AND_CHESTS.md) for the current renderer,
 verification commands and exact scope. The older
 [battle UX handoff](docs/BATTLE_UX_HANDOFF.md) records historical evidence.
 
-- Human shoulders, elbows, wrists, hips, knees, ankles, torso and head move
-  independently. Inverse kinematics plants support feet; kicks chamber and
-  extend; KO holds an articulated collapse.
+- The painted faces, clothes and equipment are preserved by source-specific
+  anatomy and skin weights. Shoulders, elbows, wrists, hips, knees, ankles, torso
+  and head move independently; support-foot correction remains. Active KO holds
+  an upright recoil, dissolves the original painted alpha and emits 32 bounded,
+  source-colored fragments; no current presentation schedules the old collapse.
 - Existing action/contact clocks drive movement, impact effects and dedicated
   STRIKE/BLOCK/KO lettering. No renderer computes damage or changes game timers.
 - Resolution expands the stage and shows the correct answer in a compact strip;
@@ -176,7 +198,9 @@ verification commands and exact scope. The older
   touching player data. Live chests settle rewards exactly once; a failed save
   leaves the chest closed and exposes recovery.
 
-The current rig is faceted/vector, not a finished painted or 3D animation set.
+The current rig is painted-mesh animation, not an authored frame-by-frame or 3D
+animation set. Rebuild coverage after editing character PNGs with
+`python scripts/build-painted-coverage.py`, then rebuild the portable study.
 Chest open/closed illustrations are not a segmented continuous hinge animation.
 Application/new-test type checks and focused regression tests are separate from
 the repository-wide type check's existing retired rounds/clash test failures.
@@ -256,7 +280,7 @@ The [engineering handoff](docs/PHASE_8A_HANDOFF.md) contains fixes, targeted
 test evidence, Android QA installation, platform risks and the Phase 8B checklist.
 Gameplay rules and dependencies remain unchanged.
 
-Brain Brawl is compatible with SDK 58 Expo Go by dependency/configuration audit.
+Brain Brawlers is compatible with SDK 58 Expo Go by dependency/configuration audit.
 From Windows, install compatible Expo Go on the iPhone, sign it and Expo CLI
 into the same Expo account, allow iOS Local Network access and use shared Wi-Fi:
 

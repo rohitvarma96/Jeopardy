@@ -146,7 +146,7 @@ export const usePlayerStore = create<PlayerStore>()((set, get) => {
       if (!isFighterId(fighterId)) throw new Error(`Unknown fighter: ${String(fighterId)}`);
       if (!await ready()) return false;
       return transact(async () => {
-        if (!get().collectionIds.includes(`fighter:${fighterId}`)) throw new Error('Collect this fighter before equipping it.');
+        if (!get().collectionIds.includes(`fighter:${fighterId}`)) throw new Error('Collect this Brawler before equipping it.');
         return write({ ...snapshot(get()), fighterId });
       });
     },

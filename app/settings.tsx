@@ -33,7 +33,7 @@ export default function Settings() {
     <Screen
       title="Settings"
       description="Identity and preferences are saved on this device, not synced to an account."
-      backHref={routes.profile}
+      backHref={routes.career}
       previewLabel={null}
       footer={player.status === 'ready' ? <Button label="Save identity" loading={busy === 'identity'} disabled={!changed || problem !== null || busy !== null} onPress={async () => {
         setBusy('identity');

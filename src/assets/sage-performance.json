@@ -1,0 +1,166 @@
+{
+  "width": 1536,
+  "height": 1536,
+  "headSocket": {
+    "x": 216,
+    "y": 172
+  },
+  "parts": {
+    "body": {
+      "rect": {
+        "x": 8,
+        "y": 8,
+        "width": 398,
+        "height": 1101
+      },
+      "anchor": {
+        "x": 195,
+        "y": 29
+      }
+    },
+    "neutral": {
+      "rect": {
+        "x": 428,
+        "y": 8,
+        "width": 160,
+        "height": 187
+      },
+      "anchor": {
+        "x": 29,
+        "y": 166
+      }
+    },
+    "focus": {
+      "rect": {
+        "x": 648,
+        "y": 8,
+        "width": 161,
+        "height": 187
+      },
+      "anchor": {
+        "x": 31,
+        "y": 166
+      }
+    },
+    "acknowledge": {
+      "rect": {
+        "x": 868,
+        "y": 8,
+        "width": 158,
+        "height": 185
+      },
+      "anchor": {
+        "x": 31,
+        "y": 164
+      }
+    },
+    "blink": {
+      "rect": {
+        "x": 428,
+        "y": 268,
+        "width": 156,
+        "height": 189
+      },
+      "anchor": {
+        "x": 30,
+        "y": 168
+      }
+    },
+    "glance": {
+      "rect": {
+        "x": 648,
+        "y": 268,
+        "width": 159,
+        "height": 191
+      },
+      "anchor": {
+        "x": 34,
+        "y": 170
+      }
+    },
+    "ready": {
+      "rect": {
+        "x": 868,
+        "y": 268,
+        "width": 156,
+        "height": 178
+      },
+      "anchor": {
+        "x": 59,
+        "y": 168
+      }
+    },
+    "open": {
+      "rect": {
+        "x": 428,
+        "y": 528,
+        "width": 253,
+        "height": 196
+      },
+      "anchor": {
+        "x": 27,
+        "y": 142
+      }
+    },
+    "pinch": {
+      "rect": {
+        "x": 778,
+        "y": 528,
+        "width": 225,
+        "height": 212
+      },
+      "anchor": {
+        "x": 31,
+        "y": 159
+      }
+    },
+    "release": {
+      "rect": {
+        "x": 1128,
+        "y": 528,
+        "width": 270,
+        "height": 244
+      },
+      "anchor": {
+        "x": 28,
+        "y": 186
+      }
+    },
+    "coat": {
+      "rect": {
+        "x": 428,
+        "y": 820,
+        "width": 156,
+        "height": 419
+      },
+      "anchor": {
+        "x": 69,
+        "y": 16
+      }
+    },
+    "star": {
+      "rect": {
+        "x": 648,
+        "y": 820,
+        "width": 295,
+        "height": 296
+      },
+      "anchor": {
+        "x": 149,
+        "y": 149
+      }
+    },
+    "collar": {
+      "rect": {
+        "x": 1010,
+        "y": 820,
+        "width": 87,
+        "height": 92
+      },
+      "anchor": {
+        "x": 40,
+        "y": 17
+      }
+    }
+  }
+}

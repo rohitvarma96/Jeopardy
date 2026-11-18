@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { exitPreview } from '../../navigation/exitPreview';
 import { routes, type TabHref } from '../../navigation/routes';
 import { colors, layout, spacing } from '../../theme';
+import { BrandLogo } from '../brand/BrandLogo';
 import { AppText } from './AppText';
 import { Badge } from './Badge';
 import { Button } from './Button';
@@ -40,7 +41,7 @@ export function Screen({
       <View style={[styles.layout, compact && styles.compact]}>
         <View style={styles.header}>
           <View style={styles.headerTitle}>
-            <AppText variant="caption" tone="accent" maxFontSizeMultiplier={1}>BRAIN BRAWL / ARENA PROTOCOL</AppText>
+            <BrandLogo width={compact ? 108 : 132} />
             <AppText variant="title" maxFontSizeMultiplier={1.3}>{title}</AppText>
           </View>
           {previewLabel ? <Badge label={previewLabel} tone="accent" /> : null}
@@ -57,8 +58,8 @@ export function Screen({
             onPress={() => router.canGoBack() ? router.back() : router.replace(backHref)} /> : null}
           <Button label={exitHref ? exitLabel : 'Arena'} variant="secondary" style={styles.navItem}
             onPress={() => onExit ? onExit() : exitPreview(exitHref ?? routes.arena)} />
-          {!exitHref ? <Button label="Profile" variant="secondary" style={styles.navItem}
-            onPress={() => { exitPreview(routes.profile); }} /> : null}
+          {!exitHref ? <Button label="Career" variant="secondary" style={styles.navItem}
+            onPress={() => { exitPreview(routes.career); }} /> : null}
         </View> : null}
       </View>
     </KeyboardAvoidingView>

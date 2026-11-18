@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "Brain Brawl",
+    "name": "Brain Brawlers",
+    "icon": "./assets/images/brand/brain-brawlers-icon.png",
     "slug": "brain-brawl",
     "scheme": "brainbrawl",
     "version": "1.0.0",

@@ -6,6 +6,7 @@ export type HumanJoint = 'torso' | 'head' | 'backArm' | 'backForearm' | 'backHan
   | 'frontThigh' | 'frontShin' | 'frontFoot';
 export type HumanPose = {
   x: number; y: number;
+  action: CombatAction; effort: number;
   angles: Record<HumanJoint, number>;
 };
 type Paint = 'skin' | 'shade' | 'hair' | 'cloth' | 'dark' | 'panel' | 'accent' | 'metal' | 'ink';
@@ -174,7 +175,7 @@ export function sampleHumanPose(
   const frontArm = solveLimb(78 + (action === 'attack' ? effort * 74 : -kick * 18),
     -11 + (action === 'attack' ? effort * 34 : -guard * 42), 80, 74, 1);
   return {
-    x, y,
+    x, y, action, effort,
     angles: {
       torso, head: -torso * 0.4 - reaction * 0.2,
       backArm: backArm.upper, backForearm: backArm.lower,

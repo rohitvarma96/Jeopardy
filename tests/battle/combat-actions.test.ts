@@ -13,6 +13,7 @@ import { COLLECTIBLES } from '../../src/data/collectibles';
 import { FIGHTERS, isFighterId } from '../../src/data/fighters';
 import { REVEAL_MS } from '../../src/features/battle/store';
 import { SIDES } from '../../src/game/battle';
+import { KO_END_MS } from '../../src/components/battle/signature-motion';
 
 const ids = FIGHTERS.map((fighter) => fighter.id);
 
@@ -112,7 +113,8 @@ test('two specials, reactions, particles and damage labels fit the unchanged rev
     const presentation = battlePresentation(view);
     expect(presentation.cues.map((cue) => cue.action)).toEqual(['special', 'special']);
     expect(presentation.endMs).toBeLessThan(REVEAL_MS);
-    expect(presentation.commands.player.at(-1)?.action).toBe('fall');
+    expect(presentation.defeats.player).toBe(presentation.cues[1].contactMs);
+    expect(presentation.commands.player.some(command => command.action === 'fall')).toBe(false);
     expect(JSON.stringify(view)).toBe(before);
   }
 });
@@ -129,10 +131,11 @@ test('only authoritative non-void hits produce effects; shields and zero damage 
   }
 });
 
-test('forfeit has no invented knockout while result-only knockout holds its downed pose', () => {
+test('forfeit has no invented knockout while result-only knockout keeps the loser absent', () => {
   const view = ANIMATION_PREVIEWS.find((fixture) => fixture.label === 'Finisher / victory')!.view;
   const result = battlePresentation(view, true);
   expect(result.cues).toEqual([]);
-  expect(result.commands.opponent).toEqual([{ action: 'fall', atMs: -actionDuration('fall') }]);
+  expect(result.commands.opponent).toEqual([]);
+  expect(result.defeats.opponent).toBe(-KO_END_MS);
   expect(battlePresentation({ ...view, reveal: null, outcome: { ...view.outcome!, reason: 'forfeit' } }).commands.opponent).toEqual([]);
 });

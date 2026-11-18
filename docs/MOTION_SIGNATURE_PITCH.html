@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brain Brawlers / Signature Motion Pitch</title>
+  <style>
+    @font-face{font-family:Barlow;src:url("../assets/fonts/BarlowCondensed-ExtraBold.ttf")}
+    @font-face{font-family:Action;src:url("../assets/fonts/Bangers-Regular.ttf")}
+    @font-face{font-family:Mono;src:url("../assets/fonts/SpaceMono-Regular.ttf")}
+    :root{--ink:#10131a;--paper:#f1f0e8;--acid:#e9ff3c;--pink:#ff287b;--red:#ff354f;--muted:#a9aebc;--line:#36404e}
+    *{box-sizing:border-box}
+    body{margin:0;background:#090c12;color:var(--paper);font:15px/1.6 system-ui,sans-serif}
+    main{max-width:1360px;margin:auto;padding:40px 30px 60px}
+    h1,h2,h3,p{margin:0}
+    h1{font:clamp(58px,8vw,108px)/.9 Barlow,sans-serif;margin:20px 0}
+    h1 em{color:var(--pink);font-style:normal}
+    h2{font:36px/1 Barlow,sans-serif;margin:30px 0 14px}
+    h3{font:25px/1.1 Barlow,sans-serif}
+    .micro{font:10px/1.5 Mono,monospace;letter-spacing:1px;text-transform:uppercase}
+    .acid{color:var(--acid)}.muted{color:var(--muted)}
+    .intro{max-width:860px;font-size:18px;color:#cbd1db}
+    .notice{max-width:920px;border-left:3px solid var(--pink);padding:10px 16px;margin:24px 0;color:var(--muted)}
+    .notice strong{color:var(--paper)}
+    .principles{display:flex;flex-wrap:wrap;gap:12px 30px;border-block:1px solid var(--line);padding:16px 0;margin:24px 0}
+    .principles b{font:22px Barlow,sans-serif}.principles span{color:var(--muted)}
+    .director{display:grid;grid-template-columns:220px minmax(0,1fr);gap:22px;margin-top:30px}
+    .studies{display:flex;flex-direction:column;gap:10px}
+    button,input{font:inherit}
+    button{cursor:pointer;min-height:48px}
+    button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--paper);outline-offset:4px}
+    button:disabled{cursor:default;opacity:.5}
+    .study{padding:16px;text-align:left;background:#131b27;border:1px solid var(--line);color:var(--paper)}
+    .study strong{display:block;font:25px Barlow,sans-serif;margin:6px 0}
+    .study span:last-child{font-size:12px;color:var(--muted)}
+    .study[aria-selected="true"]{border-color:var(--pink);background:#ff287b12}
+    .stage{position:relative;isolation:isolate;width:100%;aspect-ratio:16/10;overflow:hidden;background:#101924;border:1px solid #465061;container-type:inline-size}
+    .stage>img.world{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.48;z-index:-3}
+    .stage:after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 70px #0007;z-index:10}
+    .stage .topline{position:absolute;top:5%;left:5%;right:5%;display:flex;justify-content:space-between;gap:12px;z-index:9;font:1.55cqw/1.5 Mono,monospace;letter-spacing:.6px}
+    .stage .demotag{color:var(--acid)}
+    .scene{position:absolute;inset:0}
+    [hidden]{display:none!important}
+    .actor{position:absolute;height:80%;width:43%;object-fit:contain;bottom:7%;filter:drop-shadow(0 10px 12px #0007)}
+    .ko-winner{left:1%;height:66%;opacity:.85}
+    .ko-loser{right:7%;height:83%}
+    .ko-word{position:absolute;left:36%;top:23%;font:24cqw/.8 Action,sans-serif;color:var(--acid);letter-spacing:-.7cqw;text-shadow:5px 5px 0 var(--ink);transform:rotate(-8deg)}
+    .ko-caption{position:absolute;left:8%;top:65%;font:4.7cqw/.95 Barlow,sans-serif;max-width:48%}
+    .ko-line{position:absolute;bottom:9%;left:9%;font:1.55cqw Mono,monospace;color:var(--muted)}
+    .ink{position:absolute;background:var(--red);clip-path:polygon(2% 16%,89% 0,100% 70%,8% 100%);pointer-events:none}
+    .ko-ink{left:30%;top:23%;width:40%;height:33%;transform:rotate(-9deg);z-index:-1}
+    .contact{position:absolute;right:21%;top:42%;width:10%;aspect-ratio:1;border:2px solid var(--pink);transform:rotate(45deg);pointer-events:none}
+    .fragment{position:absolute;width:.55cqw;height:1cqw;background:#ff718e;clip-path:polygon(0 10%,80% 0,100% 60%,30% 100%);pointer-events:none;opacity:0}
+    .fragment:nth-child(3n){background:var(--paper);width:3px;height:3px}
+    .fragment:nth-child(5n){background:var(--acid);height:5px}
+    .grid{position:absolute;inset:0;opacity:.6;background:repeating-linear-gradient(90deg,transparent 0 12%,#e9ff3c22 12.1% 12.3%,transparent 12.4% 24%);transform-origin:50% 70%}
+    .launch-poster{position:absolute;top:10%;bottom:7%;width:43%;overflow:hidden;clip-path:polygon(9% 0,100% 0,91% 100%,0 100%)}
+    .launch-poster img{height:94%;width:100%;position:absolute;bottom:0;object-fit:contain}
+    .launch-left{left:5%;background:#ff287b38}
+    .launch-right{right:5%;background:#83e5d726}
+    .launch-right img{transform:scaleX(-1)}
+    .vs{position:absolute;inset:40% 0 auto;text-align:center;font:17cqw/.8 Action,sans-serif;color:var(--acid);text-shadow:5px 5px 0 var(--ink);z-index:4}
+    .slogan{position:absolute;left:4%;top:16%;font:9.5cqw/.91 Barlow,sans-serif;transform:rotate(-7deg);color:var(--paper);z-index:5}
+    .slogan b{color:var(--ink);background:var(--pink);padding:0 10px;display:inline-block}
+    .wipe{position:absolute;top:-30%;bottom:-30%;width:65%;background:var(--red);transform:skewX(-19deg);z-index:6}
+    .category-belt{position:absolute;bottom:5%;left:24%;right:24%;display:flex;gap:10px;justify-content:center;z-index:7}
+    .category-belt img{width:7%;min-width:22px;aspect-ratio:1;object-fit:contain}
+    .socket-heading{position:absolute;top:14%;left:5%;right:5%;text-align:center}
+    .socket-heading strong{font:6cqw/.95 Barlow,sans-serif;display:block}
+    .socket-heading span{color:var(--muted);font:1.7cqw Mono,monospace}
+    .socket-row{position:absolute;left:15%;right:15%;top:57%;height:24%;display:flex;justify-content:space-between;align-items:center}
+    .socket{position:relative;width:24%;height:100%;background:#172231;display:grid;place-items:center;clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);border-bottom:3px solid #77808c}
+    .socket img{width:43%;height:43%;object-fit:contain}
+    .socket.target{background:#e9ff3c24;border-bottom-color:var(--acid)}
+    .chip{position:absolute;left:44%;top:38%;width:12%;aspect-ratio:1;display:grid;place-items:center;background:var(--acid);clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);z-index:4}
+    .chip img{width:62%;filter:brightness(0)}
+    .seal{position:absolute;left:36%;top:53%;width:28%;height:32%;border:2px solid var(--acid);clip-path:polygon(25% 0,75% 0,100% 25%,100% 75%,75% 100%,25% 100%,0 75%,0 25%);pointer-events:none}
+    .locked{position:absolute;bottom:7%;left:5%;right:5%;text-align:center;font:7cqw Action,sans-serif;color:var(--acid)}
+    .trace{position:absolute;top:68%;left:26%;right:26%;height:1px;background:var(--acid);box-shadow:0 0 8px #e9ff3c55}
+    .player-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+    .control{background:#172231;color:var(--paper);border:1px solid #677183;padding:8px 16px;font:11px Mono,monospace}
+    .control.primary{background:var(--acid);color:var(--ink);border-color:var(--acid)}
+    .toggle{display:flex;align-items:center;gap:10px;min-height:48px;margin-left:auto;font:11px Mono,monospace}
+    .toggle input{width:20px;height:20px}
+    .scrubber{display:flex;align-items:center;gap:14px;margin:14px 0;color:var(--muted);font:11px Mono,monospace}
+    .scrubber input{flex:1;min-width:0;accent-color:var(--pink)}
+    .scrubber output{min-width:76px;text-align:right}
+    .study-notes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--muted)}
+    .study-notes b{color:var(--paper);display:block;font:18px Barlow,sans-serif;margin-bottom:5px}
+    .hierarchy{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:38px}
+    .tile{padding:22px;background:#121824;border-top:2px solid var(--line)}
+    .tile h3{margin:8px 0}.tile p{color:var(--muted);font-size:14px}
+    .moments{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .moment{padding:22px;border:1px solid var(--line);background:#101720}
+    .moment h3{margin:8px 0}.moment p{color:var(--muted)}
+    .moment small{font:10px Mono,monospace;color:var(--acid);display:block;margin-top:14px}
+    .references{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .reference{display:flex;flex-direction:column;gap:14px;padding:22px;border-top:2px solid var(--pink);background:#141a25}
+    .reference p{font-size:13px;color:var(--muted)}
+    .reference a{margin-top:auto;color:var(--acid);font:11px Mono,monospace;padding-top:12px}
+    .reference .source{font:10px Mono,monospace;color:var(--muted)}
+    .roadmap{border-left:3px solid var(--acid);padding:8px 22px;margin-top:30px}
+    .roadmap strong{font:27px Barlow,sans-serif}.roadmap p{color:var(--muted)}
+    footer{margin-top:42px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+    a{color:var(--acid)}
+    .defs{position:absolute;width:0;height:0;overflow:hidden}
+    @media(max-width:850px){.director{grid-template-columns:1fr}.studies{flex-direction:row}.study{flex:1;padding:12px}.study strong{font-size:20px}.study span:last-child{display:none}.references{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:540px){main{padding:26px 16px 42px}.intro{font-size:16px}.study-notes,.hierarchy,.moments,.references{grid-template-columns:1fr}.stage{aspect-ratio:1/1}.study .micro{font-size:8px}.study strong{font-size:18px}.toggle{margin-left:0}.stage .topline{font-size:2cqw}.ko-word{font-size:29cqw;top:24%}.ko-caption{font-size:6cqw;top:63%}.ko-line{font-size:2cqw}.socket-heading strong{font-size:8cqw}.socket-heading span{font-size:2.4cqw}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="signal-break" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="7" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0" result="noise-alpha"/>
+      <feComponentTransfer in="noise-alpha" result="cut"><feFuncA id="signal-threshold" type="linear" slope="12" intercept=".5"/></feComponentTransfer>
+      <feComposite in="SourceGraphic" in2="cut" operator="in" result="body"/>
+      <feMorphology in="body" operator="dilate" radius="1.5" result="expanded"/>
+      <feComposite in="expanded" in2="body" operator="out" result="edge"/>
+      <feFlood flood-color="#ff718e" result="edge-color"/>
+      <feComposite in="edge-color" in2="edge" operator="in" result="lit-edge"/>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="lit-edge"/></feMerge>
+    </filter>
+  </defs>
+</svg>
+<main>
+  <header>
+    <p class="micro acid">Brain Brawlers / Motion direction 02 / Proposal only</p>
+    <h1>DON'T JUST MOVE.<br><em>OWN THE MOMENT.</em></h1>
+    <p class="intro">The world is alive now. The next leap is authored punctuation: a choice locks in, knowledge becomes force, a rival turns into signal. Anticipation. A decisive hit. A confident settle.</p>
+    <p class="notice"><strong>These are original motion/layout animatics, not gameplay recordings.</strong> The initial hit/vaporization-KO/saved-victory slice is now implemented in the app; the launch/socket studies remain proposed. Existing paintings demonstrate staging, not newly authored acting. No account data, rewards or game clocks are connected to this document. The approved section 06 chest ritual stays unchanged.</p>
+    <div class="principles"><b>QUIET WHILE READING.</b><b>FAST WHEN YOU TOUCH.</b><b>LOUD WHEN IT MATTERS.</b><span>One hero treatment at a time.</span></div>
+  </header>
+  <section aria-labelledby="study-title">
+    <h2 id="study-title">THREE SIGNATURE STUDIES.</h2>
+    <p class="muted">Choose a study, replay it, then scrub the beats. External references are linked below; no third-party footage is embedded or copied.</p>
+    <div class="director">
+      <div class="studies" role="tablist" aria-label="Signature motion studies">
+        <button class="study" role="tab" id="tab-ko" aria-controls="panel-ko" aria-selected="true" data-study="ko"><span class="micro acid">01 / HERO PAYOFF</span><strong>SIGNAL BREAK.</strong><span>Vaporize. Don't ragdoll.</span></button>
+        <button class="study" role="tab" id="tab-launch" aria-controls="panel-launch" aria-selected="false" data-study="launch"><span class="micro acid">02 / COMMITMENT</span><strong>BREAK THE FRAME.</strong><span>The Duel launch owns the screen.</span></button>
+        <button class="study" role="tab" id="tab-socket" aria-controls="panel-socket" aria-selected="false" data-study="socket"><span class="micro acid">03 / TACTILE JOY</span><strong>LOCK IT IN.</strong><span>A power becomes part of your kit.</span></button>
+      </div>
+      <div>
+        <div class="stage" id="stage">
+          <img class="world" src="../assets/images/arenas/relay-fight-stage.jpg" alt="">
+          <div class="topline"><span id="stage-label">SIGNAL BREAK / KO DIRECTION</span><span class="demotag">DESIGN DEMO / NOT GAMEPLAY</span></div>
+          <div class="scene" id="panel-ko" role="tabpanel" aria-labelledby="tab-ko">
+            <img class="actor ko-winner" src="../assets/images/fighters/human/arcane.png" alt="Astral Sage winner composition">
+            <img class="actor ko-loser" id="loser" src="../assets/images/fighters/human/shadow.png" alt="Nightblade silhouette dissolve study">
+            <div class="ink ko-ink" id="ko-ink"></div>
+            <div class="contact" id="contact"></div>
+            <div class="ko-word" id="ko-word">KO</div>
+            <div class="ko-caption" id="ko-caption">KNOWLEDGE<br>HITS DIFFERENT.</div>
+            <div class="ko-line" id="ko-line">FINISHING CONTACT / DEMO</div>
+            <div id="fragments" aria-hidden="true"></div>
+          </div>
+          <div class="scene" id="panel-launch" role="tabpanel" aria-labelledby="tab-launch" hidden>
+            <div class="grid" id="launch-grid"></div>
+            <div class="launch-poster launch-left" id="launch-left"><img src="../assets/images/fighters/human/arcane.png" alt="Astral Sage banner"></div>
+            <div class="launch-poster launch-right" id="launch-right"><img src="../assets/images/fighters/human/frost.png" alt="Frost Warden banner"></div>
+            <div class="slogan" id="slogan">THINK FAST.<br><b>HIT HARDER.</b></div>
+            <div class="vs" id="vs">VS</div>
+            <div class="wipe" id="wipe"></div>
+            <div class="category-belt" id="category-belt">
+              <img src="../assets/images/world-icons/science.png" alt="Science example">
+              <img src="../assets/images/world-icons/space.png" alt="Space example">
+              <img src="../assets/images/world-icons/history.png" alt="History example">
+              <img src="../assets/images/world-icons/geography.png" alt="Geography example">
+              <img src="../assets/images/world-icons/music.png" alt="Music example">
+            </div>
+          </div>
+          <div class="scene" id="panel-socket" role="tabpanel" aria-labelledby="tab-socket" hidden>
+            <div class="socket-heading"><strong>MAKE IT<br>PART OF YOU.</strong><span>EXTRA TIME / SLOT 02 / DESIGN DEMO</span></div>
+            <div class="trace" id="trace"></div>
+            <div class="socket-row">
+              <div class="socket"><img src="../assets/images/world-icons/50-50.png" alt="Power slot one example"></div>
+              <div class="socket target"></div>
+              <div class="socket"><img src="../assets/images/world-icons/mind-shield.png" alt="Power slot three example"></div>
+            </div>
+            <div class="chip" id="chip"><img src="../assets/images/world-icons/extra-time.png" alt="Extra Time power example"></div>
+            <div class="seal" id="seal"></div>
+            <div class="locked" id="locked">LOCKED IN.</div>
+          </div>
+        </div>
+        <div class="player-controls">
+          <button class="control primary" id="replay">REPLAY STUDY</button>
+          <button class="control" id="pause">PAUSE</button>
+          <button class="control" id="reset">RESET</button>
+          <label class="toggle"><input id="reduced" type="checkbox">REDUCED MOTION</label>
+        </div>
+        <label class="scrubber">SCRUB<input id="time" type="range" min="0" max="1100" value="0" step="1" aria-label="Animation time"><output id="clock" aria-live="off">0 ms</output></label>
+        <p id="player-status" class="micro muted" aria-live="polite">Ready. Replay to inspect the proposed beat.</p>
+        <div class="study-notes">
+          <div><b>THE AHA</b><span id="aha">A rival turns into energy, leaving the winner and the arena readable.</span></div>
+          <div><b>THE BEATS</b><span id="beats">80 ms hold / fractured edge / 220-650 ms dissolve / quiet residual drift.</span></div>
+          <div><b>THE RULE</b><span id="rule">Only a real finishing hit. Loser stays gone. Never another reward or a forfeit explosion.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="hierarchy" aria-label="Motion intensity hierarchy">
+    <div class="tile"><span class="micro acid">01 / ALWAYS UNDERSTATED</span><h3>THE WORLD BREATHES.</h3><p>Keep the current smoke, idles and reactor life quiet. They create contrast for the event, not competition with it.</p></div>
+    <div class="tile"><span class="micro acid">02 / OFTEN, BUT SHORT</span><h3>CHOICES HAVE WEIGHT.</h3><p>60-100 ms press response. A category stamps; a socket seats; equipment receives a saved seal. Not another generic fade.</p></div>
+    <div class="tile"><span class="micro acid">03 / EARNED, NOT CONSTANT</span><h3>ONE FRAME TO REMEMBER.</h3><p>Hit, KO, entrance and actual level-up deserve a poster-worthy composition. Reading and ordinary navigation do not.</p></div>
+  </section>
+  <section>
+    <h2>THE FULL MOMENT MAP.</h2>
+    <div class="moments">
+      <article class="moment"><span class="micro acid">RESOLUTION / 350-500 MS</span><h3>KNOWLEDGE BECOMES FORCE.</h3><p>Once a resolution is published, a short signal trace connects the answered plate to the Brawler's committed attack. Two brush-smear poses, a 40-60 ms cosmetic contact hold, then STRIKE. BLOCK gets compression and a shield ripple, not a damage explosion.</p><small>Never reveal correctness early. Never freeze the battle engine.</small></article>
+      <article class="moment"><span class="micro acid">ROSTER / 420-600 MS AFTER SAVE</span><h3>OWN YOUR ENTRANCE.</h3><p>A diagonal print-mask reveals the equipped Brawler; their personal sigil and name land on separate beats. The selection becomes a player identity, not a checked radio card.</p><small>Inspect is not equip. Locked content never pretends to unlock.</small></article>
+      <article class="moment"><span class="micro acid">DRAFT / 240-320 MS</span><h3>STAMP THE DECISION.</h3><p>Ban scars the crest with one decisive slash. Pick stamps the emblem into the real five-category belt. Three ink chips are enough. Keep category names and the next action available.</p><small>Commitment follows valid draft state, not an invented countdown.</small></article>
+      <article class="moment"><span class="micro acid">RESULT / 600-900 MS</span><h3>WIN THE COMPOSITION.</h3><p>VICTORY cuts into a clean winner tableau. Saved XP flows into the actual progress bar; a real level-up receives one number/emblem stamp. Rematch is never hostage to the celebration.</p><small>No fake rank-up, extra currency, repeated history reward or unapproved chest change.</small></article>
+    </div>
+  </section>
+  <section>
+    <h2>REFERENCES. SPECIFIC LESSONS.</h2>
+    <p class="muted">Study the craft, not the franchise assets. These source pages/videos are linked, not embedded. Checked 11 November 2026.</p>
+    <div class="references">
+      <article class="reference"><span class="source">YOUR SUPPLIED BEHANCE PROJECT</span><h3>ACT 1 / WORLDS 2024 OC</h3><p>Look for painted graphic staging, silhouette, restrained holds and selective bursts. Apply the editorial rhythm to our hit/KO posters, not every screen.</p><a href="https://www.behance.net/gallery/257961169/Act-1-Worlds-2024-OC-Riot-Games" target="_blank" rel="noopener noreferrer">OPEN YOUR ORIGINAL REFERENCE</a></article>
+      <article class="reference"><span class="source">BUCK / RIOT GAMES / STUDIO CASE STUDY</span><h3>VALORANT CHAMPIONS</h3><p>Forward momentum, perspective-grid transitions and bespoke typography as a coherent motion system. This is the strongest reference for Duel-to-VS and punchy commitment plates.</p><a href="https://buck.co/work/valorant-champions" target="_blank" rel="noopener noreferrer">VIEW BUCK'S MOTION CASE STUDY</a></article>
+      <article class="reference"><span class="source">NETFLIX BRASIL / OFFICIAL VIDEO</span><h3>ARCANE S2 OPENING</h3><p>Study deliberate pose composition, light and silhouette contrast. Borrow the discipline of one strong image; do not pretend PNG warping can replace authored character acting.</p><a href="https://www.youtube.com/watch?v=4Po84baYfAA" target="_blank" rel="noopener noreferrer">WATCH THE OFFICIAL OPENING</a></article>
+      <article class="reference"><span class="source">XBOX / OFFICIAL LAUNCH TRAILER</span><h3>STREET FIGHTER 6</h3><p>Study anticipation/contact/recovery and graphic impact against readable fighters. Our adaptation stays inside resolution time, without copying moves, footage or game-wide camera behavior.</p><a href="https://www.youtube.com/watch?v=uYhg-xgdM94" target="_blank" rel="noopener noreferrer">WATCH THE LAUNCH TRAILER</a></article>
+      <article class="reference"><span class="source">VFX APPRENTICE / RIOT ARTIST INTERVIEW</span><h3>2XKO / TYIER GODETTE</h3><p>Hand-painted real-time VFX, character-specific shapes and effects that respect the actual action's space. Do not make a visual burst imply a larger hit or an ability the game does not have.</p><a href="https://www.vfxapprentice.com/blog/2xko-vfx-artist-interview-tyier-godette" target="_blank" rel="noopener noreferrer">VIEW THE CREATOR'S EFFECT BREAKDOWNS</a></article>
+    </div>
+  </section>
+  <section class="roadmap">
+    <strong>BUILD ONE GREAT SLICE FIRST.</strong>
+    <p>Published answer resolution -> signature impact -> vaporization KO -> saved victory tableau. Then carry the same timing/material vocabulary into launch, draft, equip and sockets. Do not start seven unrelated animation systems.</p>
+  </section>
+  <footer>
+    <p><a href="MOTION_AND_INTERACTION_PLAN.md#11-signature-motion-directors-pass-proposal">Read the detailed choreography, state rules, art requirements and acceptance plan.</a></p>
+    <p>Original Brain Brawlers paintings, local OFL fonts and original vector/CSS studies only. These animatics illustrate intent; they are not evidence that the proposed production features are implemented. The current section 06 chest ritual and gameplay/economy rules are protected.</p>
+  </footer>
+</main>
+<script>
+  const $ = id => document.getElementById(id);
+  const specs = {
+    ko: { duration:1100, label:'SIGNAL BREAK / KO DIRECTION',
+      aha:'A rival turns into energy, leaving the winner and the arena readable.',
+      beats:'80 ms hold / fractured edge / 220-650 ms dissolve / quiet residual drift.',
+      rule:'Only a real finishing hit. Loser stays gone. Never another reward or a forfeit explosion.' },
+    launch: { duration:800, label:'BREAK THE FRAME / DUEL ENTRANCE',
+      aha:'Your Brawler and a real opponent become a single decisive matchup poster.',
+      beats:'Immediate sigil response / directional ink bridge / opposing banners / VS stamp.',
+      rule:'Valid preparation, real opponent and ready assets first. No battle time consumed; Cancel still works.' },
+    socket: { duration:520, label:'LOCK IT IN / POWER FIT',
+      aha:'The power feels physically installed rather than merely selected.',
+      beats:'Focused socket / short anticipation / guided seating / connection trace / saved seal.',
+      rule:'Only after the real save. A failed fit returns to inspection; no optimistic equipment claim.' },
+  };
+  const anchors = [[.45,.12],[.46,.18],[.43,.25],[.6,.24],[.31,.27],[.51,.3],[.4,.36],[.57,.36],[.36,.41],[.58,.44],[.26,.51],[.7,.51],[.34,.58],[.62,.59],[.3,.65],[.66,.68],[.28,.76],[.71,.76],[.24,.85],[.78,.85],[.21,.94],[.82,.94],[.45,.32],[.55,.35],[.4,.45],[.57,.49],[.32,.72],[.72,.8]];
+  const fragments = anchors.map((anchor,index) => {
+    const node=document.createElement('i');node.className='fragment';node.style.left=anchor[0]*100+'%';node.style.top=anchor[1]*100+'%';$('fragments').appendChild(node);return {node,index};
+  });
+  let selected='ko', elapsed=0, frame=null, running=false, started=0, manualReduced=false;
+  const system=matchMedia('(prefers-reduced-motion: reduce)');
+  const clamp=x=>Math.max(0,Math.min(1,x));
+  const ease=(time,from,to)=>{const t=clamp((time-from)/(to-from));return 1-(1-t)**3;};
+  const reduced=()=>system.matches||manualReduced;
+  function placeFragments(){
+    if(selected!=='ko')return;
+    const stage=$('stage').getBoundingClientRect(),box=$('loser').getBoundingClientRect();
+    const scale=Math.min(box.width/248,box.height/483),width=248*scale,height=483*scale;
+    const left=box.left-stage.left+(box.width-width)/2,top=box.top-stage.top+(box.height-height)/2;
+    fragments.forEach(({node,index})=>{node.style.left=left+anchors[index][0]*width+'px';node.style.top=top+anchors[index][1]*height+'px';});
+  }
+  function draw(ms) {
+    elapsed=Math.max(0,Math.min(specs[selected].duration,ms));
+    const p=elapsed/specs[selected].duration;
+    $('time').value=String(Math.round(elapsed));$('clock').textContent=Math.round(elapsed)+' ms';
+    if(selected==='ko'){
+      const dissolve=clamp((elapsed-220)/430),stamp=ease(p,.055,.17);
+      $('loser').style.filter=p<.07?'none':'url(#signal-break)';
+      $('signal-threshold').setAttribute('intercept',String(.5-dissolve*12));
+      $('loser').style.opacity=p>=.82?'0':'1';
+      $('ko-word').style.opacity=String(stamp);
+      $('ko-word').style.transform=`rotate(-8deg) scale(${1.35-stamp*.35})`;
+      $('ko-ink').style.opacity=String(stamp*.9);
+      $('ko-ink').style.transform=`rotate(-9deg) scaleX(${.3+stamp*.7})`;
+      $('contact').style.opacity=String(p>.05&&p<.22?Math.sin((p-.05)/.17*Math.PI)*.65:0);
+      $('ko-caption').style.opacity=String(ease(p,.68,.9));
+      $('ko-line').textContent=p>.8?'LOSER REMAINS ABSENT / DEMO':'FINISHING CONTACT / DEMO';
+      for(const {node,index} of fragments){
+        const q=clamp((p-.22-(index%7)*.018)/.6);
+        const alpha=q>0&&q<1?Math.sin(q*Math.PI)*.85:0;
+        node.style.opacity=String(alpha);
+        node.style.transform=`translate(${Math.sin(index*2.7)*q*44}px,${-q*(30+index%5*11)}px) rotate(${index*29+q*100}deg)`;
+      }
+    }else if(selected==='launch'){
+      const enter=ease(p,.24,.68),finish=ease(p,.62,.9);
+      $('launch-left').style.transform=`translateX(${(1-enter)*-110}%)`;
+      $('launch-right').style.transform=`translateX(${(1-enter)*110}%)`;
+      $('launch-left').style.opacity=String(enter);$('launch-right').style.opacity=String(enter);
+      $('launch-grid').style.transform=`perspective(500px) rotateX(28deg) scale(${1+ease(p,0,.7)*.18})`;
+      $('slogan').style.opacity=String(p<.52?ease(p,0,.16)*(1-ease(p,.35,.52)):0);
+      $('vs').style.opacity=String(finish);$('vs').style.transform=`rotate(-7deg) scale(${1.3-finish*.3})`;
+      $('wipe').style.left=(-90+ease(p,.12,.58)*240)+'%';
+      $('category-belt').style.opacity=String(ease(p,.8,1));
+    }else{
+      const seat=ease(p,.16,.65),seal=ease(p,.64,.86);
+      const finalTop=69-6*$('stage').clientWidth/$('stage').clientHeight;
+      $('chip').style.top=(38+seat*(finalTop-38))+'%';
+      $('chip').style.transform=`scale(${1+Math.sin(seat*Math.PI)*.1}) rotate(${(1-seat)*-12}deg)`;
+      $('seal').style.opacity=String(seal);
+      $('seal').style.transform=`scale(${1.16-seal*.16})`;
+      $('trace').style.opacity=String(seal*.6);
+      $('trace').style.transform=`scaleX(${seal})`;
+      $('locked').style.opacity=String(ease(p,.8,1));
+    }
+  }
+  function stop(message) {
+    if(frame!==null)cancelAnimationFrame(frame);
+    frame=null;running=false;$('pause').disabled=true;
+    if(message)$('player-status').textContent=message;
+  }
+  function play() {
+    stop();
+    if(reduced()){draw(specs[selected].duration);$('player-status').textContent='Reduced motion: settled composition shown without spatial playback.';return;}
+    draw(0);running=true;started=performance.now();$('pause').disabled=false;
+    $('player-status').textContent='Playing an isolated design study. No game state is connected.';
+    function tick(now){draw(now-started);if(elapsed<specs[selected].duration)frame=requestAnimationFrame(tick);else stop('Study settled. Replay or scrub to inspect the timing.');}
+    frame=requestAnimationFrame(tick);
+  }
+  function choose(id) {
+    stop('Ready. Replay to inspect the proposed beat.');selected=id;
+    for(const button of document.querySelectorAll('[data-study]')){
+      const active=button.dataset.study===id;button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1;
+      $('panel-'+button.dataset.study).hidden=!active;
+    }
+    const spec=specs[id];$('time').max=String(spec.duration);
+    $('stage-label').textContent=spec.label;$('aha').textContent=spec.aha;$('beats').textContent=spec.beats;$('rule').textContent=spec.rule;
+    placeFragments();draw(0);
+  }
+  document.querySelectorAll('[data-study]').forEach(button=>{
+    button.addEventListener('click',()=>choose(button.dataset.study));
+    button.addEventListener('keydown',event=>{
+      if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key))return;
+      event.preventDefault();const ids=Object.keys(specs),index=ids.indexOf(selected);
+      const next=event.key==='Home'?0:event.key==='End'?ids.length-1:(index+(['ArrowLeft','ArrowUp'].includes(event.key)?-1:1)+ids.length)%ids.length;
+      choose(ids[next]);$('tab-'+ids[next]).focus();
+    });
+  });
+  $('replay').addEventListener('click',play);
+  $('pause').addEventListener('click',()=>stop('Paused. Scrub or replay to inspect a different beat.'));
+  $('reset').addEventListener('click',()=>{stop('Reset to the first composition.');draw(0);});
+  $('time').addEventListener('input',event=>{stop('Scrubbing a still frame of the design study.');draw(Number(event.target.value));});
+  $('reduced').addEventListener('change',()=>{manualReduced=$('reduced').checked;stop();draw(reduced()?specs[selected].duration:0);});
+  function preference(){$('reduced').checked=system.matches||manualReduced;$('reduced').disabled=system.matches;stop();draw(reduced()?specs[selected].duration:0);}
+  system.addEventListener('change',preference);
+  new ResizeObserver(()=>{placeFragments();draw(elapsed);}).observe($('stage'));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop('Paused while the document is not visible.');});
+  choose('ko');preference();
+</script>
+</body>
+</html>
